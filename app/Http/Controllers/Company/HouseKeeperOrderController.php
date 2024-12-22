@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\HouseKeeper;
 use App\Models\HouseKeeperOrder;
 use Illuminate\Http\Request;
@@ -13,6 +14,39 @@ use Yajra\DataTables\DataTables;
 
 class HouseKeeperOrderController extends Controller
 {
+
+
+
+    public function active()
+    {
+        $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
+
+
+        return view('company.housekeepers.active_contract', ['housekeepers'=>$housekeepers]);
+    }
+
+    public function complete()
+    {
+        $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
+
+        return view('company.housekeepers.complete', ['housekeepers'=>$housekeepers]);
+    }
+    public function expiring()
+    {
+        $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
+
+        return view('company.housekeepers.expiring', ['housekeepers'=>$housekeepers]);
+    }
+
+    public function close()
+    {
+        $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
+
+        return view('company.housekeepers.close_contract', ['housekeepers'=>$housekeepers]);
+    }
+
+
+
     public function index()
     {
         $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
@@ -41,7 +75,7 @@ class HouseKeeperOrderController extends Controller
         }
 
         if ($request->has('status') && $request->filled('status')) {
-            $houseKeeperOrders->where('status', $request->status);
+            $houseKeeperOrders->wherein('status', $request->status);
         }
 
         return DataTables::of($houseKeeperOrders)
@@ -59,7 +93,7 @@ class HouseKeeperOrderController extends Controller
                 $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" style="width: auto;">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                foreach (Statuses() as $key => $value) {
+                foreach (HouseKeeperStatuses() as $key => $value) {
                     $selected = ($key == $item->status) ? 'selected' : '';
                     $statusSelect .= '<option value="' . $key . '" ' . $selected . '>' . $value . '</option>';
                 }

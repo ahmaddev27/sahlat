@@ -102,7 +102,7 @@
 
                             d.housekeeper_id = $('#housekeepers').val();
                             d.payment_status = $('#payment_status').val();
-                            d.status = [0,1,2];
+                            d.status = [4];
                         }
                     },
 

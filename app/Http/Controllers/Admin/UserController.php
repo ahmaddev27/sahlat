@@ -30,21 +30,15 @@ class UserController extends Controller
             $query->where('location', $request->city);
         }
 
-        $users=$query->get();
+        $users = $query->get();
         return DataTables::of($users)
             ->editColumn('name', function ($item) {
                 return '<img src="' . $item->getAvatar() . '" alt="avatar" id="add-avatar-img" class="user-avatar icon users-avatar-shadow rounded-circle cursor-pointer" height="60" width="60" />
                               ' . $item->name;
             })
-
             ->editColumn('checkbox', function ($item) {
                 return '<input type="checkbox" class="user-checkbox" value="' . $item->id . '">';
             })
-
-
-
-
-
             ->editColumn('action', function ($item) {
                 return '
                  <a href="' . route('users.view', $item->id) . '" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
@@ -59,6 +53,10 @@ class UserController extends Controller
             <i class="fa fa-edit text-body"></i>
         </button>
 
+         <a  data-id="' . $item->id . '" data-status="' . ($item->is_active == 1 ? '0' : '1') . '" class="change-status-btn btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light" title="change status">
+            <i class="fa fa-toggle-on text-body"></i>
+        </a>
+
         <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
                 id="delete" route="' . route('users.delete') . '" model_id="' . $item->id . '" data-toggle="modal" title="delete">
             <i class="fa fa-trash text-body"></i>
@@ -68,15 +66,18 @@ class UserController extends Controller
             ->editColumn('gender', function ($item) {
                 return gender($item->gender);
             })
+
+            ->editColumn('status', function ($item) {
+                return user_statuts($item->is_active);
+            })
             ->editColumn('location', function ($item) {
                 return $item->location ? cities($item->location) : '-';
             })
             ->addIndexColumn()
-            ->rawColumns(['action', 'name', 'gender', 'phone','location', 'checkbox','number_id'])
+            ->rawColumns(['action', 'name', 'gender', 'phone', 'location', 'checkbox', 'number_id'])
             ->make(true);
 
     }
-
 
 
     public function store(Request $request)
@@ -181,6 +182,21 @@ class UserController extends Controller
             $user->delete();
 
             return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
+        } else {
+            return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+        }
+    }
+
+
+    public function changeStatus(Request $request)
+    {
+        $user = AppUser::find($request->id);
+
+        if ($user) {
+            $user->is_active = $request->status;
+            $user->save();
+
+            return response()->json(['message' => trans('messages.status-change-success'), 'status' => true], 200);
         } else {
             return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
         }

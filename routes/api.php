@@ -85,7 +85,7 @@ Route::get('/cites', function () {
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('/send-otp', 'sendOtp');
-    Route::post('/send-otp', 'sendOtp');
+    Route::post('/verify-otp', 'verifyOtp');
 
 });
 
@@ -128,42 +128,33 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
 
-
-
-
     Route::controller(OrderController::class)->group(function () {
-        Route::post('/PayViolation', 'PayViolation');
-        Route::post('/housekeeperOrder/{id}', 'housekeeperOrder');
-        Route::post('/housekeeperHourlyOrder', 'housekeeperHourlyOrder');
-        Route::post('/assuranceOrder', 'assuranceOrder');
-        Route::get('/records/assurances', 'assurancesRecords');
-        Route::get('/records/housekeepers', 'housekeepersRecords');
-        Route::get('/records/violations', 'violationsRecords');
-
 
         Route::get('/violation/{id}', 'violationOrder')->name('api.violationsRecords');
         Route::get('/getHouseKeeperOrder/{id}', 'getHouseKeeperOrder')->name('api.houseKeeperRecords');
         Route::get('/getHourlyHouseKeeperOrder/{id}', 'getHourlyHouseKeeperOrder')->name('api.getHourlyHouseKeeperRecords');
         Route::get('/getAssuranceOrder/{id}', 'getAssuranceOrder')->name('api.assurancesRecords');
-
-        Route::post('/cancelHousekeeperOrder', 'cancelHousekeeperOrder');
-
-
-
+        Route::get('/records/assurances', 'assurancesRecords');
+        Route::get('/records/housekeepers', 'housekeepersRecords');
+        Route::get('/records/violations', 'violationsRecords');
 
 
+        Route::group(['middleware' => 'is_active'], function () {
+            Route::post('/PayViolation', 'PayViolation');
+            Route::post('/housekeeperOrder/{id}', 'housekeeperOrder');
+            Route::post('/housekeeperHourlyOrder', 'housekeeperHourlyOrder');
+            Route::post('/assuranceOrder', 'assuranceOrder');
+            Route::post('/cancelHousekeeperOrder', 'cancelHousekeeperOrder');
+
+        });
     });
 
 
-
-    Route::controller(ReviewController::class)->group(function () {
+    Route::middleware('is_active')->controller(ReviewController::class)->group(function () {
         Route::post('/housekeeperReview', 'housekeeperReview');
 
 
     });
-
-
-
 
 
 });

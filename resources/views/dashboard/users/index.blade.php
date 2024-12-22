@@ -111,9 +111,8 @@
                         <th style="width: 30%">{{trans('user.name')}}</th>
                         <th>{{trans('user.phone')}}</th>
 {{--                        <th>{{trans('user.email')}} </th>--}}
-{{--                        <th style="direction: ltr">{{trans('user.phone')}} </th>--}}
                         <th style="width: 15%;">{{trans('user.location')}} </th>
-                        <th>{{trans('user.gender')}} </th>
+                        <th>{{trans('user.status')}} </th>
                         <th>{{trans('user.created_at')}}</th>
                         <th>{{trans('user.action')}}</th>
                     </tr>
@@ -151,11 +150,11 @@
                         columns: [
                             {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false},
                             {data: 'name', name: 'name'},
-                            {data: 'phone', name: 'phone'},
-                            // {data: 'email', name: 'email'},
                             // {data: 'phone', name: 'phone'},
+                            // {data: 'email', name: 'email'},
                             {data: 'location', name: 'location'},
                             {data: 'gender', name: 'gender'},
+                            {data: 'status', name: 'status'},
                             {data: 'created_at', name: 'created_at', visible: false}, // Hidden column for ordering
                             {
                                 data: 'action',
@@ -347,6 +346,39 @@
         </script>
 
 
+{{--        change status--}}
+        <script>
+            $(document).on('click', '.change-status-btn', function (e) {
+                e.preventDefault();
+                var userId = $(this).data('id');
+                var status = $(this).data('status');
+
+                $.ajax({
+                    url: 'users/change-status/' + userId,
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        id: userId,
+                        status: status
+                    },
+                    success: function (response) {
+                        if (response.status) {
+                            toastr.success(response.message, '{{ trans('messages.success') }}');
+                            // Reload DataTable
+                            $('#table').DataTable().ajax.reload();
+                        } else {
+                            toastr.error(response.message, '{{ trans('messages.error') }}');
+                            // Reload DataTable
+                            $('#table').DataTable().ajax.reload();
+
+                        }
+                    },
+                    error: function (xhr) {
+                        alert('An error occurred while changing the status.');
+                    }
+                });
+            });
+        </script>
 
 
     @endpush

@@ -46,16 +46,23 @@ Route::group([
 
 
 
+
         Route::controller( HouseKeeperOrderController::class)->group(function () {
-            Route::group(['as' => 'housekeepers.orders.', 'prefix' => 'housekeepers/orders/'], function () {
+            Route::group(['as' => 'housekeepers.orders.', 'prefix' => 'housekeepers/orders'], function () {
                 Route::get('/orders', 'index')->name('index');
+                Route::get('/active', 'active')->name('active');
+                Route::get('/complete', 'complete')->name('complete');
+                Route::get('/expiring', 'expiring')->name('expiring');
+                Route::get('/close', 'close')->name('close');
                 Route::get('/list', 'list')->name('list');
-                Route::post('/store', 'store')->name('store');
-                Route::get('/view/{id}', 'view')->name('view');
+                Route::get('/{id}', 'view')->name('view');
                 Route::post('/delete', 'destroy')->name('delete');
                 Route::post('/update', 'update')->name('update');
                 Route::post('status', 'updateStatus')->name('updateStatus');
                 Route::get('print/{id}', 'print')->name('print');
+                Route::get('get-housekeepers/{id}', 'getHousekeepers')->name('get-housekeepers');
+
+
 
             });
         });

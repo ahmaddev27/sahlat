@@ -179,12 +179,24 @@ function HouseKeeperStatuses($id = null)
 
 }
 
+function user_statuts($id)
+{
+    $status = [
+        '0' => trans('main.not-active'),
+        '1' => trans('main.active'),
+    ];
+
+
+    return $status[$id] ?? null;
+
+
+}
+
 
 function HouseKeeperOrdersByStatus($status)
 {
     return \App\Models\HouseKeeperOrder::where('status', $status)->count();
 }
-
 
 
 function orderStatus($id = null)
@@ -214,6 +226,16 @@ function houseKeeperExpiringOrdersCounts()
     return HouseKeeperOrder::where('status', 3)->where('sing_date', '<', $oneMonthAgo)->count();
 }
 
+function houseKeeperExpiringOrdersCountsCompany()
+{
+    $oneMonthAgo = Carbon::now()->subMonth();
+    return HouseKeeperOrder::where('status', 3)
+        ->whereHas('housekeeper', function ($query) {
+            $query->where('company_id', auth()->id());
+        })
+        ->where('sing_date', '<', $oneMonthAgo)
+        ->count();
+}
 
 function OrdorClass($status)
 {

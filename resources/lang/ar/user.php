@@ -20,7 +20,7 @@ return [
     'male'=>'ذكر',
     'female'=>'انثى',
     'select-city'=>'اختار المدينة',
-
+'status'=>'الحالة',
 
 ];
 

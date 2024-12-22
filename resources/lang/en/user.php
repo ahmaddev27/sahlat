@@ -20,5 +20,6 @@ return [
     'female'=>'female',
     'number_id'=>'ID Number',
     'select-city'=>'Select City',
+    'status'=>'Status',
 
 ];
