@@ -12,10 +12,10 @@ return [
     // Notification Messages
     'Please pay for your order' => 'الرجاء اتمام عملية الدفع للطلب',
     'has been processed successfully' => 'تم الدفع بنجاح وجار التنفيذ للطلب',
-    'Your order :order_id is now completed' => 'طلبك :order_id قد تم إكماله.',
-    'Your order :order_id has been closed' => 'تم إغلاق طلبك :order_id.',
-    'Housekeeper for order :order_id is now ready' => 'عاملة التنظيف للطلب :order_id جاهزة الآن.',
-    'Please come to sign the contract for order :order_id' => 'يرجى الحضور لتوقيع العقد للطلب :order_id.',
+    'Your order is now completed' => 'طلبك قد تم إكماله.',
+    'Your order has been closed' => 'تم إغلاق طلبك.',
+    'Housekeeper for order is now ready' => 'عاملة التنظيف للطلب جاهزة الآن.',
+    'Please come to sign the contract for order' => 'يرجى الحضور لتوقيع العقد للطلب.',
 
     // General
     'title' => 'عنوان الإشعار',
@@ -25,5 +25,20 @@ return [
     'title_required' => 'يرجى إدخال عنوان للإشعار.',
     'message_required' => 'يرجى إدخال رسالة للإشعار.',
     'new_notification' => 'اشعار جديد',
+
+
+//    'Please pay for your order' => 'يرجى دفع  لطلبك',
+
+    'Payment Processed' => 'تمت معالجة عملية الدفع',
+    'Your payment for order has been processed successfully' => 'تمت معالجة دفعتك للطلب بنجاح.',
+    'Your Order has been Completed successfully' => 'تم إكمال طلبك بنجاح.',
+    'Your Order has been Closed' => 'تم إغلاق طلبك',
+    'Payment required for order' => 'مطلوب دفع الطلب',
+
+
+    'please pay for your order' => 'يرجى الدفع للطلب الخاص بك',
+
+
+
 
 ];

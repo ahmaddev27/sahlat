@@ -25,46 +25,55 @@ class Controller extends BaseController
     $currentLocale = app()->getLocale();
 
     // Set the locale to the user's language
-    app()->setLocale($user->lang);
+     app()->setLocale($user->lang);
 
     switch ($order->status) {
         case 1:
-            $body = trans('notifications.Please come to sign the contract for order :order_id', ['order_id' => $order->n_id]);
-            $this->createNotification($user, trans('notifications.Negotiation Required for assurance order'), $body, $link, $order->id);
+            $body = 'Please come to sign the contract for order';
+            $image=asset('icons/negotiation.png');
+            $this->createNotification($user, 'Negotiation Required', $body, $link, $order->id,$image);
             break;
 
         case 2:
             $amount = (double)$order->value + (double)setting('commission');
-            $body = trans('notifications.Please pay :amount ADE for your order :order_id', ['amount' => $amount, 'order_id' => $order->n_id]);
-            $this->createNotification($user, trans('notifications.Payment Required'), $body, $link, $order->id);
+            $image=asset('icons/payment-required.png');
+
+            $body = 'please pay for your order';
+            $this->createNotification($user, 'Payment Required', $body, $link, $order->id,$image);
             break;
 
         case 3:
             $this->processPayment($order);
-            $body = trans('notifications.Your payment for order :order_id has been processed successfully.', ['order_id' => $order->n_id]);
-            $this->createNotification($user, trans('notifications.Payment Processed'), $body, $link, $order->id);
+            $image=asset('icons/payment.png');
+
+            $body = 'Your payment for order has been processed successfully';
+            $this->createNotification($user,'Payment Processed', $body, $link, $order->id,$image);
             break;
 
         case 4:
-            $body = trans('notifications.Your Order :order_id has been Completed successfully.', ['order_id' => $order->n_id]);
-            $this->createNotification($user, trans('notifications.Order Completed'), $body, $link, $order->id);
+            $image=asset('icons/complete.png');
+
+            $body = 'Your Order has been Completed successfully';
+            $this->createNotification($user, 'Order Completed', $body, $link, $order->id,$image);
             break;
 
         case 5:
+            $image=asset('icons/cancel.png');
+
             $order->note = $request->note;
-            $body = trans('notifications.Your Order :order_id has been Closed', ['order_id' => $order->n_id]);
-            $this->createNotification($user, trans('notifications.Order Closed'), $body, $link, $order->id);
+            $body = 'Your Order has been Closed';
+            $this->createNotification($user, 'Order Closed', $body, $link, $order->id,$image);
             break;
     }
 
     // Revert the locale back to the original
     app()->setLocale($currentLocale);
 }
-    protected function createNotification($user, $title, $body, $link, $orderId)
+    protected function createNotification($user, $title, $body, $link, $orderId,$image)
     {
         $type = 'assurance';
 
-        $user->notify(new OrderNotification($title, $body, $link, $orderId, $type, url('storage/') . setting('logo')));
+        $user->notify(new OrderNotification(trans('notifications.'.$title), trans('notifications.'.$body), $link, $orderId, $type,$image));
 
         Notification::create([
             'user_id' => $user->id,
@@ -73,7 +82,7 @@ class Controller extends BaseController
             'link' => $link,
             'assurance_order' => $orderId,
             'type' => $type,
-            'image' => setting('icon'),
+            'image' => $image,
             'status' => 0,
         ]);
 
@@ -120,9 +129,10 @@ class Controller extends BaseController
         case 1:
             // Handle status 1: Payment required
             $order->value = $request->value; // Set payment value
-            $amount = (double)$order->value + (double)setting('commission');
-            $body = trans('notifications.Please pay :amount ADE for your order :order_id', ['amount' => $amount, 'order_id' => $order->n_id]);
-            $this->ViolationcreateNotification($user, trans('notifications.Payment Required'), $body, $link, $order->id);
+//            $amount = (double)$order->value + (double)setting('commission');
+            $body = 'Please pay for your order';
+            $image=asset('icons/payment-required.png');
+            $this->ViolationcreateNotification($user, 'Payment Required', $body, $link, $order->id,$image);
             break;
 
         case 2:
@@ -136,26 +146,29 @@ class Controller extends BaseController
                 'violation_id' => $order->id,
             ]);
 
-            $message = trans('notifications.Your payment for order :order_id has been processed successfully.', ['order_id' => $order->n_id]);
-            $this->ViolationcreateNotification($user, trans('notifications.Payment Processed'), $message, $link, $order->id);
+            $message ='Your payment for order has been processed successfully';
+            $image=asset('icons/payment.png');
+            $this->ViolationcreateNotification($user, 'Payment Processed', $message, $link, $order->id,$image);
             break;
 
         case 3:
-            $message = trans('notifications.Your Order :order_id has been Completed successfully.', ['order_id' => $order->n_id]);
-            $this->ViolationcreateNotification($user, trans('notifications.Order Completed'), $message, $link, $order->id);
+            $message = 'Your Order has been Completed successfully';
+            $image=asset('icons/complete.png');
+            $this->ViolationcreateNotification($user,'Order Completed', $message, $link, $order->id,$image);
             break;
 
         case 4:
             $order->note = $request->note;
-            $message = trans('notifications.Your Order :order_id has been Closed', ['order_id' => $order->n_id]);
-            $this->ViolationcreateNotification($user, trans('notifications.Order Closed'), $message, $link, $order->id);
+            $image=asset('icons/cancel.png');
+            $message = 'Your Order has been Closed';
+            $this->ViolationcreateNotification($user, 'Order Closed', $message, $link, $order->id,$image);
             break;
     }
 
     // Revert the locale back to the original
     app()->setLocale($currentLocale);
 }
-    protected function ViolationcreateNotification($user, $title, $message, $link, $orderId)
+    protected function ViolationcreateNotification($user, $title, $message, $link, $orderId,$image)
     {
 
         $type = 'violation';
@@ -167,11 +180,11 @@ class Controller extends BaseController
             'violation_order' => $orderId,
             'type' => $type,
             'status' => 0,
-            'image' => setting('icon'),
+            'image' => $image
 
         ]);
 
-        $user->notify(new OrderNotification($title, $message, $link, $orderId, $type, url('storage/') . setting('logo')));
+        $user->notify(new OrderNotification(trans('notifications.'.$title), trans('notifications.'.$message), $link, $orderId, $type, $image));
     }
 
     protected function ViolationhandleFileUpload($request, $order)
@@ -200,35 +213,43 @@ class Controller extends BaseController
 
     switch ($order->status) {
         case 1:
-            $body = trans('notifications.Please come to sign the contract for order :order_id', ['order_id' => $order->n_id]);
-            $this->HouseKeepercreateNotification($user, trans('notifications.Negotiation Required'), $body, $link, $order->id);
+            $image=asset('icons/contract.png');
+
+            $body = 'Please come to sign the contract for order';
+            $this->HouseKeepercreateNotification($user, 'Negotiation Required', $body, $link, $order->id,$image);
             break;
 
         case 2:
-            $message = trans('notifications.Payment required for order :order_id', ['order_id' => $order->n_id]);
-            $this->HouseKeepercreateNotification($user, trans('notifications.Payment Required'), $message, $link, $order->id);
+            $image=asset('icons/payment-required.png');
+            $message ='Payment required for order';
+            $this->HouseKeepercreateNotification($user, 'Payment Required', $message, $link, $order->id,$image);
             break;
 
         case 3:
             $this->HouseKeeperprocessPayment($order);
             $order->housekeeper->update(['status' => 1]);
             $order->update(['sing_date' => Carbon::now()]);
-            $message = trans('notifications.Housekeeper for order :order_id is now ready', ['order_id' => $order->n_id]);
-            $this->HouseKeepercreateNotification($user, trans('notifications.Housekeeper Ready'), $message, $link, $order->id);
+            $message = 'Housekeeper for order is now ready';
+            $image=asset('icons/success.png');
+
+            $this->HouseKeepercreateNotification($user, 'Housekeeper Ready', $message, $link, $order->id,$image);
             break;
 
         case 4:
             $order->housekeeper->update(['status' => 0]);
             $order->note = $request->note;
-            $message = trans('notifications.Your order :order_id is now completed', ['order_id' => $order->n_id]);
-            $this->HouseKeepercreateNotification($user, trans('notifications.Order Completed'), $message, $link, $order->id);
+            $message = 'Your order is now completed';
+            $image=asset('icons/complete.png');
+
+            $this->HouseKeepercreateNotification($user, 'Order Completed', $message, $link, $order->id,$image);
             break;
 
         case 5:
             $order->housekeeper->update(['status' => 0]);
             $order->note = $request->note;
-            $message = trans('notifications.Your order :order_id has been closed', ['order_id' => $order->n_id]);
-            $this->HouseKeepercreateNotification($user, trans('notifications.Order Closed'), $message, $link, $order->id);
+            $message = 'Your order has been closed';
+            $image=asset('icons/cancel.png');
+            $this->HouseKeepercreateNotification($user, 'Order Closed', $message, $link, $order->id,$image);
             break;
     }
 
@@ -236,11 +257,11 @@ class Controller extends BaseController
     app()->setLocale($currentLocale);
 }
 
-    protected function HouseKeepercreateNotification($user, $title, $message, $link, $orderId)
+    protected function HouseKeepercreateNotification($user, $title, $message, $link, $orderId,$image)
     {
         $type = 'houseKeeper';
         // Send notification to the user
-        $user->notify(new OrderNotification($title, $message, $link, $orderId, $type, url('storage/') . setting('logo')));
+        $user->notify(new OrderNotification(trans('notifications.'.$title), trans('notifications.'.$message), $link, $orderId, $type, $image));
         Notification::create([
             'user_id' => $user->id,
             'title' => $title,
@@ -249,7 +270,7 @@ class Controller extends BaseController
             'houseKeeper_order' => $orderId,
             'status' => 0,
             'type' => $type,
-            'image' => setting('icon'),
+            'image' =>$image,
 
         ]);
 
@@ -291,41 +312,46 @@ class Controller extends BaseController
         $user = $order->user;
 
         switch ($order->status) {
+//            case 1:
+//                // Assign housekeeper and notify payment required
+//                $order->house_keeper_id = $request->housekeeper_id;
+//                $title = 'Payment Required';
+//                $body = "Please pay for your order {$order->n_id}";
+//                $this->HourlycreateNotification($user, $title, $body, $order->id);
+//                break;
+//
+//            case 2:
+//                // Process payment and notify the user
+//                $this->processHourlyOrderPayment($order);
+//                $message = "Your payment for order {$order->n_id} has been processed successfully.";
+//                $this->HourlycreateNotification($user, 'Payment Processed', $message, $order->id);
+//                break;
+//
+//            case 3:
+//                // Mark housekeeper as available
+//                $order->housekeeper->update(['status' => 1]);
+//                $message = "Housekeeper for order {$order->n_id} is now ready ";
+//                $this->HourlycreateNotification($user, 'Housekeeper Ready', $message, $order->id);
+//                break;
+
             case 1:
-                // Assign housekeeper and notify payment required
-                $order->house_keeper_id = $request->housekeeper_id;
-                $title = 'Payment Required';
-                $body = "Please pay for your order {$order->n_id}";
-                $this->HourlycreateNotification($user, $title, $body, $order->id);
-                break;
 
-            case 2:
-                // Process payment and notify the user
-                $this->processHourlyOrderPayment($order);
-                $message = "Your payment for order {$order->n_id} has been processed successfully.";
-                $this->HourlycreateNotification($user, 'Payment Processed', $message, $order->id);
-                break;
+                $image=asset('icons/complete.png');
 
-            case 3:
-                // Mark housekeeper as available
-                $order->housekeeper->update(['status' => 1]);
-                $message = "Housekeeper for order {$order->n_id} is now ready ";
-                $this->HourlycreateNotification($user, 'Housekeeper Ready', $message, $order->id);
-                break;
-
-            case 4:
 
                 $order->housekeeper->update(['status' => 0]);
-                $message = "your  order {$order->n_id} is now Completed.";
-                $this->HourlycreateNotification($user, 'Order Completed', $message, $order->id);
+                $message = "your order is now Completed";
+                $this->HourlycreateNotification($user, 'Order Completed', $message, $order->id,$image);
                 break;
 
             case 5:
                 // Add a note to the order
                 $order->housekeeper->update(['status' => 0]);
                 $order->note = $request->note;
-                $message = "Order has been closed {$order->n_id}: {$request->note}";
-                $this->HourlycreateNotification($user, 'Order Closed', $message, $order->id);
+                $message = "Order has been closed";
+                $image=asset('icons/cancel.png');
+
+                $this->HourlycreateNotification($user, 'Order Closed', $message, $order->id,$image);
                 break;
 
             default:
@@ -347,7 +373,7 @@ class Controller extends BaseController
     }
 
 // Create a notification
-    protected function HourlycreateNotification($user, $title, $message, $orderId)
+    protected function HourlycreateNotification($user, $title, $message, $orderId,$image)
     {
 
         $type = 'houseKeeperHourly';
@@ -359,12 +385,12 @@ class Controller extends BaseController
             'houseKeeperHourly_order' => $orderId,
             'type' => $type,
             'status' => 0,
-            'image' => setting('icon'),
+            'image' => $image
 
         ]);
 
         // Notify the user
-        $user->notify(new OrderNotification($title, $message, $link, $orderId, $type, url('storage/') . setting('logo')));
+        $user->notify(new OrderNotification(trans('notifications.'.$title), trans('notifications.'.$message), $link, $orderId, $type, $image));
     }
 
 // Process payment for the order

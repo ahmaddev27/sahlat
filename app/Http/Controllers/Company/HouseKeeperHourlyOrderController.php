@@ -64,7 +64,7 @@ class HouseKeeperHourlyOrderController extends Controller
             })
             ->addColumn('status', function ($item) {
                 // Get the status text (to be displayed in the table)
-                $statusText = OrderStatus($item->status);
+                $statusText = HouseKeeperHourlyStatuses($item->status);
 
                 // Get the badge class based on the status
                 $badgeClass = OrdorClass($item->status);
@@ -74,7 +74,7 @@ class HouseKeeperHourlyOrderController extends Controller
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
                 // Loop through all statuses and mark the current status as selected
-                foreach (Statuses() as $key => $value) {
+                foreach (HouseKeeperHourlyStatuses() as $key => $value) {
                     // Check if the key matches the current status
                     $selected = ($key == $item->status) ? 'selected' : '';
 

@@ -52,7 +52,7 @@ class HomeController extends Controller
         $userId = Auth::id();
 
         if (!$company) {
-            return $this->apiRespose(null, trans('messages.not_found'), false, 404);
+            return $this->apiRespose([], trans('messages.not_found'), false, 404);
         }
 
         $existingView = CompanyViewer::where('company_id', $company->id)
@@ -84,7 +84,7 @@ class HomeController extends Controller
 
 
         if ($housekeepers->isEmpty()) {
-            return $this->apiRespose(null, trans('messages.no t_found'), false, 404);
+            return $this->apiRespose([], trans('messages.no t_found'), false, 404);
         }
 
 
@@ -105,7 +105,7 @@ class HomeController extends Controller
         $userId = Auth::id();
 
         if (!$houseKeeper) {
-            return $this->apiRespose(null, trans('messages.not_found'), false, 404);
+            return $this->apiRespose([], trans('messages.not_found'), false, 404);
         }
 
         $existingView = HouseKeeperViewer::where('houseKeeper_id', $houseKeeper->id)
@@ -238,7 +238,7 @@ class HomeController extends Controller
         $housekeepers = $query->paginate($perPage);
 
         if ($housekeepers->isEmpty()) {
-            return $this->apiRespose(null, trans('messages.not_found'), true, 200);
+            return $this->ApiResponsePaginationTrait( HouseKeeperResources::collection($housekeepers), trans('messages.not_found'), true, 200);
         }
 
         return $this->ApiResponsePaginationTrait(
@@ -252,12 +252,12 @@ class HomeController extends Controller
 
     public function search(Request $request)
     {
+        // Retrieve the 'search' input from the request
+        $query = $request->input('search'); // Use 'search' as per your URL parameter
 
-        $query = $request->input('query');
+        $results = [];
 
-        $results=[];
-
-        if ($query!=''){
+        if (!empty($query)) {
             $results = [
                 'Assurance' => AssuranceResources::collection(
                     Assurance::where('title', 'LIKE', "%$query%")->get()
@@ -272,10 +272,12 @@ class HomeController extends Controller
         }
 
         return $this->apiRespose(
-           $results
-            , trans('messages.success'), true, 200);
+            $results,
+            trans('messages.success'),
+            true,
+            200
+        );
     }
-
 
 
 

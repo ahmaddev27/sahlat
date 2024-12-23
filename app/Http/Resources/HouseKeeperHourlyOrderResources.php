@@ -23,6 +23,8 @@ class HouseKeeperHourlyOrderResources extends JsonResource
             'hours'=>$this->hours,
             'location'=>$this->location?cities($this->location):null,
 //            'user'=> new UserResources ($this->user),
+            'created_date'=>$this->created_at->format('Y-m-d'),
+            'date_ForHumans'=>$this->created_at->diffForHumans(),
 
 
         ];

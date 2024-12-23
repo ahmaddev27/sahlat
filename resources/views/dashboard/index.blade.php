@@ -161,76 +161,6 @@
         </div>
         <!--/ orders Card -->
 
-            <!-- HouseKeepers Overview Card -->
-            <div class="col-lg-3 col-md-6 col-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">{{trans('main.HouseKeepersOrders')}}</h4>
-                        <a href="{{route('housekeepers.orders.index')}}"> <i data-feather="eye"
-                                                                             class="font-medium-3 text-muted cursor-pointer"></i></a>
-                    </div>
-
-                    <div class="card-body p-0">
-                        <div id="houseKeeper" class="my-2"></div>
-                        <div class="row border-top text-center mx-0">
-                            <div class="col-4 border-right py-1">
-                                <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(0)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(0)}}</h3>
-                            </div>
-                            <div class="col-4 border-right py-1">
-                                <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(1)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(1)}}</h3>
-                            </div>
-                            <div class="col-4 border-right py-1">
-                                <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(2)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(2)}}</h3>
-                            </div>
-                            <div class="col-4 py-1">
-                                <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(3)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(3)}}</h3>
-                            </div>
-
-                            <div class="col-4 py-1">
-                                <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(4)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(4)}}</h3>
-                            </div>
-
-                            <div class="col-4 py-1">
-                                <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(5)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(5)}}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--/ HouseKeepers Overview Card -->
-
-
-{{--            <!-- HouseKeepers Overview Card -->--}}
-{{--            <div class="col-lg-3 col-md-6 col-12">--}}
-{{--                <div class="card">--}}
-{{--                    <div class="card-header d-flex justify-content-between align-items-center">--}}
-{{--                        <h4 class="card-title">{{trans('main.HouseKeepersOrders-hourly')}}</h4>--}}
-{{--                        <a href="{{route('housekeepers.HourlyOrders.index')}}"> <i data-feather="eye"--}}
-{{--                                                                             class="font-medium-3 text-muted cursor-pointer"></i></a>--}}
-{{--                    </div>--}}
-
-{{--                    <div class="card-body p-0">--}}
-{{--                        <div id="houseKeeperHourly" class="my-2"></div>--}}
-{{--                        <div class="row border-top text-center mx-0">--}}
-{{--                            <div class="col-6 border-right py-1">--}}
-{{--                                <p class="card-text text-muted mb-0">{{OrderStatus(0)}}</p>--}}
-{{--                                <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersPendding()}}</h3>--}}
-{{--                            </div>--}}
-{{--                            <div class="col-6 py-1">--}}
-{{--                                <p class="card-text text-muted mb-0">{{OrderStatus(4)}}</p>--}}
-{{--                                <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersDone()}}</h3>--}}
-{{--                            </div>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--            <!--/ HouseKeepers Overview Card -->--}}
 
 
             <!-- violations  Card -->
@@ -276,6 +206,76 @@
             <!--/ violations Card -->
 
 
+        <!-- HouseKeepers Overview Card -->
+        <div class="col-lg-3 col-md-6 col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">{{trans('main.HouseKeepersOrders')}}</h4>
+                    <a href="{{route('housekeepers.orders.index')}}"> <i data-feather="eye"
+                                                                         class="font-medium-3 text-muted cursor-pointer"></i></a>
+                </div>
+
+                <div class="card-body p-0">
+                    <div id="houseKeeper" class="my-2"></div>
+                    <div class="row border-top text-center mx-0">
+                        <div class="col-4 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(0)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(0)}}</h3>
+                        </div>
+                        <div class="col-4 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(1)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(1)}}</h3>
+                        </div>
+                        <div class="col-4 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(2)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(2)}}</h3>
+                        </div>
+                        <div class="col-4 py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(3)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(3)}}</h3>
+                        </div>
+
+                        <div class="col-4 py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(4)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(4)}}</h3>
+                        </div>
+
+                        <div class="col-4 py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(5)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(5)}}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/ HouseKeepers Overview Card -->
+
+
+        <!-- HouseKeepers Overview Card -->
+        <div class="col-lg-3 col-md-6 col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">{{trans('main.HouseKeepersOrders-hourly')}}</h4>
+                    <a href="{{route('housekeepers.HourlyOrders.index')}}"> <i data-feather="eye"
+                                                                               class="font-medium-3 text-muted cursor-pointer"></i></a>
+                </div>
+
+                <div class="card-body p-0">
+                    <div id="houseKeeperHourly" class="my-2"></div>
+                    <div class="row border-top text-center mx-0">
+                        <div class="col-6 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperHourlyStatuses(0)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersPendding()}}</h3>
+                        </div>
+                        <div class="col-6 py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperHourlyStatuses(1)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersDone()}}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/ HouseKeepers Overview Card -->
 
 
 
@@ -287,100 +287,52 @@
     <div class="row ">
 
 
-
-        <!-- Browser States Card -->
+        <!-- Transaction Card -->
         <div class="col-lg-4 col-md-6 col-12">
-            <div class="card card-browser-states">
-                <div class="card-header">
-                    <div>
-                        <h4 class="card-title">Browser States</h4>
-                        <p class="card-text font-small-2">Counter August 2020</p>
-                    </div>
-                    <div class="dropdown chart-dropdown">
-                        <i data-feather="more-vertical" class="font-medium-3 cursor-pointer" data-toggle="dropdown"></i>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                        </div>
-                    </div>
-                </div>
+            <div class="card card-transaction">
+
+
                 <div class="card-body">
-                    <div class="browser-states">
-                        <div class="media">
-                            <img src="../../../app-assets/images/icons/google-chrome.png" class="rounded mr-1"
-                                 height="30" alt="Google Chrome"/>
-                            <h6 class="align-self-center mb-0">Google Chrome</h6>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <div class="font-weight-bold text-body-heading mr-1">54.4%</div>
-                            <div id="browser-state-chart-primary"></div>
-                        </div>
+
+                    <div class="media-body">
+                        <h6 class="transaction-title">{{trans('main.users_count')}}</h6>
+                        {{--                                    <small>Users</small>--}}
                     </div>
-                    <div class="browser-states">
-                        <div class="media">
-                            <img src="../../../app-assets/images/icons/mozila-firefox.png" class="rounded mr-1"
-                                 height="30" alt="Mozila Firefox"/>
-                            <h6 class="align-self-center mb-0">Mozila Firefox</h6>
+                    @foreach(cities() as $id => $city)
+
+
+
+                        <div class="transaction-item">
+                            <div class="media">
+                                <div class="avatar bg-light-success rounded">
+                                    <div class="avatar-content">
+                                        <i data-feather="map-pin" class="avatar-icon font-medium-3"></i>
+                                    </div>
+                                </div>
+                                <div class="media-body">
+                                    <h6 class="transaction-title">{{$city}}</h6>
+{{--                                    <small>Users</small>--}}
+                                </div>
+                            </div>
+                            <div class="font-weight-bolder text-success">{{ \App\Models\AppUser::where('location', $id)->count() }}</div>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <div class="font-weight-bold text-body-heading mr-1">6.1%</div>
-                            <div id="browser-state-chart-warning"></div>
-                        </div>
-                    </div>
-                    <div class="browser-states">
-                        <div class="media">
-                            <img src="../../../app-assets/images/icons/apple-safari.png" class="rounded mr-1"
-                                 height="30" alt="Apple Safari"/>
-                            <h6 class="align-self-center mb-0">Apple Safari</h6>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <div class="font-weight-bold text-body-heading mr-1">14.6%</div>
-                            <div id="browser-state-chart-secondary"></div>
-                        </div>
-                    </div>
-                    <div class="browser-states">
-                        <div class="media">
-                            <img src="../../../app-assets/images/icons/internet-explorer.png" class="rounded mr-1"
-                                 height="30" alt="Internet Explorer"/>
-                            <h6 class="align-self-center mb-0">Internet Explorer</h6>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <div class="font-weight-bold text-body-heading mr-1">4.2%</div>
-                            <div id="browser-state-chart-info"></div>
-                        </div>
-                    </div>
-                    <div class="browser-states">
-                        <div class="media">
-                            <img src="../../../app-assets/images/icons/opera.png" class="rounded mr-1" height="30"
-                                 alt="Opera Mini"/>
-                            <h6 class="align-self-center mb-0">Opera Mini</h6>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <div class="font-weight-bold text-body-heading mr-1">8.4%</div>
-                            <div id="browser-state-chart-danger"></div>
-                        </div>
-                    </div>
+
+
+                    @endforeach
+
+
+
                 </div>
             </div>
         </div>
-        <!--/ Browser States Card -->
+        <!--/ Transaction Card -->
 
 
         <!-- Transaction Card -->
         <div class="col-lg-4 col-md-6 col-12">
             <div class="card card-transaction">
-                <div class="card-header">
-                    <h4 class="card-title">Transactions</h4>
-                    <div class="dropdown chart-dropdown">
-                        <i data-feather="more-vertical" class="font-medium-3 cursor-pointer" data-toggle="dropdown"></i>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="javascript:void(0);">Last 28 Days</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Last Month</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Last Year</a>
-                        </div>
-                    </div>
-                </div>
+
+
                 <div class="card-body">
                     <div class="transaction-item">
                         <div class="media">

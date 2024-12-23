@@ -19,15 +19,19 @@ class AssuranceOrderResources extends JsonResource
             'id'=>$this->id,
             'order_number'=>$this->n_id,
             'number_id'=>$this->number_id,
-            'name'=>$this->name,
-//            'user'=> UserResources::collection([$this->user]),
+//            'name'=>$this->name,
+
             'details'=>$this->details,
-            'date'=>$this->created_at->format('d/m/Y'),
             'assurance_number'=>$this->assurance_number,
-            'status'=>OrderStatus((int)$this->Status),
+            'status'=>['status'=>OrderStatus((int)$this->status),'id'=>(int)$this->status],
+
+
             'note'=>$this->note,
             'payment_value'=>$this->payment?->value,
-            'payment_status'=>paymentStatus($this->payment?->status)
+            'payment_status'=>paymentStatus($this->payment?->status),
+            'date'=>$this->created_at->format('Y-m-d'),
+            'date_ForHumans'=>$this->created_at->diffForHumans(),
+            'assurance'=> new  AssuranceResources($this->assurance),
 
 
         ];

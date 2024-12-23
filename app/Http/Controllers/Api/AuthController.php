@@ -287,7 +287,7 @@ class AuthController extends Controller
         }
 
         if (!$user) {
-            return $this->apiRespose(null, 'User not authenticated', false, 401);
+            return $this->apiRespose([], 'User not authenticated', false, 401);
         }
 
         $user->name = $request->name;
@@ -333,7 +333,7 @@ class AuthController extends Controller
         Auth::user()->tokens()->delete();
 
         return $this->apiRespose(
-            null, trans('main.logout-success'), true, 200);
+            [], trans('main.logout-success'), true, 200);
 
     }
 

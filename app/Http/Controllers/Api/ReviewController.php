@@ -37,7 +37,7 @@ class ReviewController extends Controller
         ]);
 
         return $this->apiRespose(
-        null,trans('messages.success'), true, 200);
+        [],trans('messages.success'), true, 200);
     }
 
 }

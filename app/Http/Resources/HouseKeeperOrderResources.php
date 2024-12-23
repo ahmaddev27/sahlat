@@ -28,7 +28,9 @@ class HouseKeeperOrderResources extends JsonResource
             'housekeeper'=> new HouseKeeperResources($this->housekeeper),
             'status'=>['status'=>HouseKeeperStatuses((int)$this->status),'id'=>(int)$this->status],
             'payment_value'=>$this->payment?->value,
-            'payment_status'=>paymentStatus($this->payment?->status)
+            'payment_status'=>paymentStatus($this->payment?->status),
+            'date'=>$this->created_at->format('Y-m-d'),
+            'date_ForHumans'=>$this->created_at->diffForHumans(),
         ];
 
     }

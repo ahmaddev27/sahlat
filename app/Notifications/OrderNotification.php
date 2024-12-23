@@ -16,7 +16,7 @@ class OrderNotification extends Notification
     protected $type;
     protected $orderId;
 
-    public function __construct(string $title, string $body, $link, $orderId, $type, $image = null)
+    public function __construct(string $title, string $body, $link, $orderId, $type, $image)
     {
 
 
@@ -45,7 +45,7 @@ class OrderNotification extends Notification
         return (new FcmMessage(notification: new FcmNotification(
             $this->title,
             $this->body,
-            $this->image
+            url($this->image)
         )))->data(['type' => $this->type,'order_id'=>(string)$this->orderId]);
 
 

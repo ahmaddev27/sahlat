@@ -79,9 +79,11 @@ return [
     'Fujairah' => 'Fujairah',
     'Expiring_Contracts'=>'Expiring Contractsً',
 
+    'users_count'=>'Users Count',
 
-    'active_contract' => 'Complete contract',
-    'complete_contract' => 'Active contract'
+
+    'active_contract' => 'Active contract',
+    'complete_contract' => 'Complete contract'
 ];
 
 

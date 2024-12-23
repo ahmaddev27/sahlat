@@ -17,13 +17,14 @@ class NotificationsResources extends JsonResource
     {
         return [
             'id'=>$this->id,
-            'title'=>$this->title,
-            'message'=>$this->message,
+//            'title'=>$this->title,
+            'title'=>$this->type!='general'? trans('notifications.'.$this->title): $this->title,
+
+            'message'=>$this->type!='general'? trans('notifications.'.$this->message): $this->message,
             'status '=>$this->status ,
             'type'=>$this->type,
             'date'=>$this->created_at->diffforhumans(),
-            'image'=>url('storage/'.setting('icon')),
-
+            'image'=>url('storage/'.$this->image),
 
         ];
 

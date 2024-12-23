@@ -81,7 +81,10 @@ return [
     'Expiring_Contracts'=>'عقود تنتهي قريباً',
 
     'active_contract'=>'عقد نشط',
-    'complete_contract'=>'عقد مكتمل'
+    'complete_contract'=>'عقد مكتمل',
+
+
+        'users_count'=> 'عدد المستخدمين',
 
 
 ];

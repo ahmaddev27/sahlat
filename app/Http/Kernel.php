@@ -44,6 +44,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\SetLocale::class,
 
+
         ],
     ];
 
@@ -72,6 +73,7 @@ class Kernel extends HttpKernel
         'localeViewPath'          => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationViewPath::class,
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
         'company' => \App\Http\Middleware\CompanyMiddleware::class,
-        'is_active' => \App\Http\Middleware\IsActiveMiddleware::class,
+       'is_active'=> \App\Http\Middleware\IsActiveMiddleware::class,
+
     ];
 }

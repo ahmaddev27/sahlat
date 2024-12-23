@@ -21,15 +21,20 @@ class IsActiveMiddleware
                 return $next($request);
             }
 
-            return response()->json([
+            $data = trans('messages.blocked');
+            $message = trans('messages.blocked');
+            $array = [
                 'status' => false,
                 'code' => 400,
-                'message' => trans('messages.blocked'),
-                'data' => [
-                    'message' => [trans('messages.blocked')]
-                ]
-            ], 400);
+                'message' => $message,
+                'data' => ['error'=>[$data]],
+
+            ];
+
+            return response()->json($array, 400);
+
         }
+
 
         if (Auth::user()->is_active) {
             return $next($request);

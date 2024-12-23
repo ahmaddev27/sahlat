@@ -178,6 +178,23 @@ function HouseKeeperStatuses($id = null)
 
 
 }
+function HouseKeeperHourlyStatuses($id = null)
+{
+    $status = [
+        '0' => trans('main.new_'),
+        '1' => trans('main.completed'),
+        '3' => trans('main.closed')
+    ];
+
+
+    if ($id !== null) {
+        return $status[$id] ?? null;
+    }
+
+    return $status;
+
+
+}
 
 function user_statuts($id)
 {
@@ -197,6 +214,7 @@ function HouseKeeperOrdersByStatus($status)
 {
     return \App\Models\HouseKeeperOrder::where('status', $status)->count();
 }
+
 
 
 function orderStatus($id = null)
@@ -359,7 +377,7 @@ function HouseKeeperHourlyOrdersPendding()
 
 function HouseKeeperHourlyOrdersDone()
 {
-    return \App\Models\HouseKeeperHourlyOrder::where('status', 4)->count();
+    return \App\Models\HouseKeeperHourlyOrder::where('status', 1)->count();
 }
 
 function HouseKeeperOrdersDone()
@@ -486,7 +504,7 @@ function getDoneHouseKeeperOrdersPercentage()
 function getDoneHouseKeeperHourlyOrdersPercentage()
 {
     $totalOrders = \App\Models\HouseKeeperHourlyOrder::count();
-    $doneOrders = \App\Models\HouseKeeperHourlyOrder::where('status', 4)->count();
+    $doneOrders = \App\Models\HouseKeeperHourlyOrder::where('status', 1)->count();
 
     if ($totalOrders === 0) {
         return 0; // Avoid division by zero

@@ -11,7 +11,7 @@ class HouseKeeperResources extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
@@ -27,6 +27,9 @@ class HouseKeeperResources extends JsonResource
             ->where('user_id', $userId)
             ->where('status', 3)
             ->first();
+
+        $can_order = ($exsites && $running_order) || (!$exsites && !$running_order) ? 1 : 0;
+        $can_cancel = $exsites && !$running_order ? 1 : 0;
 
         return [
             'id' => $this->id,
@@ -48,13 +51,14 @@ class HouseKeeperResources extends JsonResource
             'views' => $this->views->count(),
             'review' => $this->averageReview(),
             'reviews_count' => $this->reviews->count(),
-            'can_order' => $exsites && $running_order ? 0 : 1,
-            'can_cancel' => $exsites && !$running_order ? 1 : 0,
-            'order_id' => $exsites && !$running_order ? $exsites->id : null,
-            'order_status' => $exsites || $running_order? [
-                'status' => $exsites ? HouseKeeperStatuses((int)$exsites->status):HouseKeeperStatuses((int) $running_order->status),
-                'id' =>  $exsites ? (int)$exsites->id:  $running_order->id
+            'can_order' => $can_order,
+            'can_cancel' => $can_cancel,
+            'order_id' => $exsites->id ?? null,
+            'order_status' => $exsites || $running_order ? [
+                'status' => $exsites ? HouseKeeperStatuses((int)$exsites->status) : HouseKeeperStatuses((int)$running_order->status),
+                'id' => $exsites ? (int)$exsites->status : $running_order->status
             ] : null,
         ];
+
     }
-}
+    }

@@ -10,6 +10,7 @@ use App\Http\Resources\ViolationResources;
 use App\Models\AssuranceOrder;
 use App\Models\HouseKeeperHourlyOrder;
 use App\Models\HouseKeeperOrder;
+use App\Models\Payment;
 use App\Models\Violation;
 use App\Models\ViolationAttachment;
 use Illuminate\Http\Request;
@@ -118,10 +119,19 @@ class OrderController extends Controller
 
         ]);
 
+        Payment::create([
+            'user_id' => Auth::id(),
+            'status' =>1,
+            'type' =>'api',
+            'value' => ((double)$HouseOrder->company->hourly_price * (double)$hours) + (double)setting('commission'),
+            'house_keeper_hourly_order_id' =>$HouseOrder->id,
+        ]);
+
 
         return $this->apiRespose(
             new HouseKeeperHourlyOrderResources($HouseOrder)
             , trans('messages.success'), true, 200);
+
     }
 
 
@@ -222,7 +232,7 @@ class OrderController extends Controller
         $order->update(['status'=> 4,'note'=>$request->note]);
 
         return $this->apiRespose(
-            null
+            []
             , trans('messages.success'), true, 200);
     }
 
@@ -237,7 +247,8 @@ class OrderController extends Controller
 
 
         if ($orders->isEmpty()) {
-            return $this->apiRespose(null, trans('messages.not_found'), false, 404);
+            return $this->ApiResponsePaginationTrait(
+                AssuranceOrderResources::collection($orders), trans('messages.not_found'), false, 404);
         }
 
         return $this->ApiResponsePaginationTrait(
@@ -254,10 +265,25 @@ class OrderController extends Controller
         $orders = $query->paginate($perPage);
 
         if ($orders->isEmpty()) {
-            return $this->apiRespose(null, trans('messages.not_found'), false, 404);
+            return $this->ApiResponsePaginationTrait(
+                HouseKeeperOrderResources::collection($orders), trans('messages.not_found'), false, 404);
         }
         return $this->ApiResponsePaginationTrait(
             HouseKeeperOrderResources::collection($orders)
+            , trans('messages.success'), true, 200);
+    }
+    public function housekeepersHourlyRecords(Request $request)
+    {
+
+        $query = HouseKeeperHourlyOrder::where('user_id', Auth::id());
+        $perPage = $request->input('per_page', 10);
+        $orders = $query->paginate($perPage);
+
+        if ($orders->isEmpty()) {
+            return $this->ApiResponsePaginationTrait(HouseKeeperHourlyOrderResources::collection($orders), trans('messages.not_found'), false, 404);
+        }
+        return $this->ApiResponsePaginationTrait(
+            HouseKeeperHourlyOrderResources::collection($orders)
             , trans('messages.success'), true, 200);
     }
 
@@ -270,7 +296,8 @@ class OrderController extends Controller
         $orders = $query->paginate($perPage);
 
         if ($orders->isEmpty()) {
-            return $this->apiRespose(null, trans('messages.not_found'), false, 404);
+            return $this->ApiResponsePaginationTrait(
+                ViolationResources::collection($orders), trans('messages.not_found'), false, 404);
         }
 
         return $this->ApiResponsePaginationTrait(
@@ -287,7 +314,7 @@ class OrderController extends Controller
         $order = $query->paginate($perPage);
 
         if ($order->isEmpty()) {
-            return $this->apiRespose(null, trans('messages.not_found'), false, 404);
+            return $this->apiRespose([], trans('messages.not_found'), false, 404);
         }
 
         return $this->ApiResponsePaginationTrait(
@@ -303,7 +330,7 @@ class OrderController extends Controller
         $order = $query->paginate($perPage);
 
         if ($order->isEmpty()) {
-            return $this->apiRespose(null, trans('messages.not_found'), false, 404);
+            return $this->apiRespose([], trans('messages.not_found'), false, 404);
         }
 
         return $this->ApiResponsePaginationTrait(
@@ -320,7 +347,7 @@ class OrderController extends Controller
         $order = $query->paginate($perPage);
 
         if ($order->isEmpty()) {
-            return $this->apiRespose(null, trans('messages.not_found'), false, 404);
+            return $this->apiRespose([], trans('messages.not_found'), false, 404);
         }
 
         return $this->ApiResponsePaginationTrait(

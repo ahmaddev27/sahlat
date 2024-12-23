@@ -14,7 +14,7 @@ return [
     'orders-completed'=>'Completed Orders',
     'orders-cancelled'=>'Cancelled Orders',
 
-    'violations'=>'violations',
+    'violations'=>'Violations',
 
     'payments'=>'Payments',
 

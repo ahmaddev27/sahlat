@@ -156,11 +156,10 @@
                         url: "{{ route('housekeepers.HourlyOrders.list') }}",
                         data: function (d) {
 
-
                             d.company_id = $('#companies').val();
                             d.housekeeper_id = $('#housekeepers').val();
                             d.payment_status = $('#payment_status').val();
-                            d.status = $('#status').val();
+                            // d.status = $('#status').val();
                         }
                     },
 
@@ -502,85 +501,6 @@
 
 
                         else if (newStatus == 3) {
-                            // If status is 3, show file upload input
-                            Swal.fire({
-                                title: '{{trans('messages.upload-attachment')}}',
-                                html: `<input type="file" id="attachment" name="attachment" class="swal2-input " required>`,
-                                showCancelButton: true,
-                                confirmButtonText: '{{trans('messages.submit')}}',
-                                cancelButtonText: '{{trans('messages.cancel')}}',
-                                customClass: {
-                                    confirmButton: 'btn btn-success',
-                                    cancelButton: 'btn btn-secondary'
-                                },
-                                preConfirm: function () {
-                                    // Check if the file is selected
-                                    var fileInput = document.getElementById('attachment');
-                                    if (!fileInput.files.length) {
-                                        Swal.showValidationMessage('{{trans('messages.attachment-required')}}');
-                                        return false; // Prevent submission if no file is selected
-                                    }
-                                    return fileInput.files[0];
-                                }
-                            }).then((fileResult) => {
-                                if (fileResult.isConfirmed) {
-                                    var file = fileResult.value; // Get the selected file
-
-                                    // Make the AJAX request to update the status and upload the file
-                                    var formData = new FormData();
-                                    formData.append('_token', $('meta[name="csrf-token"]').attr('content')); // CSRF Token
-                                    formData.append('order_id', orderId);
-                                    formData.append('status', newStatus);
-                                    formData.append('attachment', file); // Attach the file
-
-                                    // Show loading indicator
-                                    Swal.fire({
-                                        icon:'info',
-                                        title: '{{trans('messages.loading')}}',
-                                        text: '{{trans('messages.processing-request')}}',
-                                        allowOutsideClick: false,
-                                        didOpen: () => {
-                                            Swal.showLoading();
-                                        }
-                                    });
-
-                                    $.ajax({
-                                        url: '{{route('housekeepers.HourlyOrders.updateStatus')}}', // Add the URL to update the status
-                                        type: 'POST',
-                                        data: formData,
-                                        contentType: false,
-                                        processData: false,
-                                        success: function (data) {
-                                            // Success case with custom success message
-                                            Swal.fire({
-                                                title: '{{trans('messages.updated')}}!',
-                                                text: '{{trans('messages.change-success')}}.',
-                                                icon: 'success',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                                customClass: {
-                                                    confirmButton: 'btn btn-success'
-                                                }
-                                            });
-
-                                            $('#table').DataTable().ajax.reload();
-                                        },
-                                        error: function (data) {
-                                            // Error case with custom error message
-                                            Swal.fire({
-                                                title: '{{trans('messages.not-updated')}}!',
-                                                text: '{{trans('messages.not-update-error')}}.',
-                                                icon: 'error',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                            });
-
-                                            // Reload the DataTable to reflect changes
-                                            $('#table').DataTable().ajax.reload();
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                        else if (newStatus == 5) {
                             // Handle note input for status 4
                             Swal.fire({
                                 title: '{{trans('messages.enter-note')}}',

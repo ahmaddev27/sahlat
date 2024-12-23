@@ -12,8 +12,8 @@ class SetLocale
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -28,23 +28,20 @@ class SetLocale
         $locale = $defaultLocale;
 
         // Check if the user is authenticated and has a preferred language
-        if (Auth::check()) {
-            $userPreferredLocale = Auth::user()->lang; // Assumes 'lang' is the column for language preference
+        if ($request->user()) {
+
+            $userPreferredLocale = Auth::user()->lang;
             if (in_array($userPreferredLocale, $supportedLocales)) {
                 $locale = $userPreferredLocale;
             }
-        } else {
-            // Check the 'Accept-Language' header from the request
-            $headerLocale = $request->header('Accept-Language', $defaultLocale);
-            if (in_array($headerLocale, $supportedLocales)) {
-                $locale = $headerLocale;
-            }
         }
+
 
         // Set the locale
         LaravelLocalization::setLocale($locale);
 
         // Continue processing the request
         return $next($request);
+
     }
 }
