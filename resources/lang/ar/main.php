@@ -11,9 +11,9 @@ return [
     'new' => 'اضافة',
     'negotiation' => 'قيد التفاوض',
     'progressing' => 'قيد التنفيذ',
-    'under_payed'=>'بانتظار الدفع',
-    'contract'=>'عقد',
-    'Payment received'=>'وصل دفع',
+    'under_payed' => 'بانتظار الدفع',
+    'contract' => 'عقد',
+    'Payment received' => 'وصل دفع',
     'done' => 'تم',
     'profile' => 'البروفايل',
     'logout' => 'تسجيل الخروج',
@@ -47,7 +47,7 @@ return [
     'commission' => 'العمولة',
     'phone-error' => 'الرجاء إدخال رقم هاتف صالح يبدأ  5 و باجمالي  9 أرقام.',
 
-    'number_id-error'=>'الرجاء ادخال رقم هوية صحيح.',
+    'number_id-error' => 'الرجاء ادخال رقم هوية صحيح.',
 
     'orders' => 'الطلبات',
     'orders-hourly' => 'طلبات الساعة',
@@ -78,14 +78,20 @@ return [
     'Ajman' => 'عجمان',
     'Fujairah' => 'الفجيرة',
 
-    'Expiring_Contracts'=>'عقود تنتهي قريباً',
+    'Expiring_Contracts' => 'عقود تنتهي قريباً',
 
-    'active_contract'=>'عقد نشط',
-    'complete_contract'=>'عقد مكتمل',
+    'active_contract' => 'عقد نشط',
+    'complete_contract' => 'عقد مكتمل',
+
+    'users_count' => 'عدد المستخدمين',
 
 
-        'users_count'=> 'عدد المستخدمين',
+    'partly-payed' => 'مدفوع جزئياً',
+    'completely-payed' => 'مدفوع كلياً',
+    'remain' => 'المتبقي',
+    'total-payment' => 'المدفوع',
 
+    'order_value' => 'المبلغ',
 
 ];
 

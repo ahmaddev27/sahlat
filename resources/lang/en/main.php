@@ -77,13 +77,24 @@ return [
     'Ras Al Khaimah' => 'Ras Al Khaimah',
     'Ajman' => 'Ajman',
     'Fujairah' => 'Fujairah',
-    'Expiring_Contracts'=>'Expiring Contractsً',
+    'Expiring_Contracts' => 'Expiring Contractsً',
 
-    'users_count'=>'Users Count',
-
+    'users_count' => 'Users Count',
 
     'active_contract' => 'Active contract',
-    'complete_contract' => 'Complete contract'
+    'complete_contract' => 'Complete contract',
+
+    'partly-payed' => 'Partially payed',
+    'completely-payed' => 'Completely payed',
+
+
+
+
+    'remain' => 'Remain',
+    'total-payment' => 'Total payment',
+
+    'order_value' => 'order_value',
+
 ];
 
 

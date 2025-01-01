@@ -3,13 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
-
-use App\Models\AppUser;
 use App\Models\Assurance;
 use App\Models\AssuranceOrder;
 
-use App\Notifications\OrderNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
@@ -26,45 +22,6 @@ class AssurancesOrderController extends Controller
         return view('dashboard.assurances.orders', ['assurance' => $assurance]);
     }
 
-    public function negotiation()
-
-    {
-        $assurance = Assurance::all();
-
-        return view('dashboard.assurances.negotiation', ['assurance' => $assurance]);
-    }
-
-    public function under_payment()
-
-    {
-        $assurance = Assurance::all();
-
-        return view('dashboard.assurances.under_payment', ['assurance' => $assurance]);
-    }
-
-    public function payment()
-
-    {
-        $assurance = Assurance::all();
-
-        return view('dashboard.assurances.payment', ['assurance' => $assurance]);
-    }
-
-    public function completed()
-
-    {
-        $assurance = Assurance::all();
-
-        return view('dashboard.assurances.completed-orders', ['assurance' => $assurance]);
-    }
-
-    public function cancelled()
-
-    {
-        $assurance = Assurance::all();
-
-        return view('dashboard.assurances.cancelled-orders', ['assurance' => $assurance]);
-    }
 
     public function list(Request $request)
 
@@ -75,17 +32,25 @@ class AssurancesOrderController extends Controller
             $assuranceOrders->where('assurance_id', $request->assurance);
         }
 
-        if ($request->has('status') && $request->status !== null) {
-            $assuranceOrders->whereIn('status', $request->status);
-        }
+//        if ($request->has('status') && $request->status !== null) {
+//            $assuranceOrders->whereIn('status', $request->status);
+//        }
+
 
         if ($request->has('payment_status') && $request->payment_status !== null) {
             if ($request->payment_status == 1) {
-                $assuranceOrders->whereHas('payment');
-            } elseif ($request->payment_status == 0) {
-                $assuranceOrders->whereDoesntHave('payment');
+                // Check for payments with status = 1 (paid)
+                $assuranceOrders->whereHas('payment', function ($q) {
+                    $q->where('status', 1);
+                });
+            } elseif ($request->payment_status == 2) {
+                // Check for payments with status = 2
+                $assuranceOrders->whereHas('payment', function ($q) {
+                    $q->where('status', 2);
+                });
             }
         }
+
 
         $assuranceOrders = $assuranceOrders->get();
 
@@ -125,16 +90,16 @@ class AssurancesOrderController extends Controller
                 // Return the status badge and the select dropdown for display
                 return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
-            ->editColumn('payment', function ($item) {
-                if ($item->payment()->count() > 0) {
-                    $statusText = paymentStatus($item->payment->status);
-                    $badgeClass = OrdorClass($item->payment->status);
-                    return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
-                } else {
-                    return '     <div class="d-inline-block m-1"><span class="badge badge-glow ' . OrdorClass('0') . '">' . paymentStatus(0) . ' </span></div>';
-                }
-
-            })
+//            ->editColumn('payment', function ($item) {
+//                if ($item->payment()->count() > 0) {
+//                    $statusText = paymentStatus($item->payment->status);
+//                    $badgeClass = OrdorClass($item->payment->status);
+//                    return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
+//                } else {
+//                    return '     <div class="d-inline-block m-1"><span class="badge badge-glow ' . OrdorClass('0') . '">' . paymentStatus(0) . ' </span></div>';
+//                }
+//
+//            })
             ->editColumn('phone', function ($item) {
                 return $item->user->phone;
             })
@@ -156,8 +121,10 @@ class AssurancesOrderController extends Controller
             </button>
         ';
             })
+
+
             ->addIndexColumn()
-            ->rawColumns(['action', 'assurance', 'user', 'payment', 'status', 'phone', 'created_at'])
+            ->rawColumns(['action', 'assurance', 'user', 'status', 'phone', 'created_at'])
             ->make(true);
     }
 

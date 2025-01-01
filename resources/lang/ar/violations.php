@@ -28,6 +28,7 @@ return [
     'phone'=>'رقم الجوال',
 
     'number_id'=>'رقم الهوية',
+    'value'=>'قيمة المخالفة',
 
 
     'violation_number'=>'رقم المخالفة'

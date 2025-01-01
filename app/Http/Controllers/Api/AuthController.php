@@ -30,7 +30,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
             $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose( $errors, $errorMessage, false, 400);
+            return $this->apiRespose($errors, $errorMessage, false, 400);
         }
 
 
@@ -116,11 +116,10 @@ class AuthController extends Controller
 
 
         } else {
-            $errors[]=trans('main.incorrect-otp');
-            return $this->apiRespose(['errors'=>$errors ], trans('main.incorrect-otp'), false, 400);
+            $errors[] = trans('main.incorrect-otp');
+            return $this->apiRespose(['errors' => $errors], trans('main.incorrect-otp'), false, 400);
         }
     }
-
 
 
     public function sendOtpOldPhone(Request $request)
@@ -137,7 +136,7 @@ class AuthController extends Controller
     }
 
 
-    public function verifyOtpOldPhone(Request $request)
+    public function verifyOldPhoneOtp(Request $request)
     {
         $rules = [
             'otp' => 'required',
@@ -147,7 +146,7 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
+            $errorMessage = implode(' ', array_map(fn($field) => $errors[$field][0], array_keys($errors)));
             return $this->apiRespose(['errors' => $errors], $errorMessage, false, 400);
         }
 
@@ -156,41 +155,38 @@ class AuthController extends Controller
 
         $cachedOldPhoneOtp = Cache::get("update_otp_old_{$oldPhone}");
 
-        if ($cachedOldPhoneOtp && $cachedOldPhoneOtp == $otp) {
+        if ($cachedOldPhoneOtp && $cachedOldPhoneOtp === $otp) {
             return $this->apiRespose(['otp' => $otp], trans('main.ok'), true, 200);
         } else {
-
-            $errors[]=trans('main.incorrect-otp');
-            return $this->apiRespose(['errors'=>$errors ], trans('main.incorrect-otp'), false, 400);
+            $errors = [trans('main.incorrect-otp')];
+            return $this->apiRespose(['errors' => $errors], trans('main.incorrect-otp'), false, 400);
         }
     }
 
-
-    public function sendOtpNewPhoneRequest(Request $request)
+    public function sendOtpToNewPhone(Request $request)
     {
         $rules = [
-            'phone' => ['required','unique:app_users' ,'regex:/^[5][0-9]{8}$/']
-
+            'phone' => ['required', 'regex:/^[5][0-9]{8}$/', Rule::unique('app_users', 'phone')]
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
+            $errorMessage = implode(' ', array_map(fn($field) => $errors[$field][0], array_keys($errors)));
             return $this->apiRespose(['errors' => $errors], $errorMessage, false, 400);
         }
 
-        $newPhone = $request->new_phone;
+        $newPhone = $request->phone;
 
-        // Generate OTP for new phone
-        $newPhoneOtp = '1234'; // Static OTP for testing, use rand(100000, 999999) for dynamic OTP
+        // Generate a dynamic OTP
+//        $newPhoneOtp = rand(100000, 999999);
+        $newPhoneOtp ='1234';
         Cache::put("update_otp_new_{$newPhone}", $newPhoneOtp, now()->addMinutes(5));
 
-        // Simulate sending OTP to new phone (integrate SMS service for production)
+        // Simulate sending OTP (integrate with SMS service in production)
         return $this->apiRespose(['otp' => $newPhoneOtp], trans('main.otp-new-phone-send'), true, 200);
     }
-
 
     public function verifyNewPhoneOtp(Request $request)
     {
@@ -203,54 +199,26 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose(['errors' => $errors], $errorMessage, false, 400);
-        }
-
-        $newPhone = $request->new_phone;
-        $otp = $request->otp;
-
-        // Check OTP validity for new phone
-        $cachedNewPhoneOtp = Cache::get("update_otp_new_{$newPhone}");
-
-        if ($cachedNewPhoneOtp && $cachedNewPhoneOtp == $otp) {
-            // Proceed to update phone number
-            return $this->updatePhone($request, $newPhone);
-        } else {
-            $errors[]=trans('main.incorrect-otp');
-            return $this->apiRespose(['errors'=>$errors ], trans('main.incorrect-otp'), false, 400);
-        }
-    }
-
-
-    public function sendOtpNewPhone(Request $request)
-    {
-        $rules = [
-            'phone' => ['required', 'regex:/^[5][0-9]{8}$/', Rule::unique('app_users')]
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
+            $errorMessage = implode(' ', array_map(fn($field) => $errors[$field][0], array_keys($errors)));
             return $this->apiRespose(['errors' => $errors], $errorMessage, false, 400);
         }
 
         $newPhone = $request->phone;
+        $otp = $request->otp;
 
-        // Generate OTP for new phone
-        $newPhoneOtp = '12340'; // Static OTP for testing, use rand(100000, 999999) for dynamic OTP
-        Cache::put("update_otp_new_{$newPhone}", $newPhoneOtp, now()->addMinutes(5));
+        $cachedNewPhoneOtp = Cache::get("update_otp_new_{$newPhone}");
 
-        // Simulate sending OTP to new phone (integrate SMS service for production)
-        return $this->apiRespose(['otp' => $newPhoneOtp], trans('main.otp-new-phone-send'), true, 200);
+        if ($cachedNewPhoneOtp && $cachedNewPhoneOtp === $otp) {
+            return $this->updatePhone($request, $newPhone);
+        } else {
+            $errors = [trans('main.incorrect-otp')];
+            return $this->apiRespose(['errors' => $errors], trans('main.incorrect-otp'), false, 400);
+        }
     }
-
 
     public function updatePhone(Request $request, $newPhone)
     {
-        $user = $request->user(); // Authenticated user
+        $user = Auth::user();
 
         // Update the user's phone number
         $user->update(['phone' => $newPhone]);
@@ -264,18 +232,16 @@ class AuthController extends Controller
         ], trans('main.phone-update-success'), true, 200);
     }
 
-
-
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
 
         $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'number_id' => ['required','regex:/^784-\d{4}-\d{7}-\d{1}$/', Rule::unique('app_users')->ignore($user->id)],
+//            'number_id' => ['required','regex:/^784-\d{4}-\d{7}-\d{1}$/', Rule::unique('app_users')->ignore($user->id)],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('app_users')->ignore($user->id)],
 //                'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif'],
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -283,18 +249,18 @@ class AuthController extends Controller
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
             $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose( $errors, $errorMessage, false, 400);
+            return $this->apiRespose($errors, $errorMessage, false, 400);
         }
 
         if (!$user) {
             return $this->apiRespose([], 'User not authenticated', false, 401);
         }
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->location = $request->location;
-        $user->gender = $request->gender;
-        $user->number_id = $request->number_id;
+        $user->name = $request->name ?? $user->name;
+        $user->email = $request->email ?? $user->email;
+        $user->location = $request->location ?? $user->location;
+        $user->gender = $request->gender ?? $user->gender;
+        $user->number_id = $request->number_id ?? $user->number_id;
         $user->profile_status = 1;
 
         if ($request->filled('password')) {
@@ -313,10 +279,9 @@ class AuthController extends Controller
 
         $user->save();
         return $this->apiRespose(
-            new  UserResources(Auth::user()),trans('main.profile-update-success'), true, 200);
+            new  UserResources(Auth::user()), trans('main.profile-update-success'), true, 200);
 
     }
-
 
 
     public function profile()
@@ -336,7 +301,6 @@ class AuthController extends Controller
             [], trans('main.logout-success'), true, 200);
 
     }
-
 
 
     public function changlang(Request $request)

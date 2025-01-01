@@ -20,45 +20,27 @@ class ViolationController extends Controller
         return view('dashboard.violations.orders');
     }
 
-    public function under_payed ()
-    {
-        return view('dashboard.violations.under_payed');
-    }
-
-
-    public function payed ()
-    {
-        return view('dashboard.violations.payed');
-    }
-
-    public function completed ()
-    {
-        return view('dashboard.violations.completed');
-    }
-
-
-
-    public function cancelled()
-    {
-        return view('dashboard.violations.cancelled');
-    }
-
-
     public function list(Request $request)
     {
         $query = Violation::with(['user']);
 
 
+//        if ($request->has('status') && $request->status !== null) {
+//            $query->whereIn('status', $request->status);
+//        }
 
-        if ($request->has('status') && $request->status !== null) {
-            $query->whereIn('status', $request->status);
-        }
 
         if ($request->has('payment_status') && $request->payment_status !== null) {
             if ($request->payment_status == 1) {
-                $query->whereHas('payment');
-            } elseif ($request->payment_status == 0) {
-                $query->whereDoesntHave('payment');
+                // Check for payments with status = 1 (paid)
+                $query->whereHas('payment', function ($q) {
+                    $q->where('status', 1);
+                });
+            } elseif ($request->payment_status == 2) {
+                // Check for payments with status = 2
+                $query->whereHas('payment', function ($q) {
+                    $q->where('status', 2);
+                });
             }
         }
 
@@ -66,12 +48,10 @@ class ViolationController extends Controller
         $v = $query->get();
 
         return DataTables::of($v)
-
             ->editColumn('user', function ($item) {
                 return '<img src="' . $item->user->getAvatar() . '" alt="avatar" id="add-avatar-img" class="user-avatar icon users-avatar-shadow rounded-circle cursor-pointer m-1" height="60" width="60" />
                       ' . $item->user->name;
             })
-
             ->addColumn('status', function ($item) {
                 // Get the status text (to be displayed in the table)
                 $statusText = StatusesViolations($item->status);
@@ -98,24 +78,19 @@ class ViolationController extends Controller
                 // Return the status badge and the select dropdown for display
                 return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
-
-
-
             ->editColumn('phone', function ($item) {
                 return $item->user->phone;
             })
-
-            ->editColumn('payment', function ($item) {
-                if($item->payment()->count()>0){
-                    $statusText = paymentStatus($item->payment->status);
-                    $badgeClass = OrdorClass($item->payment->status);
-                    return  '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
-                }else{
-                    return  '     <div class="d-inline-block m-1"><span class="badge badge-glow '.OrdorClass('0').'">'.paymentStatus(0).' </span></div>';
-                }
-
-            })
-
+//            ->editColumn('payment', function ($item) {
+//                if ($item->payment()->count() > 0) {
+//                    $statusText = paymentStatus($item->payment->status);
+//                    $badgeClass = OrdorClass($item->payment->status);
+//                    return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
+//                } else {
+//                    return '     <div class="d-inline-block m-1"><span class="badge badge-glow ' . OrdorClass('0') . '">' . paymentStatus(0) . ' </span></div>';
+//                }
+//
+//            })
             ->editColumn('created_at', function ($item) {
                 return $item->created_at->format('Y M d ');
             })
@@ -135,12 +110,9 @@ class ViolationController extends Controller
         ';
             })
             ->addIndexColumn()
-            ->rawColumns(['action', 'user', 'status', 'phone', 'created_at','payment'])
+            ->rawColumns(['action', 'user', 'status', 'phone', 'created_at'])
             ->make(true);
     }
-
-
-
 
     public function updateStatus(Request $request)
     {
@@ -197,34 +169,28 @@ class ViolationController extends Controller
         }
     }
 
-
-
-
-
     public function view($id)
     {
 
-        $order = Violation::with(['attachments', 'user','payment'])->find($id);
-        return view('dashboard.violations.order-view',['order'=>$order]);
+        $order = Violation::with(['attachments', 'user', 'payment'])->find($id);
+        return view('dashboard.violations.order-view', ['order' => $order]);
 
     }
-
 
     public function print($id)
     {
 
         $order = Violation::with(['user', 'payment'])->findOrFail($id);
 
-        return view ('dashboard.violations.print', ['order'=>$order]);
+        return view('dashboard.violations.print', ['order' => $order]);
     }
-
 
     public function destroy(Request $request)
     {
         $violations = Violation::find($request->id);
 
-            $violations->delete();
-            return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
+        $violations->delete();
+        return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
 
     }
 

@@ -106,8 +106,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 
         Route::post('/sendOtpOldPhone', 'sendOtpOldPhone');
-        Route::post('/verifyOtpOldPhone', 'verifyOtpOldPhone');
-        Route::post('/sendOtpNewPhoneRequest', 'sendOtpNewPhoneRequest');
+        Route::post('/verifyOtpOldPhone', 'verifyOldPhoneOtp');
+        Route::post('/sendOtpNewPhoneRequest', 'sendOtpToNewPhone');
         Route::post('/verifyNewPhoneOtp', 'verifyNewPhoneOtp');
 
 
@@ -132,8 +132,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     });
 
 
+
+
     Route::controller(OrderController::class)->group(function () {
 
+        Route::get('/balance', 'balance');
         Route::get('/violation/{id}', 'violationOrder')->name('api.violationsRecords');
         Route::get('/getHouseKeeperOrder/{id}', 'getHouseKeeperOrder')->name('api.houseKeeperRecords');
         Route::get('/getHourlyHouseKeeperOrder/{id}', 'getHourlyHouseKeeperOrder')->name('api.getHourlyHouseKeeperRecords');
@@ -146,7 +149,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         Route::group(['middleware' => 'is_active'], function () {
             Route::post('/PayViolation', 'PayViolation');
-            Route::post('/housekeeperOrder/{id}', 'housekeeperOrder');
+            Route::post('/housekeeperOrder', 'housekeeperOrder');
             Route::post('/housekeeperHourlyOrder', 'housekeeperHourlyOrder');
             Route::post('/assuranceOrder', 'assuranceOrder');
             Route::post('/cancelHousekeeperOrder', 'cancelHousekeeperOrder');

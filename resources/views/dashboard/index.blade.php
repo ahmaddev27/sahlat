@@ -63,7 +63,6 @@
         </div>
 
 
-
         <div class="col-xl-2 col-md-4 col-sm-6">
             <div class="card text-center">
                 <div class="card-body">
@@ -115,7 +114,7 @@
     </div>
 
 
-    <div class="row  ">
+    <div class="row">
 
         <!-- orders Services Card -->
         <div class="col-lg-3 col-md-6 col-12">
@@ -123,18 +122,15 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title">{{trans('main.AssuranceOrders')}}</h4>
-                    <a href="{{route('assurances.orders.index')}}"> <i data-feather="eye"
-                                                                       class="font-medium-3 text-muted cursor-pointer"></i></a>
+                    <a href="{{route('assurances.orders.index')}}">
+                        <i data-feather="eye"
+                           class="font-medium-3 text-muted cursor-pointer"></i>
+                    </a>
                 </div>
 
                 <div class="card-body p-0">
                     <div id="goal-overview-radial-bar-chart" class="my-2"></div>
                     <div class="row border-top text-center mx-0">
-
-                        <div class="col-4 border-right py-1">
-                            <p class="card-text text-muted mb-0">{{StatusesAssurance(0)}}</p>
-                            <h3 class="font-weight-bolder mb-0">{{AssuranceOrdersNew()}}</h3>
-                        </div>
 
                         <div class="col-4 border-right py-1">
                             <p class="card-text text-muted mb-0">{{StatusesAssurance(1)}}</p>
@@ -146,15 +142,20 @@
                             <h3 class="font-weight-bolder mb-0">{{AssuranceOrdersByStatus(2)}}</h3>
                         </div>
 
-
-                        <div class="col-6 border-right py-1">
+                        <div class="col-4 border-right py-1">
                             <p class="card-text text-muted mb-0">{{StatusesAssurance(3)}}</p>
                             <h3 class="font-weight-bolder mb-0">{{AssuranceOrdersByStatus(3)}}</h3>
                         </div>
-                        <div class="col-6 py-1">
-                            <p class="card-text text-muted mb-0">{{StatusesAssurance(4)}}</p>
-                            <h3 class="font-weight-bolder mb-0">{{AssuranceOrdersDone()}}</h3>
-                        </div>
+
+
+                        {{--                        <div class="col-6 border-right py-1">--}}
+                        {{--                            <p class="card-text text-muted mb-0">{{StatusesAssurance(3)}}</p>--}}
+                        {{--                            <h3 class="font-weight-bolder mb-0">{{AssuranceOrdersByStatus(3)}}</h3>--}}
+                        {{--                        </div>--}}
+                        {{--                        <div class="col-6 py-1">--}}
+                        {{--                            <p class="card-text text-muted mb-0">{{StatusesAssurance(4)}}</p>--}}
+                        {{--                            <h3 class="font-weight-bolder mb-0">{{AssuranceOrdersDone()}}</h3>--}}
+                        {{--                        </div>--}}
                     </div>
                 </div>
             </div>
@@ -162,48 +163,58 @@
         <!--/ orders Card -->
 
 
-
-            <!-- violations  Card -->
-            <div class="col-lg-3 col-md-6 col-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">{{trans('dashboard_aside.violations')}}</h4>
-                        <a href="{{route('violations.index')}}">
-                            <i data-feather="eye" class="font-medium-3 text-muted cursor-pointer"></i></a>
-                    </div>
-
-                    <div class="card-body p-0">
-                        <div id="violations" class="my-2"></div>
-                        <div class="row border-top text-center mx-0">
-                            <div class="col-4 border-right py-1">
-                                <p class="card-text text-muted mb-0">{{StatusesViolations(0)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{violationsPendding()}}</h3>
-                            </div>
-
-                            <div class="col-4 border-right py-1">
-                                <p class="card-text text-muted mb-0">{{StatusesViolations(1)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{violationsByStatus(1)}}</h3>
-                            </div>
-                            <div class="col-4 border-right py-1">
-                                <p class="card-text text-muted mb-0">{{StatusesViolations(2)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{violationsByStatus(2)}}</h3>
-                            </div>
-                            <div class="col-6 border-right py-1">
-                                <p class="card-text text-muted mb-0">{{StatusesViolations(3)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{violationsByStatus(3)}}</h3>
-                            </div>
-                            <div class="col-6 border-right py-1">
-                                <p class="card-text text-muted mb-0">{{StatusesViolations(4)}}</p>
-                                <h3 class="font-weight-bolder mb-0">{{violationsByStatus(4)}}</h3>
-                            </div>
+        <!-- violations  Card -->
+        <div class="col-lg-3 col-md-6 col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="card-title">{{trans('dashboard_aside.violations')}}</h4>
+                    <a href="{{route('violations.index')}}">
+                        <i data-feather="eye" class="font-medium-3 text-muted cursor-pointer"></i></a>
+                </div>
 
 
+                <div class="card-body p-0">
+                    <div id="violations" class="my-2"></div>
+                    <div class="row border-top text-center mx-0">
+                        {{--                            <div class="col-4 border-right py-1">--}}
+                        {{--                                <p class="card-text text-muted mb-0">{{StatusesViolations(0)}}</p>--}}
+                        {{--                                <h3 class="font-weight-bolder mb-0">{{violationsPendding()}}</h3>--}}
+                        {{--                            </div>--}}
 
+                        <div class="col-4 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{StatusesViolations(1)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{violationsByStatus(1)}}</h3>
                         </div>
+
+                        <div class="col-4 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{StatusesViolations(2)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{violationsByStatus(2)}}</h3>
+                        </div>
+
+                        <div class="col-4 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{StatusesViolations(3)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{violationsByStatus(3)}}</h3>
+                        </div>
+
+                        {{--                            <div class="col-4 border-right py-1">--}}
+                        {{--                                <p class="card-text text-muted mb-0">{{StatusesViolations(2)}}</p>--}}
+                        {{--                                <h3 class="font-weight-bolder mb-0">{{violationsByStatus(2)}}</h3>--}}
+                        {{--                            </div>--}}
+                        {{--                            <div class="col-6 border-right py-1">--}}
+                        {{--                                <p class="card-text text-muted mb-0">{{StatusesViolations(3)}}</p>--}}
+                        {{--                                <h3 class="font-weight-bolder mb-0">{{violationsByStatus(3)}}</h3>--}}
+                        {{--                            </div>--}}
+                        {{--                            <div class="col-6 border-right py-1">--}}
+                        {{--                                <p class="card-text text-muted mb-0">{{StatusesViolations(4)}}</p>--}}
+                        {{--                                <h3 class="font-weight-bolder mb-0">{{violationsByStatus(4)}}</h3>--}}
+                        {{--                            </div>--}}
+
+
                     </div>
                 </div>
             </div>
-            <!--/ violations Card -->
+        </div>
+        <!--/ violations Card -->
 
 
         <!-- HouseKeepers Overview Card -->
@@ -211,17 +222,15 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title">{{trans('main.HouseKeepersOrders')}}</h4>
-                    <a href="{{route('housekeepers.orders.index')}}"> <i data-feather="eye"
-                                                                         class="font-medium-3 text-muted cursor-pointer"></i></a>
+                    <a href="{{route('housekeepers.orders.index')}}">
+                        <i data-feather="eye"
+                           class="font-medium-3 text-muted cursor-pointer"></i>
+                    </a>
                 </div>
 
                 <div class="card-body p-0">
                     <div id="houseKeeper" class="my-2"></div>
                     <div class="row border-top text-center mx-0">
-                        <div class="col-4 border-right py-1">
-                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(0)}}</p>
-                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(0)}}</h3>
-                        </div>
                         <div class="col-4 border-right py-1">
                             <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(1)}}</p>
                             <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(1)}}</h3>
@@ -230,20 +239,14 @@
                             <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(2)}}</p>
                             <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(2)}}</h3>
                         </div>
+
+
                         <div class="col-4 py-1">
                             <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(3)}}</p>
                             <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(3)}}</h3>
                         </div>
 
-                        <div class="col-4 py-1">
-                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(4)}}</p>
-                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(4)}}</h3>
-                        </div>
 
-                        <div class="col-4 py-1">
-                            <p class="card-text text-muted mb-0">{{HouseKeeperStatuses(5)}}</p>
-                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperOrdersByStatus(5)}}</h3>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -256,29 +259,35 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title">{{trans('main.HouseKeepersOrders-hourly')}}</h4>
-                    <a href="{{route('housekeepers.HourlyOrders.index')}}"> <i data-feather="eye"
-                                                                               class="font-medium-3 text-muted cursor-pointer"></i></a>
+                    <a href="{{route('housekeepers.HourlyOrders.index')}}">
+                        <i data-feather="eye"
+                           class="font-medium-3 text-muted cursor-pointer"></i>
+                    </a>
                 </div>
 
                 <div class="card-body p-0">
                     <div id="houseKeeperHourly" class="my-2"></div>
                     <div class="row border-top text-center mx-0">
-                        <div class="col-6 border-right py-1">
-                            <p class="card-text text-muted mb-0">{{HouseKeeperHourlyStatuses(0)}}</p>
-                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersPendding()}}</h3>
-                        </div>
-                        <div class="col-6 py-1">
+
+                        <div class="col-4 border-right py-1">
                             <p class="card-text text-muted mb-0">{{HouseKeeperHourlyStatuses(1)}}</p>
-                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersDone()}}</h3>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersByStatus(1)}}</h3>
+                        </div>
+
+                        <div class="col-4 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperHourlyStatuses(2)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersByStatus(2)}}</h3>
+                        </div>
+
+                        <div class="col-4 border-right py-1">
+                            <p class="card-text text-muted mb-0">{{HouseKeeperHourlyStatuses(3)}}</p>
+                            <h3 class="font-weight-bolder mb-0">{{HouseKeeperHourlyOrdersByStatus(3)}}</h3>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <!--/ HouseKeepers Overview Card -->
-
-
-
 
 
     </div>
@@ -300,8 +309,6 @@
                     </div>
                     @foreach(cities() as $id => $city)
 
-
-
                         <div class="transaction-item">
                             <div class="media">
                                 <div class="avatar bg-light-success rounded">
@@ -311,15 +318,14 @@
                                 </div>
                                 <div class="media-body">
                                     <h6 class="transaction-title">{{$city}}</h6>
-{{--                                    <small>Users</small>--}}
+                                    {{--                                    <small>Users</small>--}}
                                 </div>
                             </div>
-                            <div class="font-weight-bolder text-success">{{ \App\Models\AppUser::where('location', $id)->count() }}</div>
+                            <div
+                                class="font-weight-bolder text-success">{{ \App\Models\AppUser::where('location', $id)->count() }}</div>
                         </div>
 
-
                     @endforeach
-
 
 
                 </div>
@@ -723,9 +729,9 @@
                     series: [{{payment_assurances()}}, {{payment_housekeeper()}}, {{payment_housekeeper_hourly()}}, {{payment_violations()}}],
                     legend: {show: false},
                     comparedResult: [2, -3, 8],
-                    labels: ['{{trans('dashboard_aside.assurances')}}', '{{trans('dashboard_aside.housekeepers')}}','{{trans('dashboard_aside.housekeepers_hourly')}}' ,'{{trans('dashboard_aside.violations')}}'],
+                    labels: ['{{trans('dashboard_aside.assurances')}}', '{{trans('dashboard_aside.housekeepers')}}', '{{trans('dashboard_aside.housekeepers_hourly')}}', '{{trans('dashboard_aside.violations')}}'],
                     stroke: {width: 0},
-                    colors: [$earningsStrokeColor2, $earningsStrokeColor3, window.colors.solid.success,$earningsStrokeColor3],
+                    colors: [$earningsStrokeColor2, $earningsStrokeColor3, window.colors.solid.success, $earningsStrokeColor3],
                     grid: {
                         padding: {
                             right: -20,
@@ -797,7 +803,6 @@
                 };
                 earningsChart = new ApexCharts($earningsChart, earningsChartOptions);
                 earningsChart.render();
-
 
 
                 var $houseKeeperHourly = document.querySelector('#houseKeeperHourly');

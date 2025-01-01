@@ -80,6 +80,7 @@ class UserController extends Controller
     }
 
 
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -98,6 +99,7 @@ class UserController extends Controller
         }
 
         $avatarPath = $request->file('avatar')->store('Users', 'public');
+
 
 
         AppUser::create([

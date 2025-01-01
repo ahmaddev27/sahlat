@@ -26,6 +26,8 @@ return [
     'name'=>'name',
     'note'=>'notes',
     'phone'=>'phone',
+    'value'=>'Violation value',
+
 
     'number_id'=>'id number',
 

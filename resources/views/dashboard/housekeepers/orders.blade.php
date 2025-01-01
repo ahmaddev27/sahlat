@@ -41,9 +41,9 @@
                         <select id="payment_status" class="select2 form-control">
                             <option selected disabled>{{ trans('main.change') }}</option>
                             <option value="">{{ trans('main.all') }}</option>
-                            <option value="1">{{ trans('main.payed') }}</option>
-                            <option value="0">{{ trans('main.not-payed') }}</option>
-
+                            {{--                            <option value="0">{{ trans('main.not-payed') }}</option>--}}
+                            <option value="1">{{ trans('main.partly-payed') }}</option>
+                            <option value="2">{{ trans('main.completely-payed') }}</option>
 
                         </select>
 
@@ -164,7 +164,7 @@
                             d.company_id = $('#companies').val();
                             d.housekeeper_id = $('#housekeepers').val();
                             d.payment_status = $('#payment_status').val();
-                            d.status = [0,1,2];
+                            // d.status = [0,1,2];
                         }
                     },
 

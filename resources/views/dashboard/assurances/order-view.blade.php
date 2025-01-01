@@ -151,23 +151,25 @@
                                             <p class="invoice-total-title d-inline">{{ trans('assurances.price') }}</p>
                                             <p class="invoice-total-amount d-inline p-2">ADE {{ $order->assurance->price }}</p>
                                         </div>
+
+
+
                                         <div class="invoice-total-item mt-2 ">
-                                            <p class="invoice-total-title d-inline">{{ trans('main.discount') }}</p>
-                                            <p class="invoice-total-amount d-inline p-2">  {{ $order->discount ?? '-' }}</p>
+                                            <p class="invoice-total-title d-inline">{{trans('main.total-payment')}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??'-'}}</p>
                                         </div>
 
-                                        <div class="invoice-total-item mt-2">
-                                            <p class="invoice-total-title d-inline">{{ trans('main.commission') }}</p>
-                                            <p class="invoice-total-amount d-inline p-2">ADE {{ setting('commission') }}</p>
-                                        </div>
 
                                         <hr class="my-50" />
 
-                                        <div class="invoice-total-item">
-                                            <p class="invoice-total-title d-inline">{{ trans('main.total') }}</p>
-                                            <p class="invoice-total-amount d-inline p-2">
-                                                ADE {{ $order->assurance->price + setting('commission') - $order->discount }}</p>
+
+                                        <div class="invoice-total-item mt-2 ">
+                                            <p class="invoice-total-title d-inline">{{trans('main.remain')}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??'-'}}</p>
                                         </div>
+
+
+
                                     </div>
                                 </div>
                             </div>
@@ -254,6 +256,160 @@
 
         {{-- Change status --}}
 
+{{--        <script>--}}
+{{--            $(document).on('change', '.status-select', function () {--}}
+{{--                var orderId = $(this).data('id');--}}
+{{--                var newStatus = $(this).val();--}}
+
+{{--                // Store the old value to revert if the user cancels--}}
+{{--                var oldStatus = $(this).data('old-status');--}}
+{{--                $(this).data('old-status', oldStatus || $(this).val());--}}
+
+{{--                // Show confirmation dialog with SweetAlert--}}
+{{--                Swal.fire({--}}
+{{--                    title: '{{trans('messages.sure?')}}',--}}
+{{--                    text: "{{trans('messages.change-status')}}",--}}
+{{--                    icon: 'warning',--}}
+{{--                    showCancelButton: true,--}}
+{{--                    confirmButtonText: '{{trans('messages.change')}}!',--}}
+{{--                    cancelButtonText: '{{trans('messages.cancel')}}',--}}
+{{--                    customClass: {--}}
+{{--                        confirmButton: 'btn btn-danger',--}}
+{{--                        cancelButton: 'btn btn-secondary ml-1'--}}
+{{--                    },--}}
+{{--                }).then((result) => {--}}
+{{--                    if (result.isConfirmed) {--}}
+{{--                        if (newStatus == 2 || newStatus == 3) {--}}
+{{--                            // Determine the dynamic label for the file input--}}
+{{--                            let inputLabel = newStatus == 2--}}
+{{--                                ? '{{trans('messages.upload-contract')}}'--}}
+{{--                                : '{{trans('messages.upload-attachment')}}';--}}
+
+{{--                            Swal.fire({--}}
+{{--                                title: inputLabel,--}}
+{{--                                html: `<input type="file" id="attachment" name="attachment" class="swal2-input" required>`,--}}
+{{--                                showCancelButton: true,--}}
+{{--                                confirmButtonText: '{{trans('messages.submit')}}',--}}
+{{--                                cancelButtonText: '{{trans('messages.cancel')}}',--}}
+{{--                                customClass: {--}}
+{{--                                    confirmButton: 'btn btn-success',--}}
+{{--                                    cancelButton: 'btn btn-secondary'--}}
+{{--                                },--}}
+{{--                                preConfirm: function () {--}}
+{{--                                    var fileInput = document.getElementById('attachment');--}}
+{{--                                    if (!fileInput.files.length) {--}}
+{{--                                        Swal.showValidationMessage('{{trans('messages.attachment-required')}}');--}}
+{{--                                        return false;--}}
+{{--                                    }--}}
+{{--                                    return fileInput.files[0];--}}
+{{--                                }--}}
+{{--                            }).then((fileResult) => {--}}
+{{--                                if (fileResult.isConfirmed) {--}}
+{{--                                    var file = fileResult.value;--}}
+
+{{--                                    var formData = new FormData();--}}
+{{--                                    formData.append('_token', $('meta[name="csrf-token"]').attr('content'));--}}
+{{--                                    formData.append('order_id', orderId);--}}
+{{--                                    formData.append('status', newStatus);--}}
+{{--                                    formData.append('attachment', file);--}}
+
+{{--                                    Swal.fire({--}}
+{{--                                        icon: 'info',--}}
+{{--                                        title: '{{trans('messages.loading')}}',--}}
+{{--                                        text: '{{trans('messages.processing-request')}}',--}}
+{{--                                        allowOutsideClick: false,--}}
+{{--                                        didOpen: () => {--}}
+{{--                                            Swal.showLoading();--}}
+{{--                                        }--}}
+{{--                                    });--}}
+
+{{--                                    $.ajax({--}}
+{{--                                        url: '{{route('assurances.orders.updateStatus')}}',--}}
+{{--                                        type: 'POST',--}}
+{{--                                        data: formData,--}}
+{{--                                        contentType: false,--}}
+{{--                                        processData: false,--}}
+{{--                                        success: function (data) {--}}
+{{--                                            Swal.fire({--}}
+{{--                                                title: '{{trans('messages.updated')}}!',--}}
+{{--                                                text: '{{trans('messages.change-success')}}.',--}}
+{{--                                                icon: 'success',--}}
+{{--                                                confirmButtonText: '{{trans('messages.close')}}',--}}
+{{--                                                customClass: {--}}
+{{--                                                    confirmButton: 'btn btn-success'--}}
+{{--                                                }--}}
+{{--                                            }).then(() => {--}}
+{{--                                                location.reload();--}}
+{{--                                            });--}}
+{{--                                        },--}}
+{{--                                        error: function (data) {--}}
+{{--                                            Swal.fire({--}}
+{{--                                                title: '{{trans('messages.not-updated')}}!',--}}
+{{--                                                text: '{{trans('messages.not-update-error')}}.',--}}
+{{--                                                icon: 'error',--}}
+{{--                                                confirmButtonText: '{{trans('messages.close')}}',--}}
+{{--                                            });--}}
+{{--                                            location.reload();--}}
+{{--                                        }--}}
+{{--                                    });--}}
+{{--                                }--}}
+{{--                            });--}}
+{{--                        } else {--}}
+{{--                            // For other statuses, proceed without additional input--}}
+{{--                            Swal.fire({--}}
+{{--                                icon: 'info',--}}
+{{--                                title: '{{trans('messages.loading')}}',--}}
+{{--                                text: '{{trans('messages.processing-request')}}',--}}
+{{--                                allowOutsideClick: false,--}}
+{{--                                didOpen: () => {--}}
+{{--                                    Swal.showLoading();--}}
+{{--                                }--}}
+{{--                            });--}}
+
+{{--                            $.ajax({--}}
+{{--                                url: '{{route('assurances.orders.updateStatus')}}',--}}
+{{--                                type: 'POST',--}}
+{{--                                data: {--}}
+{{--                                    _token: $('meta[name="csrf-token"]').attr('content'),--}}
+{{--                                    order_id: orderId,--}}
+{{--                                    status: newStatus--}}
+{{--                                },--}}
+{{--                                success: function (data) {--}}
+{{--                                    Swal.fire({--}}
+{{--                                        title: '{{trans('messages.updated')}}!',--}}
+{{--                                        text: '{{trans('messages.change-success')}}.',--}}
+{{--                                        icon: 'success',--}}
+{{--                                        confirmButtonText: '{{trans('messages.close')}}',--}}
+{{--                                        customClass: {--}}
+{{--                                            confirmButton: 'btn btn-success'--}}
+{{--                                        }--}}
+{{--                                    }).then(() => {--}}
+{{--                                        location.reload();--}}
+{{--                                    });--}}
+{{--                                },--}}
+{{--                                error: function (data) {--}}
+{{--                                    Swal.fire({--}}
+{{--                                        title: '{{trans('messages.not-updated')}}!',--}}
+{{--                                        text: '{{trans('messages.not-update-error')}}.',--}}
+{{--                                        icon: 'error',--}}
+{{--                                        confirmButtonText: '{{trans('messages.close')}}',--}}
+{{--                                    });--}}
+{{--                                    location.reload();--}}
+{{--                                }--}}
+{{--                            });--}}
+{{--                        }--}}
+{{--                    } else {--}}
+{{--                        // Revert the dropdown to the old value if cancelled--}}
+{{--                        $(this).val(oldStatus);--}}
+{{--                    }--}}
+{{--                });--}}
+{{--            });--}}
+{{--        </script>--}}
+
+
+
+        {{-- Change status --}}
+
         <script>
             $(document).on('change', '.status-select', function () {
                 var orderId = $(this).data('id');
@@ -277,83 +433,7 @@
                     },
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        if (newStatus == 2 || newStatus == 3) {
-                            // Determine the dynamic label for the file input
-                            let inputLabel = newStatus == 2
-                                ? '{{trans('messages.upload-contract')}}'
-                                : '{{trans('messages.upload-attachment')}}';
-
-                            Swal.fire({
-                                title: inputLabel,
-                                html: `<input type="file" id="attachment" name="attachment" class="swal2-input" required>`,
-                                showCancelButton: true,
-                                confirmButtonText: '{{trans('messages.submit')}}',
-                                cancelButtonText: '{{trans('messages.cancel')}}',
-                                customClass: {
-                                    confirmButton: 'btn btn-success',
-                                    cancelButton: 'btn btn-secondary'
-                                },
-                                preConfirm: function () {
-                                    var fileInput = document.getElementById('attachment');
-                                    if (!fileInput.files.length) {
-                                        Swal.showValidationMessage('{{trans('messages.attachment-required')}}');
-                                        return false;
-                                    }
-                                    return fileInput.files[0];
-                                }
-                            }).then((fileResult) => {
-                                if (fileResult.isConfirmed) {
-                                    var file = fileResult.value;
-
-                                    var formData = new FormData();
-                                    formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-                                    formData.append('order_id', orderId);
-                                    formData.append('status', newStatus);
-                                    formData.append('attachment', file);
-
-                                    Swal.fire({
-                                        icon: 'info',
-                                        title: '{{trans('messages.loading')}}',
-                                        text: '{{trans('messages.processing-request')}}',
-                                        allowOutsideClick: false,
-                                        didOpen: () => {
-                                            Swal.showLoading();
-                                        }
-                                    });
-
-                                    $.ajax({
-                                        url: '{{route('assurances.orders.updateStatus')}}',
-                                        type: 'POST',
-                                        data: formData,
-                                        contentType: false,
-                                        processData: false,
-                                        success: function (data) {
-                                            Swal.fire({
-                                                title: '{{trans('messages.updated')}}!',
-                                                text: '{{trans('messages.change-success')}}.',
-                                                icon: 'success',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                                customClass: {
-                                                    confirmButton: 'btn btn-success'
-                                                }
-                                            }).then(() => {
-                                                location.reload();
-                                            });
-                                        },
-                                        error: function (data) {
-                                            Swal.fire({
-                                                title: '{{trans('messages.not-updated')}}!',
-                                                text: '{{trans('messages.not-update-error')}}.',
-                                                icon: 'error',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                            });
-                                            location.reload();
-                                        }
-                                    });
-                                }
-                            });
-                        } else {
-                            // For other statuses, proceed without additional input
+                         // For other statuses, proceed without additional input
                             Swal.fire({
                                 icon: 'info',
                                 title: '{{trans('messages.loading')}}',
@@ -396,7 +476,7 @@
                                 }
                             });
                         }
-                    } else {
+                     else {
                         // Revert the dropdown to the old value if cancelled
                         $(this).val(oldStatus);
                     }

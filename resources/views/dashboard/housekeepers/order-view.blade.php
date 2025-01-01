@@ -196,24 +196,27 @@
                                                 ADE {{$order->housekeeper->salary}}</p>
 
                                         </div>
+
+
                                         <div class="invoice-total-item mt-2 ">
-                                            <p class="invoice-total-title d-inline">{{trans('main.discount')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2">  {{$order->discount??'-'}}</p>
+                                            <p class="invoice-total-title d-inline">{{trans('main.total-payment')}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??'-'}}</p>
                                         </div>
 
-                                        <div class="invoice-total-item mt-2">
-                                            <p class="invoice-total-title d-inline">{{trans('main.commission')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2">
-                                                ADE {{setting('commission')}}</p>
+
+
+                                        <hr class="my-50" />
+
+
+                                        <div class="invoice-total-item mt-2 ">
+                                            <p class="invoice-total-title d-inline">{{trans('main.remain')}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??'-'}}</p>
                                         </div>
 
-                                        <hr class="my-50"/>
 
-                                        <div class="invoice-total-item">
-                                            <p class="invoice-total-title d-inline">{{trans('main.total')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2">
-                                                ADE {{$order->housekeeper->salary + setting('commission') - $order->discount }}</p>
-                                        </div>
+
+
+
                                     </div>
                                 </div>
 
@@ -255,7 +258,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-inline-block "><span
-                                    class="badge badge-glow {{OrdorClass($order->status)}}"> {{OrderStatus($order->status)}}</span>
+                                    class="badge badge-glow {{OrdorClass($order->status)}}"> {{HouseKeeperStatuses($order->status)}}</span>
                             </div>
 
 
@@ -339,159 +342,7 @@
                     },
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        if (newStatus == 3) {
-                            // If status is 3, show file upload input
-                            Swal.fire({
-                                title: '{{trans('messages.upload-attachment')}}',
-                                html: `<input type="file" id="attachment" name="attachment" class="swal2-input" required>`,
-                                showCancelButton: true,
-                                confirmButtonText: '{{trans('messages.submit')}}',
-                                cancelButtonText: '{{trans('messages.cancel')}}',
-                                customClass: {
-                                    confirmButton: 'btn btn-success',
-                                    cancelButton: 'btn btn-secondary'
-                                },
-                                preConfirm: function () {
-                                    // Check if the file is selected
-                                    var fileInput = document.getElementById('attachment');
-                                    if (!fileInput.files.length) {
-                                        Swal.showValidationMessage('{{trans('messages.attachment-required')}}');
-                                        return false; // Prevent submission if no file is selected
-                                    }
-                                    return fileInput.files[0];
-                                }
-                            }).then((fileResult) => {
-                                if (fileResult.isConfirmed) {
-                                    var file = fileResult.value; // Get the selected file
 
-                                    // Make the AJAX request to update the status and upload the file
-                                    var formData = new FormData();
-                                    formData.append('_token', $('meta[name="csrf-token"]').attr('content')); // CSRF Token
-                                    formData.append('order_id', orderId);
-                                    formData.append('status', newStatus);
-                                    formData.append('attachment', file); // Attach the file
-
-                                    Swal.fire({
-                                        icon:'info',
-                                        title: '{{trans('messages.loading')}}',
-                                        text: '{{trans('messages.processing-request')}}',
-                                        allowOutsideClick: false,
-                                        didOpen: () => {
-                                            Swal.showLoading();
-                                        }
-                                    });
-
-                                    $.ajax({
-                                        url: '{{route('housekeepers.orders.updateStatus')}}', // Add the URL to update the status
-                                        type: 'POST',
-                                        data: formData,
-                                        contentType: false,
-                                        processData: false,
-                                        success: function (data) {
-                                            // Success case with custom success message
-                                            Swal.fire({
-                                                title: '{{trans('messages.updated')}}!',
-                                                text: '{{trans('messages.change-success')}}.',
-                                                icon: 'success',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                                customClass: {
-                                                    confirmButton: 'btn btn-success'
-                                                }
-                                            }).then(() => {
-                                                location.reload(); // Reload the entire page
-                                            });
-                                        },
-                                        error: function (data) {
-                                            // Error case with custom error message
-                                            Swal.fire({
-                                                title: '{{trans('messages.not-updated')}}!',
-                                                text: '{{trans('messages.not-update-error')}}.',
-                                                icon: 'error',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                            }).then(() => {
-                                                location.reload(); // Reload the entire page
-                                            });
-                                        }
-                                    });
-                                }
-                            });
-                        } else if (newStatus == 5) {
-                            // Display the input for the note if status is 4
-                            Swal.fire({
-                                title: '{{trans('messages.enter-note')}}',
-                                input: 'text',
-                                inputPlaceholder: '{{trans('messages.enter-note-placeholder')}}',
-                                inputAttributes: {
-                                    'aria-label': '{{trans('messages.enter-note-placeholder')}}',
-                                    'aria-required': 'true'
-                                },
-                                showCancelButton: true,
-                                confirmButtonText: '{{trans('messages.submit')}}',
-                                cancelButtonText: '{{trans('messages.cancel')}}',
-                                customClass: {
-                                    confirmButton: 'btn btn-success',
-                                    cancelButton: 'btn btn-secondary'
-                                },
-                                preConfirm: function (note) {
-                                    // If the note is empty, show an error
-                                    if (!note) {
-                                        Swal.showValidationMessage('{{trans('messages.note-required')}}');
-                                        return false; // Prevent submission
-                                    }
-                                    return note;
-                                }
-                            }).then((noteResult) => {
-                                if (noteResult.isConfirmed) {
-                                    var note = noteResult.value; // Get the entered note
-
-                                    Swal.fire({
-                                        icon:'info',
-                                        title: '{{trans('messages.loading')}}',
-                                        text: '{{trans('messages.processing-request')}}',
-                                        allowOutsideClick: false,
-                                        didOpen: () => {
-                                            Swal.showLoading();
-                                        }
-                                    });
-                                    // Make the AJAX request to update the status
-                                    $.ajax({
-                                        url: '{{route('housekeepers.orders.updateStatus')}}', // Add the URL to update the status
-                                        type: 'POST',
-                                        data: {
-                                            _token: $('meta[name="csrf-token"]').attr('content'), // CSRF Token
-                                            order_id: orderId,
-                                            status: newStatus,
-                                            note: note // Send the note if status is 4
-                                        },
-                                        success: function (data) {
-                                            // Success case with custom success message
-                                            Swal.fire({
-                                                title: '{{trans('messages.updated')}}!',
-                                                text: '{{trans('messages.change-success')}}.',
-                                                icon: 'success',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                                customClass: {
-                                                    confirmButton: 'btn btn-success'
-                                                }
-                                            }).then(() => {
-                                                location.reload(); // Reload the entire page
-                                            });
-                                        },
-                                        error: function (data) {
-                                            // Error case with custom error message
-                                            Swal.fire({
-                                                title: '{{trans('messages.not-updated')}}!',
-                                                text: '{{trans('messages.not-update-error')}}.',
-                                                icon: 'error',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                            }).then(() => {
-                                                location.reload(); // Reload the entire page
-                                            });
-                                        }
-                                    });
-                                }
-                            });
-                        } else {
 
                             Swal.fire({
                                 icon:'info',
@@ -538,7 +389,7 @@
                                     });
                                 }
                             });
-                        }
+
                     } else {
                         // If the user cancels, revert the status
                         $(this).val($(this).data('old-status')); // Revert to the old value

@@ -91,6 +91,7 @@ function gender($x)
 
 }
 
+
 function AssuranceStatus($status)
 {
     if ($status == 0) {
@@ -110,22 +111,25 @@ function paymentStatus($status)
         return trans('main.not-payed');
 
     } elseif ($status == 1) {
-        return trans('main.payed');
+        return trans('main.partly-payed');
 
+    } elseif ($status == 2) {
+        return trans('main.completely-payed');
     }
 
 }
 
 
+
 function StatusesViolations($id = null)
 {
     $status = [
-        '0' => trans('main.new_'),
-        '1' => trans('main.under_payed'),
-        '2' => trans('main.payed'),
+        '0' => trans('main.not-payed'),
+        '1' => trans('main.partly-payed'),
+        '2' => trans('main.completely-payed'),
         '3' => trans('main.completed'),
-        '4' => trans('main.closed')
     ];
+
 
 
     if ($id !== null) {
@@ -140,12 +144,10 @@ function StatusesViolations($id = null)
 function StatusesAssurance($id = null)
 {
     $status = [
-        '0' => trans('main.new_'),
-        '1' => trans('main.negotiation'),
-        '2' => trans('main.under_payed'),
-        '3' => trans('main.payed'),
-        '4' => trans('main.completed'),
-        '5' => trans('main.closed')
+        '0' => trans('main.not-payed'),
+        '1' => trans('main.partly-payed'),
+        '2' => trans('main.completely-payed'),
+        '3' => trans('main.completed'),
     ];
 
 
@@ -161,12 +163,10 @@ function StatusesAssurance($id = null)
 function HouseKeeperStatuses($id = null)
 {
     $status = [
-        '0' => trans('main.new_'),
-        '1' => trans('main.negotiation'),
-        '2' => trans('main.under_payed'),
-        '3' => trans('main.active_contract'),
-        '4' => trans('main.complete_contract'),
-        '5' => trans('main.closed')
+        '0' => trans('main.not-payed'),
+        '1' => trans('main.partly-payed'),
+        '2' => trans('main.completely-payed'),
+        '3' => trans('main.completed'),
     ];
 
 
@@ -178,13 +178,16 @@ function HouseKeeperStatuses($id = null)
 
 
 }
+
 function HouseKeeperHourlyStatuses($id = null)
 {
     $status = [
-        '0' => trans('main.new_'),
-        '1' => trans('main.completed'),
-        '3' => trans('main.closed')
+        '0' => trans('main.not-payed'),
+        '1' => trans('main.partly-payed'),
+        '2' => trans('main.completely-payed'),
+        '3' => trans('main.completed'),
     ];
+
 
 
     if ($id !== null) {
@@ -214,7 +217,6 @@ function HouseKeeperOrdersByStatus($status)
 {
     return \App\Models\HouseKeeperOrder::where('status', $status)->count();
 }
-
 
 
 function orderStatus($id = null)
@@ -324,21 +326,21 @@ function AssuranceOrdersByStatus($status)
 }
 
 
-function AssuranceOrdersNew()
-{
-    return \App\Models\AssuranceOrder::where('status', 0)->count();
-}
-
-function AssuranceOrdersDone()
-{
-    return \App\Models\AssuranceOrder::where('status', 4)->count();
-}
+//function AssuranceOrdersNew()
+//{
+//    return \App\Models\AssuranceOrder::where('status', 0)->count();
+//}
+//
+//function AssuranceOrdersDone()
+//{
+//    return \App\Models\AssuranceOrder::where('status', 4)->count();
+//}
 
 
 function getDoneOrdersPercentage()
 {
     $totalOrders = \App\Models\AssuranceOrder::count();
-    $doneOrders = \App\Models\AssuranceOrder::where('status', 4)->count();
+    $doneOrders = \App\Models\AssuranceOrder::where('status', 3)->count();
 
     if ($totalOrders === 0) {
         return 0; // Avoid division by zero
@@ -375,6 +377,12 @@ function HouseKeeperHourlyOrdersPendding()
     return \App\Models\HouseKeeperHourlyOrder::where('status', 0)->count();
 }
 
+function HouseKeeperHourlyOrdersByStatus($status)
+{
+    return \App\Models\HouseKeeperHourlyOrder::where('status', $status)->count();
+}
+
+
 function HouseKeeperHourlyOrdersDone()
 {
     return \App\Models\HouseKeeperHourlyOrder::where('status', 1)->count();
@@ -397,12 +405,12 @@ function violationsByStatus($status)
 
 function violationsDone()
 {
-    return \App\Models\Violation::where('status', 3)->count();
+    return \App\Models\Violation::where('status', 1)->count();
 }
 
 function total_payments()
 {
-    return \App\Models\Payment::sum('value');
+    return \App\Models\Payment::sum('order_value');
 }
 
 
@@ -488,6 +496,8 @@ function getDoneviolationsPercentage()
 }
 
 
+
+
 function getDoneHouseKeeperOrdersPercentage()
 {
     $totalOrders = \App\Models\HouseKeeperOrder::count();
@@ -504,7 +514,7 @@ function getDoneHouseKeeperOrdersPercentage()
 function getDoneHouseKeeperHourlyOrdersPercentage()
 {
     $totalOrders = \App\Models\HouseKeeperHourlyOrder::count();
-    $doneOrders = \App\Models\HouseKeeperHourlyOrder::where('status', 1)->count();
+    $doneOrders = \App\Models\HouseKeeperHourlyOrder::where('status', 3)->count();
 
     if ($totalOrders === 0) {
         return 0; // Avoid division by zero

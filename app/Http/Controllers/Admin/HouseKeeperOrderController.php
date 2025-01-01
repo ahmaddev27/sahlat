@@ -27,29 +27,6 @@ class HouseKeeperOrderController extends Controller
     }
 
 
-    public function active()
-    {
-        $companies = Company::all();
-        return view('dashboard.housekeepers.active_contract', ['companies' => $companies]);
-    }
-
-    public function complete()
-    {
-        $companies = Company::all();
-        return view('dashboard.housekeepers.complete', ['companies' => $companies]);
-    }
- public function expiring()
-    {
-        $companies = Company::all();
-        return view('dashboard.housekeepers.expiring', ['companies' => $companies]);
-    }
-
-    public function close()
-    {
-        $companies = Company::all();
-        return view('dashboard.housekeepers.close_contract', ['companies' => $companies]);
-    }
-
 
     public function list(Request $request)
     {
@@ -76,9 +53,15 @@ class HouseKeeperOrderController extends Controller
 
         if ($request->has('payment_status') && $request->payment_status !== null) {
             if ($request->payment_status == 1) {
-                $query->whereHas('payment');
-            } elseif ($request->payment_status == 0) {
-                $query->whereDoesntHave('payment');
+                // Check for payments with status = 1 (paid)
+                $query->whereHas('payment', function ($q) {
+                    $q->where('status', 1);
+                });
+            } elseif ($request->payment_status == 2) {
+                // Check for payments with status = 2
+                $query->whereHas('payment', function ($q) {
+                    $q->where('status', 2);
+                });
             }
         }
 

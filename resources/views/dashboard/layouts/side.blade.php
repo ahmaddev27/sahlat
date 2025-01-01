@@ -39,6 +39,7 @@
             </li>
 
 
+
             <li class="nav-item {{ request()->routeIs('companies*')?'active':''}}">
                 <a class="d-flex align-items-center" href="{{route('companies.index')}}">
                     <i data-feather='briefcase'></i>
@@ -75,44 +76,7 @@
                     <li class="{{ request()->routeIs('assurances.orders.index')?'active':''}}">
                         <a class="d-flex align-items-center" href="{{route('assurances.orders.index')}}">
                             <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{StatusesAssurance(0)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('assurances.orders.negotiation')?'active':''}}">
-                        <a class="d-flex align-items-center" href="{{route('assurances.orders.negotiation')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{StatusesAssurance(1)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('assurances.orders.under_payment')?'active':''}}">
-                        <a class="d-flex align-items-center" href="{{route('assurances.orders.under_payment')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{StatusesAssurance(2)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('assurances.orders.payment')?'active':''}}">
-                        <a class="d-flex align-items-center" href="{{route('assurances.orders.payment')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{StatusesAssurance(3)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('assurances.orders.complete*')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('assurances.orders.completed')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate"
-                                  data-i18n="Shop">{{trans('dashboard_aside.orders-completed')}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('assurances.orders.cancelled*')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('assurances.orders.cancelled')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate"
-                                  data-i18n="Shop">{{trans('dashboard_aside.orders-cancelled')}}</span></a>
+                            <span class="menu-item text-truncate" data-i18n="Shop">{{trans('main.AssuranceOrders')}}</span></a>
                     </li>
 
 
@@ -147,40 +111,6 @@
                                   data-i18n="Shop">{{trans('dashboard_aside.housekeepers-orders')}}</span></a>
                     </li>
 
-
-                    <li class="{{ request()->routeIs('housekeepers.orders.active')||  request()->routeIs('housekeepers.orders.view') ?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('housekeepers.orders.active')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{HouseKeeperStatuses(3)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('housekeepers.orders.complete')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('housekeepers.orders.complete')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{HouseKeeperStatuses(4)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('housekeepers.orders.expiring')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('housekeepers.orders.expiring')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{trans('main.Expiring_Contracts')}}</span>
-                            <span class="badge badge-light-warning badge-pill ml-auto">   {{houseKeeperExpiringOrdersCounts()}} </span>
-                          </a>
-
-
-
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('housekeepers.orders.close')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('housekeepers.orders.close')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{HouseKeeperStatuses(5)}}</span></a>
-                    </li>
-
-
                     <li class="{{ request()->routeIs('housekeepers.HourlyOrders.*')?'active':''}}">
                         <a class="d-flex align-items-center " href="{{route('housekeepers.HourlyOrders.index')}}">
                             <i data-feather="circle"></i>
@@ -194,60 +124,17 @@
             </li>
 
 
-            <li class=" nav-item has-sub sidebar-group-{{ request()->routeIs('violations.*')?'active open':''}}">
 
-                <a class="d-flex align-items-center" href="#">
-                    <i data-feather="alert-circle"></i><span
-                        class="menu-title text-truncate"
-                        data-i18n="Email">{{trans('dashboard_aside.violations')}}</span>
+
+
+            <li class="nav-item {{ request()->routeIs('violations*')?'active':''}} ">
+                <a class="d-flex align-items-center" href="{{route('violations.index')}}">
+                    <i data-feather='alert-circle'></i>
+                    <span
+                        class="menu-title text-truncate">{{trans('dashboard_aside.violations')}}</span>
                 </a>
-
-
-                <ul class="menu-content">
-
-
-                    <li class="{{ request()->routeIs('violations.index')||request()->routeIs('violations.view') ?'active':''}}">
-                        <a class="d-flex align-items-center" href="{{route('violations.index')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate"
-                                  data-i18n="Shop">{{trans('dashboard_aside.violations-orders')}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('violations.under_payed*')?'active':''}}">
-                        <a class="d-flex align-items-center" href="{{route('violations.under_payed')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{StatusesViolations(1)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('violations.payed*')?'active':''}}">
-                        <a class="d-flex align-items-center" href="{{route('violations.payed')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{StatusesViolations(2)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('violations.complete*')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('violations.completed')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate"
-                                  data-i18n="Shop">{{trans('dashboard_aside.orders-completed')}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('violations.cancelled*')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('violations.cancelled')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate"
-                                  data-i18n="Shop">{{trans('dashboard_aside.orders-cancelled')}}</span></a>
-                    </li>
-
-
-                </ul>
-
-
             </li>
+
 
 
             <li class="nav-item {{ request()->routeIs('contacts*')?'active':''}} ">
@@ -259,6 +146,7 @@
 
                 </a>
             </li>
+
 
 
             <li class=" nav-item has-sub sidebar-group-{{ request()->routeIs('settings.*')?'active open':''}}">

@@ -217,25 +217,42 @@
                                                 ADE {{$order->company->hourly_price}}</p>
 
                                         </div>
-                                        <div class="invoice-total-item mt-2 ">
-                                            <p class="invoice-total-title d-inline">{{trans('main.discount')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2">  {{$order->discount??'-'}}</p>
-                                        </div>
+
 
                                         <div class="invoice-total-item mt-2">
-                                            <p class="invoice-total-title d-inline">{{trans('main.commission')}}</p>
+                                            <p class="invoice-total-title d-inline">{{trans('main.hours')}}</p>
                                             <p class="invoice-total-amount d-inline p-2">
-                                                ADE {{setting('commission')}}</p>
+                                                 {{$order->hours}}</p>
                                         </div>
 
-                                        <hr class="my-50"/>
 
-                                        <div class="invoice-total-item">
-                                            <p class="invoice-total-title d-inline">{{trans('main.total')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2">
-                                                ADE {{$order->company->hourly_price + setting('commission') - $order->discount }}</p>
+
+
+                                        <div class="invoice-total-item mt-2 ">
+                                            <p class="invoice-total-title d-inline">{{trans('main.total-payment')}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??'-'}}</p>
                                         </div>
+
+
+
+                                        <hr class="my-50" />
+
+
+                                        <div class="invoice-total-item mt-2 ">
+                                            <p class="invoice-total-title d-inline">{{trans('main.remain')}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??'-'}}</p>
+                                        </div>
+
+
+
+
+
+
                                     </div>
+
+
+
+
                                 </div>
 
 
@@ -359,7 +376,7 @@
                     },
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        if (newStatus == 1) {
+                        if (newStatus == 3) {
                             // Fetch housekeepers dynamically based on company_id
                             var companyId = '{{$order->company_id}}'; // Assume you have company ID in the data attribute
 
@@ -457,79 +474,8 @@
                                     });
                                 }
                             });
-                        } else if (newStatus == 3) {
-                            // Handle note input for status 4
-                            Swal.fire({
-                                title: '{{trans('messages.enter-note')}}',
-                                input: 'text',
-                                inputPlaceholder: '{{trans('messages.enter-note-placeholder')}}',
-                                inputAttributes: {
-                                    'aria-label': '{{trans('messages.enter-note-placeholder')}}',
-                                    'aria-required': 'true'
-                                },
-                                showCancelButton: true,
-                                confirmButtonText: '{{trans('messages.submit')}}',
-                                cancelButtonText: '{{trans('messages.cancel')}}',
-                                customClass: {
-                                    confirmButton: 'btn btn-success',
-                                    cancelButton: 'btn btn-secondary'
-                                },
-                                preConfirm: function (note) {
-                                    if (!note) {
-                                        Swal.showValidationMessage('{{trans('messages.note-required')}}');
-                                        return false;
-                                    }
-                                    return note;
-                                }
-                            }).then((noteResult) => {
-                                if (noteResult.isConfirmed) {
-                                    var note = noteResult.value;
-                                    Swal.fire({
-                                        icon: 'info',
-                                        title: '{{trans('messages.loading')}}',
-                                        text: '{{trans('messages.processing-request')}}',
-                                        allowOutsideClick: false,
-                                        didOpen: () => {
-                                            Swal.showLoading();
-                                        }
-                                    });
-                                    // Make AJAX request for note submission
-                                    $.ajax({
-                                        url: '{{route('housekeepers.HourlyOrders.updateStatus')}}',
-                                        type: 'POST',
-                                        data: {
-                                            _token: $('meta[name="csrf-token"]').attr('content'),
-                                            order_id: orderId,
-                                            status: newStatus,
-                                            note: note
-                                        },
-                                        success: function (data) {
-                                            Swal.fire({
-                                                title: '{{trans('messages.updated')}}!',
-                                                text: '{{trans('messages.change-success')}}.',
-                                                icon: 'success',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                                customClass: {
-                                                    confirmButton: 'btn btn-success'
-                                                }
-                                            }).then(() => {
-                                                window.location.reload(); // Reload the page after success
-                                            });
-                                        },
-                                        error: function (data) {
-                                            Swal.fire({
-                                                title: '{{trans('messages.not-updated')}}!',
-                                                text: '{{trans('messages.not-update-error')}}.',
-                                                icon: 'error',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                            }).then(() => {
-                                                window.location.reload(); // Reload the page after error
-                                            });
-                                        }
-                                    });
-                                }
-                            });
-                        } else {
+                        }
+                      else {
                             Swal.fire({
                                 icon: 'info',
                                 title: '{{trans('messages.loading')}}',

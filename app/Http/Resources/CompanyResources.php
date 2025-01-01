@@ -27,7 +27,7 @@ class CompanyResources extends JsonResource
             'long' => $this->long,
             'reviews' => $this->averageHousekeeperReview(),
             'reviews_count' => $this->reviews(),
-            'address'=>$this->location?cities($this->location):null,
+            'address'=>$this->address?cities($this->address):null,
             'hourly_price' => $this->hourly_price,
             'avatar' => $this->getAvatar(),
             'views' => $this->views->count(),

@@ -32,14 +32,14 @@ class HomeController extends Controller
     public function companies(Request $request)
     {
 
-        $query=Company::with('housekeepers');
+        $query = Company::with('housekeepers');
 
         $perPage = $request->input('per_page', 5);
 
         $companies = $query->paginate($perPage);
 
         return $this->ApiResponsePaginationTrait(
-                CompanyResources::collection($companies)
+            CompanyResources::collection($companies)
             , trans('messages.success'), true, 200);
 
     }
@@ -74,13 +74,12 @@ class HomeController extends Controller
     }
 
 
-    public function housekeepersCompany(Request $request,$id)
+    public function housekeepersCompany(Request $request, $id)
     {
 
         $query = HouseKeeper::where('company_id', $id);
         $perPage = $request->input('per_page', 5);
         $housekeepers = $query->paginate($perPage);
-
 
 
         if ($housekeepers->isEmpty()) {
@@ -96,9 +95,8 @@ class HomeController extends Controller
     }
 
 
-
-
-    public function housekeeper($id){
+    public function housekeeper($id)
+    {
 
         $houseKeeper = HouseKeeper::find($id);
 
@@ -122,7 +120,6 @@ class HomeController extends Controller
 
         return $this->apiRespose(new HouseKeeperResources($houseKeeper)
             , trans('messages.success'), true, 200);
-
 
 
     }
@@ -163,7 +160,6 @@ class HomeController extends Controller
     }
 
 
-
     public function contact(Request $request)
     {
 
@@ -180,15 +176,15 @@ class HomeController extends Controller
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
             $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose( $errors, $errorMessage, false, 400);
+            return $this->apiRespose($errors, $errorMessage, false, 400);
         }
 
 
-         Contact::create([
+        Contact::create([
             'title' => $request->title,
             'email' => $request->email,
             'text' => $request->text,
-             'user_id' => Auth::id(),
+            'user_id' => Auth::id(),
 
         ]);
 
@@ -198,8 +194,7 @@ class HomeController extends Controller
             , trans('messages.success'), true, 200);
 
 
-}
-
+    }
 
 
     public function housekeepers(Request $request)
@@ -207,9 +202,8 @@ class HomeController extends Controller
 
         $query = Housekeeper::with('reviews')
             ->withAvg('reviews', 'value')
-            ->where('status',0)
+            ->where('status', 0)
             ->orderBy('reviews_avg_value', 'desc');
-
 
 
         if ($request->has('language')) {
@@ -238,16 +232,14 @@ class HomeController extends Controller
         $housekeepers = $query->paginate($perPage);
 
         if ($housekeepers->isEmpty()) {
-            return $this->ApiResponsePaginationTrait( HouseKeeperResources::collection($housekeepers), trans('messages.not_found'), true, 200);
+            return $this->ApiResponsePaginationTrait(HouseKeeperResources::collection($housekeepers), trans('messages.not_found'), true, 200);
         }
 
         return $this->ApiResponsePaginationTrait(
-                 HouseKeeperResources::collection($housekeepers)
+            HouseKeeperResources::collection($housekeepers)
             , trans('messages.success'), true, 200);
 
     }
-
-
 
 
     public function search(Request $request)
@@ -280,15 +272,13 @@ class HomeController extends Controller
     }
 
 
-
     public function topRatedHousekeeper()
     {
         $query = Housekeeper::with('reviews')
             ->withAvg('reviews', 'value')
-            ->where('status',0)
+            ->where('status', 0)
             ->orderBy('reviews_avg_value', 'desc')
             ->take(5)->get();
-
 
 
         return $this->apiRespose(
@@ -303,10 +293,10 @@ class HomeController extends Controller
     public function mostOrderedAssurances()
     {
         $assurances = Assurance::withCount('AssuranceOrders')
-        ->where('status', 1)
-        ->orderBy('assurance_orders_count', 'desc')
-        ->take(5)
-        ->get();
+            ->where('status', 1)
+            ->orderBy('assurance_orders_count', 'desc')
+            ->take(5)
+            ->get();
 
         return $this->apiRespose(
             AssuranceResources::collection($assurances),
@@ -330,7 +320,7 @@ class HomeController extends Controller
         });
 
         return $this->ApiResponsePaginationTrait(
-           NotificationsResources::collection($notifications),
+            NotificationsResources::collection($notifications),
             trans('messages.success'),
             true,
             200

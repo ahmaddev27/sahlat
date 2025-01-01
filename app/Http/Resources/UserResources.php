@@ -9,7 +9,7 @@ class UserResources extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
 
@@ -22,10 +22,14 @@ class UserResources extends JsonResource
             'name' => $this->name,
             'number_id' => $this->number_id,  // Using the formatted number_id
             'phone' => $this->phone,
-            'location' => $this->location ? cities($this->location) : null,
+            'city' => $this->location ? [
+                'id' =>(int) $this->location,
+                'city' => cities($this->location)
+            ] : null,
+
             'gender' => gender($this->gender),
             'avatar' => $this->getAvatar(),
-            'profile_status' => (int) $this->profile_status,
+            'profile_status' => (int)$this->profile_status,
         ];
     }
 

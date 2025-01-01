@@ -77,16 +77,17 @@
                                      class="img-fluid product-img rounded-sm" alt="product image"/>
                             </div>
                         </div>
+
                         <div class="col-12 col-md-7">
-                            <?php $statusText = HouseKeeperStatuses($housekeeper->0);
+                            <?php $statusText = HouseKeepersStatus($housekeeper->status);
                             $badgeClass = $housekeeper->status == 1 ? 'badge-primary' : 'badge-success';
 
                             $div = '<div class="badge badge-glow mt-1 ' . $badgeClass . '">' . $statusText . '</div>';
                             ?>
-
-
                             <h4>{{$housekeeper->name}}</h4>
+
                             {!! $div!!}
+
                             <div class="ecommerce-details-price d-flex flex-wrap mt-1">
                                 <h4 class="item-price mr-1">{{ trans('main.reviews') }}</h4>
                                 <ul class="unstyled-list list-inline pl-1 border-left">

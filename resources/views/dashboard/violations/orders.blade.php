@@ -35,9 +35,9 @@
                         <select id="payment_status" class="select2 form-control">
                             <option selected disabled>{{ trans('main.change') }}</option>
                             <option value="">{{ trans('main.all') }}</option>
-                            <option value="1">{{ trans('main.payed') }}</option>
-                            <option value="0">{{ trans('main.not-payed') }}</option>
-
+{{--                            <option value="0">{{ trans('main.not-payed') }}</option>--}}
+                            <option value="1">{{ trans('main.partly-payed') }}</option>
+                            <option value="2">{{ trans('main.completely-payed') }}</option>
 
                         </select>
 
@@ -53,12 +53,12 @@
 
                         <th>#</th>
                         <th>{{trans('violations.order_id')}}</th>
-                        <th>{{trans('violations.violation_number')}}</th>
+{{--                        <th>{{trans('violations.violation_number')}}</th>--}}
                         <th>{{trans('violations.user')}}</th>
                         <th>{{trans('violations.date')}}</th>
                         <th>{{trans('violations.phone')}}</th>
                         <th class="width-150">{{trans('violations.status')}}</th>
-                        <th class="width-100">{{trans('violations.payment')}}</th>
+{{--                        <th class="width-100">{{trans('violations.payment')}}</th>--}}
                         <th>{{trans('violations.action')}}</th>
 
                     </tr>
@@ -72,206 +72,6 @@
 
     @push('js')
 
-
-
-        {{-- datatable --}}
-        <script>
-            $(document).ready(function () {
-
-                // Initialize the DataTable
-                var table = $('#table').DataTable({
-
-                    processing: false,
-                    serverSide: true,
-                    dom: 'Bfrtlip',
-                    buttons: [
-                        {
-                            extend: 'collection',
-                            className: 'btn btn-outline-secondary dropdown-toggle mr-2',
-                            text: feather.icons['share'].toSvg({class: 'font-small-4 mr-50'}) + '{{trans('main.export')}}',
-                            buttons: [
-                                {
-                                    extend: 'excel',
-                                    text: feather.icons['file'].toSvg({class: 'font-small-4 mr-50'}) + 'Excel',
-                                    className: 'dropdown-item',
-                                    exportOptions: {
-                                        columns: [0, 1, 2, 3 ,4, 5,6,7],  // Specify the columns to export, including the status column (5)
-                                        format: {
-                                            body: function (data, row, column, node) {
-                                                // Check if the data contains a <select> element (status column)
-                                                if (typeof data === 'string' && data.includes('<select')) {
-                                                    // Create a temporary div to parse the HTML content
-                                                    const tempDiv = $('<div>').html(data);
-                                                    // Extract the selected option's text (status text)
-                                                    const selectedOption = tempDiv.find('option:selected').text().trim();
-                                                    return selectedOption; // Return only the selected text
-                                                }
-
-                                                // If data contains an image (in columns where image tags are present, like assurance or user avatars)
-                                                if (typeof data === 'string' && data.includes('<img')) {
-                                                    // For image columns, just return the relevant text (you can modify this logic as needed)
-                                                    const tempDiv = $('<div>').html(data);
-                                                    return tempDiv.text().trim(); // Extract and return the textual content
-                                                }
-
-                                                // If data contains an image (in columns where image tags are present, like assurance or user avatars)
-                                                if (typeof data === 'string' && data.includes('<span')) {
-                                                    // For image columns, just return the relevant text (you can modify this logic as needed)
-                                                    const tempDiv = $('<div>').html(data);
-                                                    return tempDiv.text().trim(); // Extract and return the textual content
-                                                }
-
-
-                                                // For other data, return it as is
-                                                return data;
-                                            }
-                                        }
-                                    },
-
-                                },
-
-
-                                {
-                                    extend: 'pdf',
-                                    text: feather.icons['clipboard'].toSvg({class: 'font-small-4 mr-50'}) + 'Pdf',
-                                    className: 'dropdown-item',
-                                    exportOptions: {
-                                        columns: [0, 1, 2, 3 ,4, 5,6,7],  // Specify the columns to export, including the status column (5)
-                                        format: {
-                                            body: function (data, row, column, node) {
-                                                // Check if the data contains a <select> element (status column)
-                                                if (typeof data === 'string' && data.includes('<select')) {
-                                                    // Create a temporary div to parse the HTML content
-                                                    const tempDiv = $('<div>').html(data);
-                                                    // Extract the selected option's text (status text)
-                                                    const selectedOption = tempDiv.find('option:selected').text().trim();
-                                                    return selectedOption; // Return only the selected text
-                                                }
-
-                                                // If data contains an image (in columns where image tags are present, like assurance or user avatars)
-                                                if (typeof data === 'string' && data.includes('<img')) {
-                                                    // For image columns, just return the relevant text (you can modify this logic as needed)
-                                                    const tempDiv = $('<div>').html(data);
-                                                    return tempDiv.text().trim(); // Extract and return the textual content
-                                                }
-
-                                                // If data contains an image (in columns where image tags are present, like assurance or user avatars)
-                                                if (typeof data === 'string' && data.includes('<span')) {
-                                                    // For image columns, just return the relevant text (you can modify this logic as needed)
-                                                    const tempDiv = $('<div>').html(data);
-                                                    return tempDiv.text().trim(); // Extract and return the textual content
-                                                }
-
-
-                                                // For other data, return it as is
-                                                return data;
-                                            }
-                                        }
-                                    },
-                                    customize: function (doc) {
-                                        pdfMake.fonts = {
-                                            Tajawal: {
-                                                normal: 'Tajawal.ttf',
-                                                bold: 'Tajawal.ttf',
-                                            },
-                                        };
-
-                                        doc.defaultStyle.font = 'Tajawal';
-                                        doc.defaultStyle.alignment = 'center';
-                                        doc.defaultStyle.direction = 'rtl';
-                                        doc.content.forEach(function (contentItem) {
-                                            if (contentItem.text && /[\u0600-\u06FF]/.test(contentItem.text)) {
-                                                contentItem.alignment = 'center';
-                                                contentItem.direction = 'rtl';
-                                                contentItem.text = contentItem.text.split(' ').reverse().join('  ');
-                                            }
-                                            if (contentItem.table) {
-                                                contentItem.table.alignment = 'center';
-                                                contentItem.alignment = 'center';
-                                                contentItem.table.body.forEach(function (row) {
-                                                    row.forEach(function (cell) {
-                                                        if (typeof cell.text === 'string' && /[\u0600-\u06FF]/.test(cell.text)) {
-                                                            cell.alignment = 'center';
-                                                            cell.direction = 'rtl';
-                                                            cell.text = cell.text.split(' ').reverse().join('  ');
-                                                        }
-                                                        cell.margin = [5, 5, 5, 5]; // Margins
-                                                    });
-                                                });
-                                            }
-                                        });
-                                        doc.pageMargins = [20, 20, 20, 20];
-                                    }
-                                }
-
-                            ],
-                            init: function (api, node, config) {
-                                $(node).removeClass('btn-secondary');
-                                $(node).parent().removeClass('btn-group');
-                                setTimeout(function () {
-                                    $(node).closest('.dt-buttons').removeClass('btn-group').addClass('d-inline-flex');
-                                }, 50);
-                            }
-                        },
-                    ],
-
-
-                    ajax: {
-                        url: "{{ route('violations.list') }}",
-                        data: function (d) {
-                            d.status = [0,2];
-                            d.payment_status = $('#payment_status').val();
-                        }
-                    },
-
-                    columns: [
-                        {data: 'DT_RowIndex', name: 'id'},
-                        {data: 'n_id', name: 'n_id'},
-                        {data: 'violation_number', name: 'violation_number'},
-                        {data: 'user', name: 'user'},
-                        {data: 'created_at', name: 'created_at'},
-                        {data: 'phone', name: 'phone'},
-
-                        {data: 'status', name: 'status'},
-
-                        {data: 'payment', name: 'payment'},
-
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false,
-
-                        },
-
-                    ],
-                    @if(App::getLocale() == 'ar')
-                    language: {
-                        "url": "https://cdn.datatables.net/plug-ins/2.1.8/i18n/ar.json"
-                    },
-                    @endif
-
-
-                    "initComplete": function(settings, json) {
-                        // Apply select2 after the table has been initialized
-                        $('.select2').select2();
-                    },
-                    "drawCallback": function(settings) {
-                        // Reinitialize select2 on every redraw
-                        $('.select2').select2();
-                    }
-
-                });
-
-
-                $('#payment_status').on('change', function () {
-                    table.ajax.reload();
-                });
-                $('#status').on('change', function () {
-                    table.ajax.reload();
-                });
-            });
-        </script>
 
 
 
