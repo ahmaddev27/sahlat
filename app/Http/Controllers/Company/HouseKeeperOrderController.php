@@ -93,6 +93,13 @@ class HouseKeeperOrderController extends Controller
                 <i class="fa fa-eye text-body"></i>
             </button>
 
+ <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"
+                id="send-stripe" data-toggle="modal" data-target="#sendSmsModal"
+                onclick="setOrderId(' . $item->id . ')" title="Send Link">
+            <i class="fa fa-link text-body"></i>
+        </button>
+
+
             <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"
                 id="delete" route="' . route('company.housekeepers.orders.delete') . '" model_id="' . $item->id . '" data-toggle="modal" title="Delete">
                 <i class="fa fa-trash text-body"></i>
@@ -191,6 +198,24 @@ class HouseKeeperOrderController extends Controller
          HouseKeeperOrder::find($request->id)->delete();
          return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
 
+    }
+
+
+    public function sendSms(Request $request)
+    {
+        $request->validate([
+            'orderLink' => 'required|url',
+        ]);
+
+        // Use a SMS API like Twilio, Nexmo, etc. to send the SMS
+        // Example: Twilio
+        try {
+            $message = "Your order link: " . $request->orderLink;
+            // Twilio::message($request->phone, $message);
+            return response()->json(['message' => trans('messages.sms-sent')]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => trans('messages.fail-sms')], 500);
+        }
     }
 
 

@@ -109,7 +109,7 @@ Route::group([
                 Route::post('/delete', 'destroy')->name('delete');
                 Route::post('/update', 'update')->name('update');
                 Route::post('status', 'updateStatus')->name('updateStatus');
-                Route::get('print/{id}', 'print')->name('print');
+                Route::post('/sendSms', 'sendSms')->name('sendSms');
                 Route::get('get-housekeepers/{id}', 'getHousekeepers')->name('get-housekeepers');
 
 
@@ -127,7 +127,7 @@ Route::group([
                 Route::post('status', 'updateStatus')->name('updateStatus');
                 Route::get('print/{id}', 'print')->name('print');
                 Route::get('get-housekeepers/{id}', 'getHousekeepers')->name('get-housekeepers');
-
+                Route::post('/sendSms', 'sendSms')->name('sendSms');
 
 
             });
@@ -146,6 +146,7 @@ Route::group([
                 Route::post('/delete', 'destroy')->name('delete');
                 Route::post('/update', 'update')->name('update');
                 Route::post('/status', 'status')->name('status');
+
 
 
             });
@@ -169,7 +170,8 @@ Route::group([
                 Route::post('/update', 'update')->name('update');
                 Route::get('/files/{id}', 'files')->name('files');
                 Route::post('status', 'updateStatus')->name('updateStatus');
-                Route::get('print/{id}', 'print')->name('print');
+                Route::post('/sendSms', 'sendSms')->name('sendSms');
+
             });
         });
 
@@ -203,7 +205,8 @@ Route::group([
                 Route::post('/delete', 'destroy')->name('delete');
                 Route::post('/update', 'update')->name('update');
                 Route::post('status', 'updateStatus')->name('updateStatus');
-                Route::get('print/{id}', 'print')->name('print');
+                Route::post('/sendSms', 'sendSms')->name('sendSms');
+
             });
         });
 

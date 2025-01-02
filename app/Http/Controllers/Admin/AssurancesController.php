@@ -205,6 +205,4 @@ class AssurancesController extends Controller
 
 
 
-
-
 }

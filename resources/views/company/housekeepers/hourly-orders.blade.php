@@ -15,6 +15,9 @@
             z-index: 1040; /* Ensure the modal stays below the dropdown */
         }
 
+        #sendSmsModal {
+            z-index: 9999 !important; /* Ensure it has the highest priority */
+        }
     </style>
 @endpush
 @section('left')
@@ -104,6 +107,8 @@
             </div>
         </div>
     </div>
+
+    @include('company.housekeepers.hourly-stripe-link')
 
 
     @push('js')

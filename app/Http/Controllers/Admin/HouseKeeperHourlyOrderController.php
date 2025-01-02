@@ -22,10 +22,9 @@ class HouseKeeperHourlyOrderController extends Controller
 {
     public function index()
     {
-        $companies=Company::all();
-        return view('dashboard.housekeepers.hourly-orders',['companies'=>$companies]);
+        $companies = Company::all();
+        return view('dashboard.housekeepers.hourly-orders', ['companies' => $companies]);
     }
-
 
 
     public function list(Request $request)
@@ -63,7 +62,6 @@ class HouseKeeperHourlyOrderController extends Controller
         }
 
 
-
         $houseKeeper = $query->get();
 
 
@@ -84,7 +82,7 @@ class HouseKeeperHourlyOrderController extends Controller
                 $badgeClass = OrdorClass($item->status);
 
                 // Create the select dropdown for status change
-                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-company-id="'.$item->company_id.'" data-id="' . $item->id . '" style="width: auto;">';
+                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-company-id="' . $item->company_id . '" data-id="' . $item->id . '" style="width: auto;">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
                 // Loop through all statuses and mark the current status as selected
@@ -103,24 +101,24 @@ class HouseKeeperHourlyOrderController extends Controller
                 // Return the status badge and the select dropdown for display
                 return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
-
-
             ->editColumn('date', function ($item) {
                 return $item->date->format('Y M d');
             })
-
-
             ->editColumn('houseKeeper', function ($item) {
                 return $item->housekeeper?->name;
             })
-
-
             ->editColumn('action', function ($item) {
                 return '
-                  <a  href="'.route('housekeepers.HourlyOrders.view',$item->id).'" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light edit-housekeeper"
-        >
+                  <a  href="' . route('housekeepers.HourlyOrders.view', $item->id) . '" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light edit-housekeeper">
             <i class="fa fa-eye text-body"></i>
         </a>
+
+
+  <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"
+                id="send-stripe" data-toggle="modal" data-target="#sendSmsModal"
+                onclick="setOrderId(' . $item->id . ')" title="Send Link">
+            <i class="fa fa-link text-body"></i>
+        </button>
 
         <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
                 id="delete" route="' . route('housekeepers.HourlyOrders.delete') . '" model_id="' . $item->id . '" data-toggle="modal" title="delete">
@@ -128,25 +126,20 @@ class HouseKeeperHourlyOrderController extends Controller
         </button>
     ';
             })
-
-
             ->addIndexColumn()
-            ->rawColumns(['action', 'company','payment','user', 'status', 'created_at'])
+            ->rawColumns(['action', 'company', 'payment', 'user', 'status', 'created_at'])
             ->make(true);
 
     }
 
 
-
-
     public function view($id)
     {
 
-        $order = HouseKeeperHourlyOrder::with(['housekeeper','user','payment'])->find($id);
-       return view('dashboard.housekeepers.hourly-order-view',['order'=>$order]);
+        $order = HouseKeeperHourlyOrder::with(['housekeeper', 'user', 'payment'])->find($id);
+        return view('dashboard.housekeepers.hourly-order-view', ['order' => $order]);
 
     }
-
 
 
     public function getHousekeepers($companyId)
@@ -161,12 +154,10 @@ class HouseKeeperHourlyOrderController extends Controller
 
     public function destroy(Request $request)
     {
-         HouseKeeperHourlyOrder::find($request->id)->delete();
-         return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
+        HouseKeeperHourlyOrder::find($request->id)->delete();
+        return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
 
     }
-
-
 
 
     public function updateStatus(Request $request)
@@ -218,5 +209,24 @@ class HouseKeeperHourlyOrderController extends Controller
             return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
         }
     }
+
+    public function sendSms(Request $request)
+    {
+        $request->validate([
+            'orderLink' => 'required|url',
+        ]);
+
+        // Use a SMS API like Twilio, Nexmo, etc. to send the SMS
+        // Example: Twilio
+        try {
+            $message = "Your order link: " . $request->orderLink;
+            // Twilio::message($request->phone, $message);
+            return response()->json(['message' => trans('messages.sms-sent')]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => trans('messages.fail-sms')], 500);
+        }
+    }
+
+
 
 }

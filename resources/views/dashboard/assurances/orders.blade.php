@@ -102,6 +102,8 @@
 </div>
 
 
+    @include('dashboard.assurances.stripe-link')
+
 
     @push('js')
 

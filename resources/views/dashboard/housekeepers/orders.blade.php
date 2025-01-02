@@ -106,6 +106,7 @@
 
 
 
+    @include('dashboard.housekeepers.stripe-link')
 
     @push('js')
 

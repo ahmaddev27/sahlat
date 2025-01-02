@@ -95,6 +95,11 @@ return [
 
     'order_value' => 'order_value',
 
+
+    'stripe-link'=>'Stripe link',
+    'enter-stripe-link'=>'Enter Stripe Link',
+    'Send SMS'=>'Send SMS',
+    'Send SMS Link'=>'Send SMS Link',
 ];
 
 

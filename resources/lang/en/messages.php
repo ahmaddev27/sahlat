@@ -64,7 +64,13 @@ return [
     'status-change-error' => 'Error in changing status',
     'status-change' => 'Change status',
     'status' => 'Status',
+    'ok' => 'ok',
 
+
+
+    'sms-sent-success'=>'SMS Sent Successfully',
+    'fail-sms'=>'Failed to send SMS',
+    'invalid-url'=>'invalid url'
 
 ];
 

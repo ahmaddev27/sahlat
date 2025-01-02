@@ -59,7 +59,7 @@ Route::group([
                 Route::post('/delete', 'destroy')->name('delete');
                 Route::post('/update', 'update')->name('update');
                 Route::post('status', 'updateStatus')->name('updateStatus');
-                Route::get('print/{id}', 'print')->name('print');
+                Route::post('/sendSms', 'sendSms')->name('sendSms');
                 Route::get('get-housekeepers/{id}', 'getHousekeepers')->name('get-housekeepers');
 
 
@@ -104,7 +104,7 @@ Route::group([
                 Route::get('/{id}', 'view')->name('view');
                 Route::post('/delete', 'destroy')->name('delete');
                 Route::post('status', 'updateStatus')->name('updateStatus');
-                Route::get('print/{id}', 'print')->name('print');
+                Route::post('/sendSms', 'sendSms')->name('sendSms');
                 Route::get('get-housekeepers/{id}', 'getHousekeepers')->name('get-housekeepers');
 
 

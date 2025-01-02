@@ -92,6 +92,10 @@ return [
     'total-payment' => 'المدفوع',
 
     'order_value' => 'المبلغ',
+    'stripe-link'=>'رابط السترايب',
+'enter-stripe-link'=>'ادخل رابط فاتورة السترايب',
+'Send SMS'=>'ارسال الرسالة',
+    'Send SMS Link'=>'ارسال رابط السترايب',
 
 ];
 

@@ -84,6 +84,7 @@
 
 
 
+    @include('company.housekeepers.stripe-link')
 
     @push('js')
 
@@ -301,6 +302,7 @@
                 });
             });
         </script>
+
 
 
 

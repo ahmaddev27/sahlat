@@ -1,6 +1,24 @@
 @extends('dashboard.layouts.master',['title'=>trans('dashboard_aside.housekeepers-HourlyOrders')])
 @push('css')
+    <style>
+        .select2-container {
+            z-index: 9999 !important; /* Ensure it has the highest priority */
+        }
 
+
+        .swal2-container {
+            z-index: 10000; /* SweetAlert z-index */
+        }
+
+
+        .modal {
+            z-index: 1040; /* Ensure the modal stays below the dropdown */
+        }
+
+        #sendSmsModal {
+            z-index: 9999 !important; /* Ensure it has the highest priority */
+        }
+    </style>
 @endpush
 @section('left')
     {{--    <div class="content-header-right text-md-right col-md-3 col-12 d-md-block d-none">--}}
@@ -97,6 +115,8 @@
     </div>
 
 
+
+    @include('dashboard.housekeepers.hourly-stripe-link')
 
 
     @push('js')

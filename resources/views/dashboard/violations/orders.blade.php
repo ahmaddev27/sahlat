@@ -70,6 +70,9 @@
     </div>
 
 
+    @include('dashboard.violations.stripe-link')
+
+
     @push('js')
 
 
