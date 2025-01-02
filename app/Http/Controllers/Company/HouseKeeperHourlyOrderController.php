@@ -42,11 +42,18 @@ class HouseKeeperHourlyOrderController extends Controller
             $query->where('status', $request->status);
         }
 
+
         if ($request->has('payment_status') && $request->payment_status !== null) {
             if ($request->payment_status == 1) {
-                $query->whereHas('payment');
-            } elseif ($request->payment_status == 0) {
-                $query->whereDoesntHave('payment');
+                // Check for payments with status = 1 (paid)
+                $query->whereHas('payment', function ($q) {
+                    $q->where('status', 1);
+                });
+            } elseif ($request->payment_status == 2) {
+                // Check for payments with status = 2
+                $query->whereHas('payment', function ($q) {
+                    $q->where('status', 2);
+                });
             }
         }
 
@@ -115,16 +122,7 @@ class HouseKeeperHourlyOrderController extends Controller
     ';
             })
 
-            ->editColumn('payment', function ($item) {
-                if($item->payment()->count()>0){
-                    $statusText = paymentStatus($item->payment->status);
-                    $badgeClass = OrdorClass($item->payment->status);
-                    return  '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
-                }else{
-                    return  '     <div class="d-inline-block m-1"><span class="badge badge-glow '.OrdorClass('0').'">'.paymentStatus(0).' </span></div>';
-                }
 
-            })
 
 
 
@@ -156,7 +154,7 @@ class HouseKeeperHourlyOrderController extends Controller
 
     public function getHousekeepers($companyId)
     {
-        $housekeepers = Housekeeper::where('company_id', $companyId)->where('status',0)->get();
+        $housekeepers = Housekeeper::where('company_id', $companyId)->get();
 
         return response()->json([
             'housekeepers' => $housekeepers
@@ -205,6 +203,7 @@ class HouseKeeperHourlyOrderController extends Controller
             if ($request->hasFile('attachment')) {
                 $this->handleHourlyOrderFileUpload($request, $order);
             }
+
 
             // Save the order and commit the transaction
             $order->save();

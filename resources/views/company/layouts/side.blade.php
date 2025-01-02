@@ -48,7 +48,6 @@
                         data-i18n="Email">{{trans('dashboard_aside.housekeepers')}}</span>
                 </a>
 
-
                 <ul class="menu-content">
                     <li class="{{ request()->routeIs('company.housekeepers.index') ||  request()->routeIs('company.housekeepers.view')?'active':''}}">
                         <a class="d-flex align-items-center " href="{{route('company.housekeepers.index')}}">
@@ -58,46 +57,12 @@
                     </li>
 
 
-                    <li class="{{ request()->routeIs('company.housekeepers.orders.index') ?'active':''}}">
+                    <li class="{{ request()->routeIs('company.housekeepers.orders.index') || request()->routeIs('company.housekeepers.orders.view')? 'active':''}}">
                         <a class="d-flex align-items-center " href="{{route('company.housekeepers.orders.index')}}">
                             <i data-feather="circle"></i>
                             <span class="menu-item text-truncate"
                                   data-i18n="Shop">{{trans('dashboard_aside.housekeepers-orders')}}</span></a>
                     </li>
-
-
-                    <li class="{{ request()->routeIs('company.housekeepers.orders.active')||  request()->routeIs('company.housekeepers.orders.view') ?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('company.housekeepers.orders.active')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{HouseKeeperStatuses(3)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('company.housekeepers.orders.complete')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('company.housekeepers.orders.complete')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{HouseKeeperStatuses(4)}}</span></a>
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('company.housekeepers.orders.expiring')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('company.housekeepers.orders.expiring')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{trans('main.Expiring_Contracts')}}</span>
-                            <span class="badge badge-light-warning badge-pill ml-auto">   {{houseKeeperExpiringOrdersCountsCompany()}} </span>
-                        </a>
-
-
-
-                    </li>
-
-
-                    <li class="{{ request()->routeIs('company.housekeepers.orders.close')?'active':''}}">
-                        <a class="d-flex align-items-center " href="{{route('company.housekeepers.orders.close')}}">
-                            <i data-feather="circle"></i>
-                            <span class="menu-item text-truncate" data-i18n="Shop">{{HouseKeeperStatuses(5)}}</span></a>
-                    </li>
-
 
                     <li class="{{ request()->routeIs('company.housekeepers.HourlyOrders.*')?'active':''}}">
                         <a class="d-flex align-items-center " href="{{route('company.housekeepers.HourlyOrders.index')}}">
@@ -107,6 +72,7 @@
                     </li>
 
                 </ul>
+
 
 
             </li>

@@ -73,7 +73,7 @@
                     {{--                    </li>--}}
 
 
-                    <li class="{{ request()->routeIs('assurances.orders.index')?'active':''}}">
+                    <li class="{{ request()->routeIs('assurances.orders.index')||request()->routeIs('assurances.orders.view') ?'active':''}}">
                         <a class="d-flex align-items-center" href="{{route('assurances.orders.index')}}">
                             <i data-feather="circle"></i>
                             <span class="menu-item text-truncate" data-i18n="Shop">{{trans('main.AssuranceOrders')}}</span></a>
@@ -104,7 +104,7 @@
                     </li>
 
 
-                    <li class="{{ request()->routeIs('housekeepers.orders.index') ?'active':''}}">
+                    <li class="{{ request()->routeIs('housekeepers.orders.index') || request()->routeIs('housekeepers.orders.view')? 'active':''}}">
                         <a class="d-flex align-items-center " href="{{route('housekeepers.orders.index')}}">
                             <i data-feather="circle"></i>
                             <span class="menu-item text-truncate"

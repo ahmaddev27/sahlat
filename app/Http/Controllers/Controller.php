@@ -342,7 +342,7 @@ class Controller extends BaseController
 
 
             case 3:
-
+                $order->house_keeper_id = $request->housekeeper_id;
                 $remaining_amount = 0;
                 $order->payment->update([
                     'remaining_amount' => $remaining_amount,

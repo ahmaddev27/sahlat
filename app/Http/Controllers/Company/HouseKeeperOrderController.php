@@ -17,34 +17,6 @@ class HouseKeeperOrderController extends Controller
 
 
 
-    public function active()
-    {
-        $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
-
-
-        return view('company.housekeepers.active_contract', ['housekeepers'=>$housekeepers]);
-    }
-
-    public function complete()
-    {
-        $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
-
-        return view('company.housekeepers.complete', ['housekeepers'=>$housekeepers]);
-    }
-    public function expiring()
-    {
-        $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
-
-        return view('company.housekeepers.expiring', ['housekeepers'=>$housekeepers]);
-    }
-
-    public function close()
-    {
-        $housekeepers=HouseKeeper::where('company_id',auth('company')->id())->get();
-
-        return view('company.housekeepers.close_contract', ['housekeepers'=>$housekeepers]);
-    }
-
 
 
     public function index()
@@ -66,12 +38,18 @@ class HouseKeeperOrderController extends Controller
             $houseKeeperOrders->where('housekeeper_id', $request->housekeeper_id);
         }
 
-        if ($request->has('payment_status') && $request->filled('payment_status')) {
-            $houseKeeperOrders->when($request->payment_status == 1, function ($q) {
-                $q->whereHas('payment');
-            })->when($request->payment_status == 0, function ($q) {
-                $q->whereDoesntHave('payment');
-            });
+        if ($request->has('payment_status') && $request->payment_status !== null) {
+            if ($request->payment_status == 1) {
+                // Check for payments with status = 1 (paid)
+                $houseKeeperOrders->whereHas('payment', function ($q) {
+                    $q->where('status', 1);
+                });
+            } elseif ($request->payment_status == 2) {
+                // Check for payments with status = 2
+                $houseKeeperOrders->whereHas('payment', function ($q) {
+                    $q->where('status', 2);
+                });
+            }
         }
 
         if ($request->has('status') && $request->filled('status')) {
@@ -183,10 +161,10 @@ class HouseKeeperOrderController extends Controller
             // Handle status-specific logic
             $this->HouseKeeperhandleStatusUpdates($order, $request);
 
-            // Handle file upload if available
-            if ($request->hasFile('attachment')) {
-                $this->HouseKeeperhandleFileUpload($request, $order);
-            }
+//            // Handle file upload if available
+//            if ($request->hasFile('attachment')) {
+//                $this->HouseKeeperhandleFileUpload($request, $order);
+//            }
 
             // Save the order and commit the transaction
             $order->save();

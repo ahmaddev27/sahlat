@@ -41,8 +41,8 @@
                         <select id="gender" class="select2 form-control ">
                             <option selected disabled>{{ trans('main.change') }}</option>
                             <option value="">{{ trans('main.all') }}</option>
-                            <option value="1">{{ trans('user.female') }}</option>
-                            <option value="0">{{ trans('user.male') }}</option>
+                            <option value="0">{{ trans('user.female') }}</option>
+                            <option value="1">{{ trans('user.male') }}</option>
                         </select>
 
                     </div>

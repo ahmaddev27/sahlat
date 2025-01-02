@@ -1,12 +1,18 @@
 @extends('company.layouts.master',['title'=>trans('dashboard_aside.housekeepers-HourlyOrders')])
 @push('css')
+
     <style>
-        .swal2-container {
-            z-index: 10000; /* Adjust as needed to ensure it is above other modals */
+        .select2-container {
+            z-index: 9999 !important; /* Ensure it has the highest priority */
         }
 
-        .select2-container {
-            z-index: 10500; /* Ensure Select2 dropdown is above SweetAlert */
+        .swal2-container {
+            z-index: 10000; /* SweetAlert z-index */
+        }
+
+
+        .modal {
+            z-index: 1040; /* Ensure the modal stays below the dropdown */
         }
 
     </style>
@@ -20,7 +26,12 @@
     {{--        </div>--}}
     {{--    </div>--}}
 
+
+
+
 @endsection
+
+
 
 @section('content')
 
@@ -28,7 +39,6 @@
         <div class="card">
 
             <div class="card-datatable table-responsive p-2 ">
-
 
                 <div class="row">
 
@@ -49,7 +59,6 @@
                     </div>
 
 
-
                     <div class="card-header p-1 col-sm-3" style="margin-bottom: -5px">
 
                         <label class="pt-1">{{trans('housekeeper.housekeeper')}}</label>
@@ -58,35 +67,35 @@
                             <option selected disabled>{{ trans('main.change') }}</option>
 
                             <option value="">{{ trans('main.all') }}</option>
-                           @foreach($housekeepers as $h)
+                            @foreach($housekeepers as $h)
                                 <option value="{{$h->id}}">{{ $h->name }}</option>
-                           @endforeach
+                            @endforeach
 
                         </select>
 
                     </div>
 
+
                 </div>
-
-
 
                 <table class="table" id="table">
 
 
-                    <thead class="thead-light">
+                    <thead class="thead-light ">
                     <tr>
                         <th>#</th>
                         <th>{{trans('assurances.order_id')}}</th>
 
                         <th>{{trans('housekeeper.company')}}</th>
-                        <th >{{trans('housekeeper.user')}}</th>
+                        <th>{{trans('housekeeper.user')}}</th>
                         <th>{{trans('housekeeper.date')}}</th>
-{{--                        <th>{{trans('housekeeper.from')}}</th>--}}
-{{--                        <th>{{trans('housekeeper.to')}}</th>--}}
+                        {{--                        <th>{{trans('housekeeper.from')}}</th>--}}
+                        {{--                        <th>{{trans('housekeeper.to')}}</th>--}}
                         <th>{{trans('housekeeper.hours')}}</th>
                         <th>{{trans('housekeeper.housekeeper')}}</th>
                         <th class="width-150">{{trans('housekeeper.status')}}</th>
-                        <th class="width-100">{{trans('housekeeper.payment')}}</th>
+                        {{--                        <th class="width-100">{{trans('housekeeper.payment')}}</th>--}}
+                        <th>{{trans('housekeeper.action')}}</th>
                         <th>{{trans('housekeeper.action')}}</th>
 
                     </tr>
@@ -97,10 +106,48 @@
     </div>
 
 
-
-
     @push('js')
 
+        {{--  get-housekeepers--}}
+        <script>
+            $(document).ready(function () {
+                // On company change
+                $('#companies').on('change', function () {
+                    var companyId = $(this).val();
+
+                    // Fetch housekeepers for the selected company
+                    $.ajax({
+                        url: 'orders/get-housekeepers/' + companyId, // Your route for fetching housekeepers
+                        method: 'GET',
+                        success: function (response) {
+                            // Clear previous options
+                            $('#housekeepers').empty().prop('disabled', false);
+
+                            // Append the default option
+                            $('#housekeepers').append('<option selected disabled>{{ trans("main.change") }}</option>');
+                            $('#housekeepers').append('<option value="" >{{ trans("main.all") }}</option>');
+
+                            // Append housekeepers based on the selected company
+                            $.each(response.housekeepers, function (index, housekeeper) {
+                                $('#housekeepers').append('<option value="' + housekeeper.id + '">' + housekeeper.name + '</option>');
+                            });
+
+                            // Trigger the datatable update with the selected filters
+                            $('#housekeepers').trigger('change');
+                        }
+                    });
+                });
+
+                // On housekeeper change (for the datatable filtering)
+                $('#housekeepers').on('change', function () {
+                    var housekeeperId = $(this).val();
+
+                    // Reload the datatable with the selected filters
+                    $('#housekeeper-orders-table').DataTable().ajax.reload();
+                });
+            });
+
+        </script>
 
 
         {{--datatable--}}
@@ -114,6 +161,7 @@
                         url: "{{ route('company.housekeepers.HourlyOrders.list') }}",
                         data: function (d) {
 
+                            d.company_id = $('#companies').val();
                             d.housekeeper_id = $('#housekeepers').val();
                             d.payment_status = $('#payment_status').val();
                             // d.status = $('#status').val();
@@ -261,7 +309,7 @@
                         },
                     ],
 
-
+                    order: [[9, 'desc']],
                     columns: [
                         {data: 'DT_RowIndex', name: 'id'},
                         {data: 'n_id', name: 'n_id'},
@@ -273,7 +321,8 @@
                         {data: 'hours', name: 'hours'},
                         {data: 'houseKeeper', name: 'houseKeeper'},
                         {data: 'status', name: 'status'},
-                        {data: 'payment', name: 'payment'},
+                        // {data: 'payment', name: 'payment'},
+                        {data: 'created_at', name: 'created_at', searchable: false, visible: false},
 
 
                         {
@@ -281,10 +330,11 @@
                             name: 'action',
                             orderable: false,
                             searchable: false,
-                            "className": "text-center",
+
                         },
 
                     ],
+
 
                     @if(App::getLocale() == 'ar')
 
@@ -326,6 +376,7 @@
         </script>
 
 
+
         {{-- Change status --}}
         <script>
             $(document).on('change', '.status-select', function () {
@@ -349,18 +400,12 @@
                     },
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        if (newStatus == 1) {
+                        if (newStatus == 3) {
                             // Fetch housekeepers dynamically based on company_id
-                            var companyId = $(this).data('company-id'); // Assume you have company ID in the data attribute
-                            Swal.fire({
-                                icon:'info',
-                                title: '{{trans('messages.loading')}}',
-                                text: '{{trans('messages.processing-request')}}',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
+                            var companyId = $(this).data('company-id');
+                            // Assume you have company ID in the data attribute
+                            // Show loading indicator
+
                             $.ajax({
                                 url: '{{route('company.housekeepers.HourlyOrders.get-housekeepers', '')}}/' + companyId,
                                 type: 'GET',
@@ -399,8 +444,10 @@
                                                 });
                                                 return;
                                             }
+
+
                                             Swal.fire({
-                                                icon:'info',
+                                                icon: 'info',
                                                 title: '{{trans('messages.loading')}}',
                                                 text: '{{trans('messages.processing-request')}}',
                                                 allowOutsideClick: false,
@@ -408,6 +455,7 @@
                                                     Swal.showLoading();
                                                 }
                                             });
+
                                             // Make AJAX request to update the status with housekeeper ID
                                             $.ajax({
                                                 url: '{{route('company.housekeepers.HourlyOrders.updateStatus')}}',
@@ -453,86 +501,11 @@
                                     });
                                 }
                             });
-                        }
-
-
-
-
-                        else if (newStatus == 3) {
-                            // Handle note input for status 4
-                            Swal.fire({
-                                title: '{{trans('messages.enter-note')}}',
-                                input: 'text',
-                                inputPlaceholder: '{{trans('messages.enter-note-placeholder')}}',
-                                inputAttributes: {
-                                    'aria-label': '{{trans('messages.enter-note-placeholder')}}',
-                                    'aria-required': 'true'
-                                },
-                                showCancelButton: true,
-                                confirmButtonText: '{{trans('messages.submit')}}',
-                                cancelButtonText: '{{trans('messages.cancel')}}',
-                                customClass: {
-                                    confirmButton: 'btn btn-success',
-                                    cancelButton: 'btn btn-secondary'
-                                },
-                                preConfirm: function (note) {
-                                    if (!note) {
-                                        Swal.showValidationMessage('{{trans('messages.note-required')}}');
-                                        return false;
-                                    }
-                                    return note;
-                                }
-                            }).then((noteResult) => {
-                                if (noteResult.isConfirmed) {
-                                    var note = noteResult.value;
-                                    Swal.fire({
-                                        icon:'info',
-                                        title: '{{trans('messages.loading')}}',
-                                        text: '{{trans('messages.processing-request')}}',
-                                        allowOutsideClick: false,
-                                        didOpen: () => {
-                                            Swal.showLoading();
-                                        }
-                                    });
-                                    // Make AJAX request for note submission
-                                    $.ajax({
-                                        url: '{{route('company.housekeepers.HourlyOrders.updateStatus')}}',
-                                        type: 'POST',
-                                        data: {
-                                            _token: $('meta[name="csrf-token"]').attr('content'),
-                                            order_id: orderId,
-                                            status: newStatus,
-                                            note: note
-                                        },
-                                        success: function (data) {
-                                            Swal.fire({
-                                                title: '{{trans('messages.updated')}}!',
-                                                text: '{{trans('messages.change-success')}}.',
-                                                icon: 'success',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                                customClass: {
-                                                    confirmButton: 'btn btn-success'
-                                                }
-                                            });
-
-                                            $('#table').DataTable().ajax.reload();
-                                        },
-                                        error: function (data) {
-                                            Swal.fire({
-                                                title: '{{trans('messages.not-updated')}}!',
-                                                text: '{{trans('messages.not-update-error')}}.',
-                                                icon: 'error',
-                                                confirmButtonText: '{{trans('messages.close')}}',
-                                            });
-
-                                            $('#table').DataTable().ajax.reload();
-                                        }
-                                    });
-                                }
-                            });
                         } else {
+
+                            // Show loading indicator
                             Swal.fire({
-                                icon:'info',
+                                icon: 'info',
                                 title: '{{trans('messages.loading')}}',
                                 text: '{{trans('messages.processing-request')}}',
                                 allowOutsideClick: false,
@@ -582,7 +555,6 @@
                 });
             });
         </script>
-
 
     @endpush
 
