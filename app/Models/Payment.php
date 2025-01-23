@@ -15,4 +15,14 @@ class Payment extends Model
 
         return $this->hasOne(Violation::class);
     }
+
+    public function stripe()
+    {
+        return $this->hasMany(StripePayment::class);
+    }
+
+    public function tabby()
+    {
+        return $this->hasMany(TabbyPayment::class);
+    }
 }

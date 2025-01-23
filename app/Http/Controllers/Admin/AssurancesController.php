@@ -86,27 +86,24 @@ class AssurancesController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        try {
+            $avatarPath = $request->file('image')->store('assurances', 'public');
+            $logoPath = $request->file('company_logo')->store('assurances', 'public');
 
-        $avatarPath = $request->file('image')->store('assurances', 'public');
-        $logoPath = $request->file('company_logo')->store('assurances', 'public');
+            Assurance::create([
+                'title' => $request->title,
+                'description' => $request->description,
+                'image' => $avatarPath,
+                'company_logo' => $logoPath,
+                'company' => $request->company,
+                'price' => $request->price,
+            ]);
 
-
-        Assurance::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'image' => $avatarPath,
-            'company_logo' => $logoPath,
-            'company' => $request->company,
-            'price' => $request->price,
-
-        ]);
-
-
-        return response()->json(['success' => true, 'message' => trans('messages.success-created')]);
-
-
+            return response()->json(['success' => true, 'message' => trans('messages.success-created')]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e], 500);
+        }
     }
-
 
     public function fetch($id)
     {
@@ -187,21 +184,24 @@ class AssurancesController extends Controller
     }
 
 
-    public function destroy(Request $request)
-    {
-        $service = Assurance::find($request->id);
+   public function destroy(Request $request)
+{
+    try {
+        $service = Assurance::findOrFail($request->id);
 
-        if ($service) {
-            if ($service->image && Storage::disk('public')->exists($service->image)) {
-                Storage::disk('public')->delete($service->image);
-            }
-            $service->delete();
-
-            return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
-        } else {
-            return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+        if ($service->image && Storage::disk('public')->exists($service->image)) {
+            Storage::disk('public')->delete($service->image);
         }
+
+        $service->delete();
+
+        return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+    } catch (\Exception $e) {
+        return response()->json(['message' => $e->getMessage(), 'status' => false], 500);
     }
+}
 
 
 

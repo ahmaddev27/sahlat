@@ -18,8 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
 
-class HouseKeeperHourlyOrderController extends Controller
-{
+class HouseKeeperHourlyOrderController extends Controller{
     public function index()
     {
         $companies = Company::all();
@@ -142,6 +141,7 @@ class HouseKeeperHourlyOrderController extends Controller
     }
 
 
+
     public function getHousekeepers($companyId)
     {
         $housekeepers = Housekeeper::where('company_id', $companyId)->get();
@@ -152,11 +152,19 @@ class HouseKeeperHourlyOrderController extends Controller
     }
 
 
+
     public function destroy(Request $request)
     {
-        HouseKeeperHourlyOrder::find($request->id)->delete();
-        return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
-
+        try {
+            $order = HouseKeeperHourlyOrder::findOrFail($request->id);
+            $order->delete();
+            return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error in destroy: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
+        }
     }
 
 
@@ -226,7 +234,6 @@ class HouseKeeperHourlyOrderController extends Controller
             return response()->json(['message' => trans('messages.fail-sms')], 500);
         }
     }
-
 
 
 }

@@ -16,6 +16,8 @@ class HouseKeeperHourlyOrder extends Model
 
   protected $casts = [
       'date' => 'datetime',
+      'from' => 'date',
+      'to' => 'date',
   ];
 
 

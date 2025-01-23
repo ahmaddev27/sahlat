@@ -79,24 +79,25 @@ class CompanyController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:companies,email',
-            'address' => 'required',
-            'phone' => 'required|unique:companies|regex:/^[5][0-9]{8}$/',
-            'experience' => 'required',
-            'password' => 'required|string|min:8',
-            'avatar' => 'required|image',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+   public function store(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:companies,email',
+        'address' => 'required',
+        'phone' => 'required|unique:companies|regex:/^[5][0-9]{8}$/',
+        'experience' => 'required',
+        'password' => 'required|string|min:8',
+        'avatar' => 'required|image',
+    ]);
 
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    try {
         $avatarPath = $request->file('avatar')->store('companies', 'public');
-
 
         Company::create([
             'name' => $request->name,
@@ -107,15 +108,17 @@ class CompanyController extends Controller
             'long' => $request->long,
             'lat' => $request->lat,
             'bio' => $request->bio,
-
             'password' => Hash::make($request->password),
             'avatar' => $avatarPath,
             'hourly_price' => $request->hourly_price,
         ]);
+
         return response()->json(['success' => true, 'message' => trans('messages.success-created')]);
-
-
+    } catch (\Exception $e) {
+        \Log::error('Error in store: ' . $e->getMessage(), ['exception' => $e]);
+        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
     }
+}
 
 
     public function fetch($id)
@@ -146,19 +149,20 @@ class CompanyController extends Controller
 
 
     public function update(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:companies,email,' . $request->id,
-            'address' => 'required',
-            'experience' => 'required',
-            'phone' => 'required|regex:/^[5][0-9]{8}$/|unique:companies,phone,' . $request->id,
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:companies,email,' . $request->id,
+        'address' => 'required',
+        'experience' => 'required',
+        'phone' => 'required|regex:/^[5][0-9]{8}$/|unique:companies,phone,' . $request->id,
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
 
+    try {
         $company = Company::findOrFail($request->id);
 
         if ($request->hasFile('avatar')) {
@@ -183,25 +187,32 @@ class CompanyController extends Controller
         ]);
 
         return response()->json(['success' => true, 'message' => trans('messages.success-update')]);
-
+    } catch (\Exception $e) {
+        \Log::error('Error in update: ' . $e->getMessage(), ['exception' => $e]);
+        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
     }
+}
 
 
-    public function destroy(Request $request)
-    {
-        $company = Company::find($request->id);
+   public function destroy(Request $request)
+{
+    try {
+        $company = Company::findOrFail($request->id);
 
-        if ($company) {
-            if ($company->avatar && Storage::disk('public')->exists($company->avatar)) {
-                Storage::disk('public')->delete($company->avatar);
-            }
-            $company->delete();
-
-            return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
-        } else {
-            return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+        if ($company->avatar && Storage::disk('public')->exists($company->avatar)) {
+            Storage::disk('public')->delete($company->avatar);
         }
+
+        $company->delete();
+
+        return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+    } catch (\Exception $e) {
+        \Log::error('Error in destroy: ' . $e->getMessage(), ['exception' => $e]);
+        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
     }
 
+}
 
 }

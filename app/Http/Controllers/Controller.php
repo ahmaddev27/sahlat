@@ -78,7 +78,7 @@ class Controller extends BaseController
     {
         $type = 'assurance';
 
-        $user->notify(new OrderNotification(trans('notifications.' . $title), trans('notifications.' . $body), $link, $orderId, $type, $image));
+        $user->notify(new OrderNotification(trans('notifications.' . $title), trans('notifications.' .$body), $link, $orderId, $type, $image));
 
         Notification::create([
             'user_id' => $user->id,
@@ -322,6 +322,12 @@ class Controller extends BaseController
     {
         $user = $order->user;
 
+        // Store the current locale
+        $currentLocale = app()->getLocale();
+
+        // Set the locale to the user's language
+        app()->setLocale($user->lang);
+
         switch ($order->status) {
 
             case 2:
@@ -390,6 +396,9 @@ class Controller extends BaseController
                 \Log::warning('Unknown status in handleHourlyOrderStatus: ' . $order->status);
                 break;
         }
+
+        // Revert the locale back to the original
+        app()->setLocale($currentLocale);
     }
 
 // Handle file upload

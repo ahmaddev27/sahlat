@@ -16,7 +16,7 @@ class HouseKeeperController extends Controller
     public function index()
     {
         $companies = Company::select('id', 'name')->get();
-        return view('dashboard.housekeepers.index',['companies'=>$companies]);
+        return view('dashboard.housekeepers.index', ['companies' => $companies]);
     }
 
 
@@ -38,7 +38,6 @@ class HouseKeeperController extends Controller
         }
 
 
-
         if ($request->has('search') && $request->search['value']) {
 
 
@@ -51,7 +50,6 @@ class HouseKeeperController extends Controller
         }
 
 
-
         $houseKeepers = $houseKeeperQuery->get();
 
 
@@ -62,13 +60,10 @@ class HouseKeeperController extends Controller
 
                 return '<div class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</div>';
             })
-
-
             ->editColumn('name', function ($item) {
                 return '<img src="' . $item->getAvatar() . '" alt="avatar" id="add-avatar-img" class="user-avatar icon users-avatar-shadow rounded-circle cursor-pointer m-1" height="60" width="60" />
                               ' . $item->name;
             })
-
             ->editColumn('company', function ($item) {
                 return $item->company->name;
             })
@@ -80,15 +75,13 @@ class HouseKeeperController extends Controller
             ->editColumn('created_at', function ($item) {
                 return $item->created_at->format('Y M d - H:i');
             })
-
             ->editColumn('gender', function ($item) {
                 return gender($item->gender);
             })
-
             ->editColumn('action', function ($item) {
                 return '
 
-                   <a href="'.route('housekeepers.view',$item->id).'" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
+                   <a href="' . route('housekeepers.view', $item->id) . '" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
                title="view">
 
             <i class="fa fa-eye text-body"></i>
@@ -105,10 +98,8 @@ class HouseKeeperController extends Controller
         </button>
     ';
             })
-
-
             ->addIndexColumn()
-            ->rawColumns(['action', 'type', 'name','status','company','gender'])
+            ->rawColumns(['action', 'type', 'name', 'status', 'company', 'gender'])
             ->make(true);
 
     }
@@ -116,9 +107,6 @@ class HouseKeeperController extends Controller
 
     public function store(Request $request)
     {
-
-
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'company' => 'required',
@@ -128,19 +116,16 @@ class HouseKeeperController extends Controller
             'phone' => 'required|regex:/^[5][0-9]{8}$/|unique:housekeepers,phone',
             'experience' => 'required',
             'description' => 'required',
-//            'type' => 'required',
             'salary' => 'required',
             'avatar' => 'required|image',
-
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-
+        try {
             $avatarPath = $request->file('avatar')->store('Housekeepers', 'public');
-
 
             HouseKeeper::create([
                 'name' => $request->name,
@@ -151,16 +136,16 @@ class HouseKeeperController extends Controller
                 'phone' => $request->phone,
                 'description' => $request->description,
                 'experience' => $request->experience,
-//                'type' => $request->type,
                 'salary' => $request->salary,
                 'gender' => $request->gender,
                 'avatar' => $avatarPath,
             ]);
 
-
             return response()->json(['success' => true, 'message' => trans('messages.success-created')]);
-
-
+        } catch (\Exception $e) {
+            \Log::error('Error in store: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
+        }
     }
 
     public function fetch($id)
@@ -175,90 +160,81 @@ class HouseKeeperController extends Controller
     }
 
 
-
     public function view($id)
     {
-        $housekeeper = HouseKeeper::with(['company','reviews','orderd'])->findOrFail($id);
-        return view('dashboard.housekeepers.view',['housekeeper'=>$housekeeper]);
+        $housekeeper = HouseKeeper::with(['company', 'reviews', 'orderd'])->findOrFail($id);
+        return view('dashboard.housekeepers.view', ['housekeeper' => $housekeeper]);
     }
 
 
+public function update(Request $request)
+{
+    // Validate the request
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'company' => 'required',
+        'phone' => 'required|regex:/^[5][0-9]{8}$/|unique:housekeepers,phone,' . $request->housekeeper_id,
+        'language' => 'required',
+        'description' => 'required',
+        'religion' => 'required',
+        'nationality' => 'required',
+        'experience' => 'required',
+        'salary' => 'required',
+        'avatar' => 'nullable|image',
+    ]);
 
-    public function update(Request $request)
-    {
-        // Validate the request
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'company' => 'required',
-            'phone' => 'required|regex:/^[5][0-9]{8}$/|unique:housekeepers,phone,'. $request->housekeeper_id,
-            'language' => 'required',
-            'description' => 'required',
-            'religion' => 'required',
-            'nationality' => 'required',
-            'experience' => 'required',
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 422);
+    }
 
-//            'type' => 'required',
-            'salary' => 'required',
-            'avatar' => 'nullable|image',
+    try {
+        $housekeeper = HouseKeeper::findOrFail($request->housekeeper_id);
+        $currentAvatarPath = $housekeeper->avatar;
 
+        // Update the housekeeper details
+        $housekeeper->update($request->only([
+            'name', 'company_id', 'nationality', 'language', 'religion',
+            'description', 'phone', 'experience', 'gender', 'salary'
+        ]));
 
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-            $housekeeper = HouseKeeper::findOrFail($request->housekeeper_id);
-            $currentAvatarPath = $housekeeper->avatar;
-            // Update the housekeeper details
-            $housekeeper->update([
-                'name' => $request->name,
-                'company_id' => $request->company,
-                'nationality' => $request->nationality,
-                'language' => $request->language,
-                'religion' => $request->religion,
-                'description' => $request->description,
-                'phone' => $request->phone,
-                'experience' => $request->experience,
-                'gender' => $request->gender,
-//                'type' => $request->type,
-                'salary' => $request->salary,
-//                'avatar' => $avatarPath,
-            ]);
-
-            // Handle avatar upload if it exists
-            if ($request->hasFile('avatar')) {
-                // Delete the old avatar if it exists
-                if ($currentAvatarPath && Storage::disk('public')->exists($currentAvatarPath)) {
-                    Storage::disk('public')->delete($currentAvatarPath);
-                }
-                // Store the new avatar
-                $avatarPath = $request->file('avatar')->store('Housekeepers', 'public');
-                // Update the avatar path in the database
-                $housekeeper->update(['avatar' => $avatarPath]);
+        // Handle avatar upload if it exists
+        if ($request->hasFile('avatar')) {
+            // Delete the old avatar if it exists
+            if ($currentAvatarPath && Storage::disk('public')->exists($currentAvatarPath)) {
+                Storage::disk('public')->delete($currentAvatarPath);
             }
-
-            return response()->json(['success' => true, 'message' => trans('messages.success-update')]);
-
-    }
-
-
-
-    public function destroy(Request $request)
-    {
-        $housekeeper = HouseKeeper::find($request->id);
-
-        if ($housekeeper) {
-            if ($housekeeper->avatar && Storage::disk('public')->exists($housekeeper->avatar)) {
-                Storage::disk('public')->delete($housekeeper->avatar);
-            }
-            $housekeeper->delete();
-
-            return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
-        } else {
-            return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+            // Store the new avatar
+            $avatarPath = $request->file('avatar')->store('Housekeepers', 'public');
+            // Update the avatar path in the database
+            $housekeeper->update(['avatar' => $avatarPath]);
         }
-    }
 
+        return response()->json(['success' => true, 'message' => trans('messages.success-update')]);
+    } catch (\Exception $e) {
+        \Log::error('Error in update: ' . $e->getMessage(), ['exception' => $e]);
+        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
+    }
+}
+
+   public function destroy(Request $request)
+{
+    try {
+        $housekeeper = HouseKeeper::findOrFail($request->id);
+
+        if ($housekeeper->avatar && Storage::disk('public')->exists($housekeeper->avatar)) {
+            Storage::disk('public')->delete($housekeeper->avatar);
+        }
+
+        $housekeeper->delete();
+
+        return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+    } catch (\Exception $e) {
+        \Log::error('Error in destroy: ' . $e->getMessage(), ['exception' => $e]);
+        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
+    }
+}
 
 
 }

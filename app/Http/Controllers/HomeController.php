@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
-use App\Models\HouseKeeper;
+
 use App\Models\Settings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Stripe\Stripe;
+use Stripe\Charge;
+
 
 class HomeController extends Controller
 {
@@ -21,6 +24,40 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth')->except('home');
+    }
+
+    public function getPaymentHistory()
+    {
+        // Set your Stripe secret key
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            // Retrieve payment history (charges)
+            $charges = Charge::all([
+                'limit' => 10, // you can modify the limit as needed
+            ]);
+            return response()->json($charges);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
+    }
+
+
+    public function getPaymentDetails($payment_id)
+    {
+        // Set your Stripe secret key
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            // Retrieve the specific charge using the payment ID
+            $charge = Charge::retrieve($payment_id);
+
+            // Return the charge details
+            return response()->json($charge);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -44,7 +81,7 @@ class HomeController extends Controller
             return 450;
         }
 
-        return  redirect()->route('login');
+        return redirect()->route('login');
     }
 
 
@@ -113,7 +150,6 @@ class HomeController extends Controller
     }
 
 
-
     public function profile(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -149,7 +185,6 @@ class HomeController extends Controller
     }
 
 
-
     public function password(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -167,7 +202,6 @@ class HomeController extends Controller
         return response()->json(['success' => true, 'message' => trans('messages.success-update')]);
 
     }
-
 
 
     public function banners($id)
@@ -236,11 +270,7 @@ class HomeController extends Controller
     }
 
 
-
-
-
-
-        public function store(Request $request)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string',
@@ -265,8 +295,6 @@ class HomeController extends Controller
 
         return response()->json(['success' => true, 'message' => trans('messages.success-create')]);
     }
-
-
 
 
 }

@@ -18,17 +18,18 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
-    'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
+    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
 
-], function() {
+], function () {
 
-   Auth::routes(['register'=>'false']);
-
+    Auth::routes(['register' => 'false']);
+    Route::get('/', [HomeController::class, 'home'])->name('home');
     Route::get('/', [HomeController::class, 'home'])->name('home');
 
+//    Route::get('/paymentHistory', [HomeController::class, 'getPaymentHistory'])->name('getPaymentHistory');
+//    Route::get('/payment-details/{payment_id}', [HomeController::class, 'getPaymentDetails'])->name('getPaymentDetails');
+
 });
-
-
 
 
 
@@ -43,7 +44,7 @@ Route::get('/clear', function () {
 
 
 
-
 Route::get('/link', function () {
     Artisan::call('storage:link');
 });
+

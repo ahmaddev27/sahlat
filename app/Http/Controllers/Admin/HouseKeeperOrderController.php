@@ -27,7 +27,6 @@ class HouseKeeperOrderController extends Controller
     }
 
 
-
     public function list(Request $request)
     {
         $companyId = $request->get('company_id');
@@ -175,6 +174,8 @@ class HouseKeeperOrderController extends Controller
     }
 
 
+
+
     public function destroy(Request $request)
     {
         HouseKeeperOrder::find($request->id)->delete();
@@ -239,7 +240,6 @@ class HouseKeeperOrderController extends Controller
             return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
         }
     }
-
 
     public function sendSms(Request $request)
     {

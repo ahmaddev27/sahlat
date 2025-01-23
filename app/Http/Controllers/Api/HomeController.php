@@ -162,13 +162,10 @@ class HomeController extends Controller
 
     public function contact(Request $request)
     {
-
-
         $rules = [
             'title' => 'required',
-            'email' => 'required',
+            'email' => 'required|email',
             'text' => 'required',
-
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -179,96 +176,89 @@ class HomeController extends Controller
             return $this->apiRespose($errors, $errorMessage, false, 400);
         }
 
+        try {
+            Contact::create([
+                'title' => $request->title,
+                'email' => $request->email,
+                'text' => $request->text,
+                'user_id' => Auth::id(),
+            ]);
 
-        Contact::create([
-            'title' => $request->title,
-            'email' => $request->email,
-            'text' => $request->text,
-            'user_id' => Auth::id(),
-
-        ]);
-
-
-        return $this->apiRespose(
-            []
-            , trans('messages.success'), true, 200);
-
-
+            return $this->apiRespose([], trans('messages.success'), true, 200);
+        } catch (\Exception $e) {
+            return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
+        }
     }
 
 
     public function housekeepers(Request $request)
     {
+        try {
+            $query = Housekeeper::with('reviews')
+                ->withAvg('reviews', 'value')
+                ->where('status', 0)
+                ->orderBy('reviews_avg_value', 'desc');
 
-        $query = Housekeeper::with('reviews')
-            ->withAvg('reviews', 'value')
-            ->where('status', 0)
-            ->orderBy('reviews_avg_value', 'desc');
+            if ($request->has('language')) {
+                $languages = explode(',', $request->input('language'));
+                $query->whereIn('language', $languages);
+            }
 
+            if ($request->has('religion')) {
+                $religions = explode(',', $request->input('religion'));
+                $query->whereIn('religion', $religions);
+            }
 
-        if ($request->has('language')) {
-            $languages = explode(',', $request->input('language'));
-            $query->whereIn('language', $languages);
+            if ($request->has('nationality')) {
+                $nationalities = explode(',', $request->input('nationality'));
+                $query->whereIn('nationality', $nationalities);
+            }
+
+            if ($request->has('experience')) {
+                $experience = $request->input('experience');
+                $query->where('experience', $experience);
+            }
+
+            $perPage = $request->input('per_page', 10);
+            $housekeepers = $query->paginate($perPage);
+
+            if ($housekeepers->isEmpty()) {
+                return $this->ApiResponsePaginationTrait(HouseKeeperResources::collection($housekeepers), trans('messages.not_found'), true, 200);
+            }
+
+            return $this->ApiResponsePaginationTrait(
+                HouseKeeperResources::collection($housekeepers),
+                trans('messages.success'), true, 200
+            );
+        } catch (\Exception $e) {
+            return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
         }
-
-        if ($request->has('religion')) {
-            $religions = explode(',', $request->input('religion'));
-            $query->whereIn('religion', $religions);
-        }
-
-        if ($request->has('nationality')) {
-            $nationalities = explode(',', $request->input('nationality'));
-            $query->whereIn('nationality', $nationalities);
-        }
-
-        if ($request->has('experience')) {
-            $experience = $request->input('experience');
-            $query->where('experience', $experience);
-        }
-
-
-        $perPage = $request->input('per_page', 10);
-
-        $housekeepers = $query->paginate($perPage);
-
-        if ($housekeepers->isEmpty()) {
-            return $this->ApiResponsePaginationTrait(HouseKeeperResources::collection($housekeepers), trans('messages.not_found'), true, 200);
-        }
-
-        return $this->ApiResponsePaginationTrait(
-            HouseKeeperResources::collection($housekeepers)
-            , trans('messages.success'), true, 200);
-
     }
-
 
     public function search(Request $request)
     {
-        // Retrieve the 'search' input from the request
-        $query = $request->input('search'); // Use 'search' as per your URL parameter
+        try {
+            $query = $request->input('search');
+            $results = [];
 
-        $results = [];
+            if (!empty($query)) {
+                $results = [
+                    'Assurance' => AssuranceResources::collection(
+                        Assurance::where('title', 'LIKE', "%$query%")->get()
+                    ),
+                    'HouseKeeper' => HouseKeeperResources::collection(
+                        HouseKeeper::where('name', 'LIKE', "%$query%")->get()
+                    ),
+                    'Company' => CompanyResources::collection(
+                        Company::where('name', 'LIKE', "%$query%")->get()
+                    ),
+                ];
+            }
 
-        if (!empty($query)) {
-            $results = [
-                'Assurance' => AssuranceResources::collection(
-                    Assurance::where('title', 'LIKE', "%$query%")->get()
-                ),
-                'HouseKeeper' => HouseKeeperResources::collection(
-                    HouseKeeper::where('name', 'LIKE', "%$query%")->get()
-                ),
-                'Company' => CompanyResources::collection(
-                    Company::where('name', 'LIKE', "%$query%")->get()
-                ),
-            ];
+            return $this->apiRespose($results, trans('messages.success'), true, 200);
+        } catch (\Exception $e) {
+            return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
         }
-
-        return $this->apiRespose(
-            $results,
-            trans('messages.success'),
-            true,
-            200
-        );
     }
 
 

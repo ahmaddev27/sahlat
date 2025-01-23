@@ -66,7 +66,6 @@ class UserController extends Controller
             ->editColumn('gender', function ($item) {
                 return gender($item->gender);
             })
-
             ->editColumn('status', function ($item) {
                 return user_statuts($item->is_active);
             })
@@ -78,7 +77,6 @@ class UserController extends Controller
             ->make(true);
 
     }
-
 
 
     public function store(Request $request)
@@ -93,27 +91,32 @@ class UserController extends Controller
             'avatar' => 'required|image',
         ]);
 
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $avatarPath = $request->file('avatar')->store('Users', 'public');
+        try {
+            $avatarPath = $request->file('avatar')->store('Users', 'public');
 
+            AppUser::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'location' => $request->city,
+                'gender' => $request->gender,
+                'number_id' => $request->number_id,
+                'avatar' => $avatarPath,
+            ]);
 
+            return response()->json(['success' => true, 'message' => trans('messages.success-created')]);
+        } catch (\Exception $e) {
+            \Log::error('Error in store method: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request' => $request->all(),
+            ]);
 
-        AppUser::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'location' => $request->city,
-            'gender' => $request->gender,
-            'number_id' => $request->number_id,
-//            'password' => Hash::make($request->password),
-            'avatar' => $avatarPath,
-        ]);
-        return response()->json(['success' => true, 'message' => trans('messages.success-created')]);
-
+            return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
+        }
     }
 
 
@@ -142,67 +145,87 @@ class UserController extends Controller
             'email' => 'required|email|unique:app_users,email,' . $request->id,
         ]);
 
-
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        try {
+            $user = AppUser::findOrFail($request->id);
 
-        $user = AppUser::findOrFail($request->id);
-
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
+            if ($request->hasFile('avatar')) {
+                if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                    Storage::disk('public')->delete($user->avatar);
+                }
+                $avatarPath = $request->file('avatar')->store('Users', 'public');
             }
-            $avatarPath = $request->file('avatar')->store('Users', 'public');
+
+            $user->update([
+                'name' => $request->name,
+                'gender' => $request->gender,
+                'number_id' => $request->number_id,
+                'email' => $request->email,
+                'location' => $request->city,
+                'phone' => $request->phone,
+                'avatar' => $request->hasFile('avatar') ? $avatarPath : $user->avatar,
+            ]);
+
+            return response()->json(['success' => true, 'message' => trans('messages.success-update')]);
+        } catch (\Exception $e) {
+            \Log::error('Error in update method: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request' => $request->all(),
+            ]);
+
+            return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
         }
-
-        $user->update([
-            'name' => $request->name,
-            'gender' => $request->gender,
-            'number_id' => $request->number_id,
-            'email' => $request->email,
-            'location' => $request->city,
-            'phone' => $request->phone,
-//            'password' => $request->filled('password') ? Hash::make($request->password) : $user->password,
-            'avatar' => $request->hasFile('avatar') ? $avatarPath : $user->avatar,
-        ]);
-
-        return response()->json(['success' => true, 'message' => trans('messages.success-update')]);
-
     }
 
 
     public function destroy(Request $request)
     {
-        $user = AppUser::find($request->id);
+        try {
+            $user = AppUser::findOrFail($request->id);
 
-        if ($user) {
             if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                 Storage::disk('public')->delete($user->avatar);
             }
+
             $user->delete();
 
             return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
-        } else {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error in destroy method: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request' => $request->all(),
+            ]);
+
+            return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
         }
     }
 
 
-    public function changeStatus(Request $request)
-    {
-        $user = AppUser::find($request->id);
 
-        if ($user) {
-            $user->is_active = $request->status;
-            $user->save();
+   public function changeStatus(Request $request)
+{
+    try {
+        $user = AppUser::findOrFail($request->id);
+        $user->is_active = $request->status;
+        $user->save();
 
-            return response()->json(['message' => trans('messages.status-change-success'), 'status' => true], 200);
-        } else {
-            return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
-        }
+        return response()->json(['message' => trans('messages.status-change-success'), 'status' => true], 200);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+    } catch (\Exception $e) {
+        \Log::error('Error in changeStatus method: ' . $e->getMessage(), [
+            'exception' => $e,
+            'request' => $request->all(),
+        ]);
+
+        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
     }
+}
 
     public function notify(Request $request)
     {

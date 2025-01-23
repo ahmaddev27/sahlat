@@ -7,7 +7,6 @@ use App\Http\Resources\AssuranceOrderResources;
 use App\Http\Resources\HouseKeeperHourlyOrderResources;
 use App\Http\Resources\HouseKeeperOrderResources;
 use App\Http\Resources\ViolationResources;
-use App\Models\AppUser;
 use App\Models\Assurance;
 use App\Models\AssuranceOrder;
 use App\Models\Company;
@@ -15,7 +14,6 @@ use App\Models\HouseKeeper;
 use App\Models\HouseKeeperHourlyOrder;
 use App\Models\HouseKeeperOrder;
 use App\Models\Payment;
-use App\Models\User;
 use App\Models\Violation;
 use App\Models\ViolationAttachment;
 use Illuminate\Http\Request;
@@ -221,7 +219,7 @@ class OrderController extends Controller
     {
         $rules = [
             'housekeeper_id' => 'required|exists:housekeepers,id',
-            'payment_value' => 'required|numeric|min:0',
+            'payment_value' => 'required',
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -312,7 +310,7 @@ class OrderController extends Controller
             'from' => 'required|date_format:H:i',
             'to' => 'required|date_format:H:i|after:from',
             'date' => 'required|date|after_or_equal:today',
-            'location' => 'required|string|max:255',
+            'location' => 'required',
             'company' => 'required|exists:companies,id',
             'payment_value' => 'required|numeric|min:0',
         ];

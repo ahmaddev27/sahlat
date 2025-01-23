@@ -184,22 +184,22 @@ class ViolationController extends Controller
 
     }
 
-    public function print($id)
-    {
 
-        $order = Violation::with(['user', 'payment'])->findOrFail($id);
-
-        return view('dashboard.violations.print', ['order' => $order]);
-    }
-
-    public function destroy(Request $request)
-    {
-        $violations = Violation::find($request->id);
-
-        $violations->delete();
+   public function destroy(Request $request){
+    try {
+        $violation = Violation::findOrFail($request->id);
+        $violation->delete();
         return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
-
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+    } catch (\Exception $e) {
+        \Log::error('Error in destroy method: ' . $e->getMessage(), [
+            'exception' => $e,
+            'request' => $request->all(),
+        ]);
+        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
     }
+}
 
     public function sendSms(Request $request)
     {

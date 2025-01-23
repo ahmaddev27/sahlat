@@ -15,7 +15,6 @@ class AssurancesOrderController extends Controller
 
 
     public function index()
-
     {
         $assurance = Assurance::all();
 
@@ -31,10 +30,6 @@ class AssurancesOrderController extends Controller
         if ($request->has('assurance') && $request->assurance !== null) {
             $assuranceOrders->where('assurance_id', $request->assurance);
         }
-
-//        if ($request->has('status') && $request->status !== null) {
-//            $assuranceOrders->whereIn('status', $request->status);
-//        }
 
 
         if ($request->has('payment_status') && $request->payment_status !== null) {
@@ -141,13 +136,6 @@ class AssurancesOrderController extends Controller
         return view('dashboard.assurances.order-view', ['order' => $order]);
     }
 
-
-    public function print($id)
-    {
-        $order = AssuranceOrder::with(['assurance', 'user', 'payment'])->find($id);
-        return view('dashboard.assurances.order-print', ['order' => $order]);
-    }
-
     public function files($id)
     {
         $assuranceOrderFiles = AssuranceOrder::find($id);
@@ -170,55 +158,55 @@ class AssurancesOrderController extends Controller
     }
 
 
-    public function destroy(Request $request)
-    {
-        AssuranceOrder::find($request->id)->delete();
+  public function destroy(Request $request)
+{
+    try {
+        $order = AssuranceOrder::findOrFail($request->id);
+        $order->delete();
         return response()->json(['message' => trans('messages.delete-success'), 'status' => true], 200);
-
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+    } catch (\Exception $e) {
+        return response()->json(['message' => $e->getMessage(), 'status' => false], 500);
     }
+}
 
 
     public function updateStatus(Request $request)
-    {
-        try {
-            // Validate the request
-            $request->validate([
-                'order_id' => 'required|exists:assurance_orders,id',
-                'status' => 'required|integer',
-                'note' => 'nullable|string',
-                'attachment' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
-            ]);
+{
+    $validated = $request->validate([
+        'order_id' => 'required|exists:assurance_orders,id',
+        'status' => 'required|integer',
+        'note' => 'nullable|string',
+        'attachment' => 'nullable|file|mimes:jpg,png,pdf|max:2048',
+    ]);
 
-            $order = AssuranceOrder::with('assurance')->find($request->order_id);
-            if (!$order) {
-                return response()->json(['message' => 'Order not found', 'status' => false], 404);
-            }
+    $order = AssuranceOrder::with('assurance')->find($validated['order_id']);
+    if (!$order) {
+        return response()->json(['message' => 'Order not found', 'status' => false], 404);
+    }
 
-            DB::beginTransaction();
+    DB::beginTransaction();
 
-            $order->status = $request->status;
-            $this->handleStatusUpdates($order, $request);
+    try {
+        $order->status = $validated['status'];
+        $this->handleStatusUpdates($order, $request);
 
-            // Handle file upload if available
-            if ($request->hasFile('attachment')) {
-                $this->handleFileUpload($request, $order);
-            }
-
-            $order->save();
-            DB::commit();
-
-            return response()->json(['message' => trans('messages.change-success'), 'status' => true], 200);
-        } catch (\Exception $e) {
-            \Log::error('Error in updateStatus: ' . $e->getMessage(), [
-                'exception' => $e,
-            ]);
-
-            DB::rollBack();
-            return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
+        if ($request->hasFile('attachment')) {
+            $this->handleFileUpload($request, $order);
         }
 
+        $order->save();
+        DB::commit();
 
+        return response()->json(['message' => trans('messages.change-success'), 'status' => true], 200);
+    } catch (\Exception $e) {
+        DB::rollBack();
+        \Log::error('Error in updateStatus: ' . $e->getMessage(), ['exception' => $e]);
+
+        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
     }
+}
 
     public function sendSms(Request $request)
     {

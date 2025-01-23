@@ -27,7 +27,9 @@ class AssuranceOrderResources extends JsonResource
 
 
             'note'=>$this->note,
-            'payment_value'=>$this->payment?->value,
+            'order_value'=>$this->payment?->order_value,
+            'payment_value'=>$this->payment?->payment_value,
+            'remaining_amount'=>$this->payment?->remaining_amount,
             'payment_status'=>paymentStatus($this->payment?->status),
             'date'=>$this->created_at->format('Y-m-d'),
             'date_ForHumans'=>$this->created_at->diffForHumans(),
