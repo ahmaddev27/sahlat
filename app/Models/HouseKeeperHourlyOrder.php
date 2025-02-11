@@ -33,9 +33,9 @@ class HouseKeeperHourlyOrder extends Model
     }
 
 
-    public function payment()
-    {
-        return $this->hasOne(Payment::class,'house_keeper_hourly_order_id');
+    public function payment(){
+    return $this->hasOne(Payment::class, 'order_id')->where('type', 'housekeeper_hourly_order');
+
     }
 
 

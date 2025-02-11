@@ -16,21 +16,7 @@ return new class extends Migration
             $table->double('value');
             $table->integer('status')->default(0);
             $table->string('type');
-
-            $table->foreignId('user_id')
-                ->constrained('app_users')
-                ->onDelete('cascade');
-
-
-            $table->foreignId('assurance_order_id')->nullable()
-                ->constrained('assurance_orders')
-                ->onDelete('cascade');
-
-            $table->foreignId('violation_id')->nullable()->constrained('violations')
-                ->onDelete('cascade');
-
-            $table->foreignId('house_keeper_order_id')->nullable()->constrained('house_keeper_orders')
-                ->onDelete('cascade');
+            $table->integer('order_id');
             $table->timestamps();
 
         });

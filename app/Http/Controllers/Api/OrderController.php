@@ -23,11 +23,13 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
 
+
 class OrderController extends Controller
 {
 
     use ApiResponseTrait;
     use ApiResponsePaginationTrait;
+
 
     public function balance()
     {
@@ -35,96 +37,91 @@ class OrderController extends Controller
         return $this->apiRespose(['balance' => $user->tabby_balance], trans('messages.success'), true, 200);
     }
 
-
-    public function PayViolation(Request $request)
+    public function payTabby(Request $request)
     {
+        // Validate the incoming request
         $rules = [
-            'number_id' => ['required', 'regex:/^784-\d{4}-\d{7}-\d{1}$/'],
-            'name' => 'required',
-            'violation_value' => 'required',
-            'payment_value' => 'required',
-            'attachments' => 'array',
-            'phone' => 'required|regex:/^[5][0-9]{8}$/',
-            'attachments.*' => 'file|mimes:jpg,jpeg,png,pdf,docx',
+            'order_id' => 'required|numeric',
+            'payment_value' => 'required|numeric|min:1',
+            'type' => 'required|in:violation,assurance,housekeeper,housekeeper_hourly_order',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose($errors, $errorMessage, false, 400);
+            return $this->apiRespose($validator->errors(), 'Validation failed', false, 400);
         }
 
+        // Define the mapping of order types to their corresponding models
+        $orderModels = [
+            'violation' => Violation::class,
+            'assurance' => Assurance::class,
+            'housekeeper' => HouseKeeper::class,
+            'housekeeper_hourly_order' => HouseKeeperHourlyOrder::class,
+        ];
 
-        if ($request->violation_value < $request->payment_value) {
-            $errors = 'payment value  is greater than  violation value';
-            return $this->apiRespose(['error' => [$errors]], 'what are you doing', false, 400);
+        // Get the correct model based on the provided type
+        $orderModel = $orderModels[$request->type] ?? null;
+
+        if (!$orderModel) {
+            return $this->apiRespose([], 'Invalid order type', false, 400);
         }
 
+        // Retrieve the order by order_id
+        $order = $orderModel::find($request->order_id);
 
-        $user = Auth::user();
+        if (!$order) {
+            return $this->apiRespose([], 'Order not found', false, 404);
+        }
+
+        // Check if a payment already exists for this order
+        $latestPayment = Payment::where('order_id', $order->id)->where('type', $request->type)->first();
+
+        if ($latestPayment) {
+            return $this->apiRespose([], 'This order has already been paid and cannot be paid again.', false, 400);
+        }
+
+        // Ensure the payment value does not exceed the order value
+        if ($request->payment_value > $order->value) {
+            return $this->apiRespose([], 'Payment value cannot exceed the order value.', false, 400);
+        }
 
         DB::beginTransaction();
 
-        $remaining_amount = $request->violation_value > $request->payment_value ? ($request->violation_value - $request->payment_value) : 0;
-
-
         try {
-            $v = Violation::create([
-                'number_id' => $request->number_id,
-                'n_id' => '#V' . (Violation::max('id') ?? 0) + 1,
-                'name' => $request->name,
-                'phone' => $request->phone,
-                'user_id' => Auth::id(),
-                'value' => $request->violation_value,
-                'details' => $request->details,
-                'status' => $remaining_amount > 1 ? 1 : 2,
-            ]);
+            // Calculate remaining amount
+            $remaining_amount = $order->value - $request->payment_value;
 
-
-            // Handle file attachments
-            if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $filePath = $file->store('violationsAttachments', 'public');
-
-                    $fileName = $file->getClientOriginalName();
-                    $fileTitle = pathinfo($fileName, PATHINFO_FILENAME);
-                    $fileType = $file->getClientOriginalExtension();
-
-                    ViolationAttachment::create([
-                        'violation_id' => $v->id,
-                        'file' => $filePath,
-                        'title' => $fileTitle,
-                        'type' => $fileType,
-                    ]);
-                }
+            // Determine the new payment status
+            if ($remaining_amount == 0) {
+                $payment_status = 2; // Completely paid
+            } elseif ($remaining_amount < $order->value) {
+                $payment_status = 1; // Partly paid
+            } else {
+                $payment_status = 0; // Not paid
             }
 
+            // Create a new payment record
             Payment::create([
                 'user_id' => Auth::id(),
                 'payment_value' => $request->payment_value,
-//                'order_value' => $request->violation_value + (int)setting('commission'),
-                'order_value' => $request->violation_value,
+                'order_value' => $order->value,
                 'remaining_amount' => $remaining_amount,
-                'status' => $remaining_amount > 1 ? 1 : 2,
-                'type' => 'app',
-                'violation_id' => $v->id,
+                'status' => $payment_status,
+                'type' => $request->type,
+                'order_id' => $order->id,
             ]);
 
+            /// call tabby pay function here
 
-            $message = 'Your payment for order has been processed successfully';
-            $image = asset('icons/payment.png');
-            $this->ViolationcreateNotification($user, 'Payment Processed', $message, '', $v->id, $image);
+
+            // Update order status based on remaining amount
+            $order->update(['status' => $payment_status]);
+            $this->handleStatus($order,$request->type);
 
             DB::commit();
 
-            return $this->apiRespose(
-                new ViolationResources($v),
-                trans('messages.success'),
-                true,
-                200
-            );
+            return $this->apiRespose([], 'Payment successful', true, 200);
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Error occurred while processing payment: ' . $e->getMessage());
@@ -132,270 +129,10 @@ class OrderController extends Controller
         }
     }
 
-    public function assuranceOrder(Request $request)
-    {
-        $rules = [
-            'assurance_id' => 'required|exists:assurances,id',
-            'assurance_number' => 'required',
-            'payment_value' => 'required|numeric|min:0',
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
-            return $this->apiRespose($errors, 'Validation failed.', false, 400);
-        }
-
-        $assurance = Assurance::find($request->assurance_id);
-
-        if (!$assurance) {
-            return $this->apiRespose(['assurance_id' => ['Invalid Assurance ID']], 'Assurance not found.', false, 404);
-        }
-
-        if ($request->payment_value > $assurance->price) {
-            return $this->apiRespose(
-                ['payment_value' => ['Payment value exceeds assurance price']],
-                'Invalid payment value.',
-                false,
-                400
-            );
-        }
-
-        $remainingAmount = max(0, $assurance->price - $request->payment_value);
-
-        DB::beginTransaction();
-
-        try {
-            $order = AssuranceOrder::create([
-                'number_id' => Auth::user()->number_id,
-                'n_id' => '#A' . ((AssuranceOrder::max('id') ?? 0) + 1),
-                'name' => Auth::user()->name,
-                'user_id' => Auth::id(),
-                'assurance_id' => $request->assurance_id,
-                'details' => $request->details,
-                'assurance_number' => $request->assurance_number,
-                'price' => $assurance->price,
-                'status' => 1,
-            ]);
-
-            Payment::create([
-                'user_id' => Auth::id(),
-                'payment_value' => $request->payment_value,
-                'order_value' => $assurance->price,
-                'remaining_amount' => $remainingAmount,
-                'status' => $remainingAmount > 0 ? 1 : 2,
-                'type' => 'app',
-                'assurance_order_id' => $order->id,
-            ]);
 
 
-            $message = 'Your payment for order has been processed successfully';
-            $image = asset('icons/payment.png');
-            $this->createNotification(Auth::user(), 'Payment Processed', $message, '', $order->id, $image);
 
 
-            DB::commit();
-
-            return $this->apiRespose(
-                new AssuranceOrderResources($order),
-                trans('messages.success'),
-                true,
-                200
-            );
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->apiRespose(
-                ['error' => [$e->getMessage()]],
-                'An error occurred while processing the order.',
-                false,
-                500
-            );
-        }
-    }
-
-
-    public function housekeeperOrder(Request $request)
-    {
-        $rules = [
-            'housekeeper_id' => 'required|exists:housekeepers,id',
-            'payment_value' => 'required',
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return $this->apiRespose($validator->errors()->toArray(), 'Validation failed.', false, 400);
-        }
-
-        $housekeeper = HouseKeeper::find($request->housekeeper_id);
-
-        if (!$housekeeper) {
-            return $this->apiRespose(
-                ['housekeeper_id' => ['Invalid housekeeper ID']],
-                'Housekeeper not found.',
-                false,
-                404
-            );
-        }
-
-
-        $salary = $housekeeper->salary;
-
-        if ($request->payment_value > $salary) {
-            return $this->apiRespose(
-                ['payment_value' => ['Payment value exceeds the housekeeper salary']],
-                'Invalid payment value.',
-                false,
-                400
-            );
-        }
-
-        $remainingAmount = max(0, $salary - $request->payment_value);
-
-        DB::beginTransaction();
-
-        try {
-            $houseOrder = HouseKeeperOrder::create([
-                'number_id' => Auth::user()->number_id,
-                'n_id' => '#H' . ((HouseKeeperOrder::max('id') ?? 0) + 1),
-                'name' => Auth::user()->name,
-                'user_id' => Auth::id(),
-                'housekeeper_id' => $request->housekeeper_id,
-                'value' => $salary,
-                'status' => 1,
-            ]);
-
-            $houseOrder->housekeeper->update(['status' => 1]);
-
-
-            Payment::create([
-                'user_id' => Auth::id(),
-                'type' => 'app',
-                'remaining_amount' => $remainingAmount,
-                'payment_value' => $request->payment_value,
-                'order_value' => $salary,
-                'house_keeper_order_id' => $houseOrder->id,
-                'status' => $remainingAmount > 0 ? 1 : 2,
-            ]);
-
-            $message = 'Your payment for order has been processed successfully';
-            $image = asset('icons/payment.png');
-            $this->HouseKeepercreateNotification(Auth::user(), 'Payment Processed', $message, '', $houseOrder->id, $image);
-
-
-            DB::commit();
-
-            return $this->apiRespose(
-                new HouseKeeperOrderResources($houseOrder),
-                trans('messages.success'),
-                true,
-                200
-            );
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->apiRespose(
-                ['error' => [$e->getMessage()]],
-                'An error occurred while processing the order.',
-                false,
-                500
-            );
-        }
-    }
-
-
-    public function housekeeperHourlyOrder(Request $request)
-    {
-        $rules = [
-            'from' => 'required|date_format:H:i',
-            'to' => 'required|date_format:H:i|after:from',
-            'date' => 'required|date|after_or_equal:today',
-            'location' => 'required',
-            'company' => 'required|exists:companies,id',
-            'payment_value' => 'required|numeric|min:0',
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose($errors, $errorMessage, false, 400);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            $from = Carbon::createFromFormat('H:i', $request->from);
-            $to = Carbon::createFromFormat('H:i', $request->to);
-            $hours = $to->diffInHours($from);
-
-            $company = Company::findOrFail($request->company);
-            $pricePerHour = $company->hourly_price;
-            $totalPrice = $pricePerHour * $hours;
-
-            if ($request->payment_value > $totalPrice) {
-                return $this->apiRespose(
-                    ['payment_value' => ['Payment value exceeds the total price']],
-                    'Invalid payment value.',
-                    false,
-                    400
-                );
-            }
-
-            $remainingAmount = max(0, $totalPrice - $request->payment_value);
-
-            $houseOrder = HouseKeeperHourlyOrder::create([
-                'from' => $from,
-                'to' => $to,
-                'date' => $request->date,
-                'location' => $request->location,
-                'hours' => $hours,
-                'company_id' => $request->company,
-                'user_id' => Auth::id(),
-                'value' => $totalPrice,
-                'status' => $remainingAmount > 0 ? 1 : 2,
-                'n_id' => '#H_h' . ((HouseKeeperHourlyOrder::max('id') ?? 0) + 1),
-            ]);
-
-            Payment::create([
-                'user_id' => Auth::id(),
-                'type' => 'app',
-                'remaining_amount' => $remainingAmount,
-                'payment_value' => $request->payment_value,
-                'order_value' => $totalPrice,
-                'house_keeper_hourly_order_id' => $houseOrder->id,
-                'status' => $remainingAmount > 0 ? 1 : 2,
-            ]);
-
-            $message = 'Your payment for the order has been processed successfully.';
-            $image = asset('icons/payment.png');
-            $this->HourlycreateNotification(
-                Auth::user(),
-                'Payment Processed',
-                $message,
-                $houseOrder->id,
-                $image
-            );
-
-            DB::commit();
-
-            return $this->apiRespose(
-                new HouseKeeperHourlyOrderResources($houseOrder),
-                trans('messages.success'),
-                true,
-                200
-            );
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return $this->apiRespose(
-                ['error' => [$e->getMessage()]],
-                'An error occurred while processing the order.',
-                false,
-                500
-            );
-        }
-    }
 
     public function cancelHousekeeperOrder(Request $request)
     {
@@ -421,6 +158,28 @@ class OrderController extends Controller
             []
             , trans('messages.success'), true, 200);
     }
+
+
+
+
+
+    public function violationsRecords(Request $request)
+    {
+
+        $query = Violation::where('user_id', Auth::id());
+        $perPage = $request->input('per_page', 10);
+        $orders = $query->paginate($perPage);
+
+//        if ($orders->isEmpty()) {
+//            return $this->ApiResponsePaginationTrait(
+//                ViolationResources::collection($orders), trans('messages.not_found'), false, 404);
+//        }
+
+        return $this->ApiResponsePaginationTrait(
+            ViolationResources::collection($orders)
+            , trans('messages.success'), true, 200);
+    }
+
 
 
     public function assurancesRecords(Request $request)
@@ -474,72 +233,7 @@ class OrderController extends Controller
     }
 
 
-    public function violationsRecords(Request $request)
-    {
 
-        $query = Violation::where('user_id', Auth::id());
-        $perPage = $request->input('per_page', 10);
-        $orders = $query->paginate($perPage);
-
-//        if ($orders->isEmpty()) {
-//            return $this->ApiResponsePaginationTrait(
-//                ViolationResources::collection($orders), trans('messages.not_found'), false, 404);
-//        }
-
-        return $this->ApiResponsePaginationTrait(
-            ViolationResources::collection($orders)
-            , trans('messages.success'), true, 200);
-    }
-
-
-    public function getHouseKeeperOrder($id, Request $request)
-    {
-
-        $query = HouseKeeperOrder::where('user_id', Auth::id())->whereId($id);
-        $perPage = $request->input('per_page', 10);
-        $order = $query->paginate($perPage);
-
-        if ($order->isEmpty()) {
-            return $this->apiRespose([], trans('messages.not_found'), false, 404);
-        }
-
-        return $this->ApiResponsePaginationTrait(
-            HouseKeeperOrderResources::collection($order)
-            , trans('messages.success'), true, 200);
-    }
-
-    public function getHourlyHouseKeeperOrder($id, Request $request)
-    {
-
-        $query = HouseKeeperOrder::where('user_id', Auth::id())->whereId($id);
-        $perPage = $request->input('per_page', 10);
-        $order = $query->paginate($perPage);
-
-        if ($order->isEmpty()) {
-            return $this->apiRespose([], trans('messages.not_found'), false, 404);
-        }
-
-        return $this->ApiResponsePaginationTrait(
-            HouseKeeperOrderResources::collection($order)
-            , trans('messages.success'), true, 200);
-    }
-
-
-    public function getAssuranceOrder($id, Request $request)
-    {
-
-        $query = AssuranceOrder::where('user_id', Auth::id())->whereId($id);
-        $perPage = $request->input('per_page', 10);
-        $order = $query->paginate($perPage);
-
-        if ($order->isEmpty()) {
-            return $this->apiRespose([], trans('messages.not_found'), false, 404);
-        }
-
-        return $this->ApiResponsePaginationTrait(
-            AssuranceOrderResources::collection($order)
-            , trans('messages.success'), true, 200);
-    }
 
 
 }

@@ -37,8 +37,9 @@ class AssuranceOrder extends Model
 
     public function payment()
     {
-        return $this->hasOne(Payment::class);
+        return $this->hasOne(Payment::class, 'order_id')->where('type', 'assurance');
     }
+
 
 
 }

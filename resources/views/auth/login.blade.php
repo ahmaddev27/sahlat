@@ -105,7 +105,6 @@
 
 
 
-
                                 <div class="form-group mb-2">
                                     <input class="form-control" id="email" type="text" name="email"
                                            placeholder="{{trans('auth.email')}}" aria-describedby="email" autofocus=""

@@ -99,10 +99,9 @@ function AssuranceStatus($status)
 
     } elseif ($status == 1) {
         return trans('main.not-active');
-
     }
-
 }
+
 
 
 function paymentStatus($status)
@@ -420,7 +419,7 @@ function payment_assurances()
     if ($totalPayments === 0) {
         return 0;
     }
-    $assuredPayments = \App\Models\Payment::whereNotNull('assurance_order_id')->count();
+    $assuredPayments = \App\Models\Payment::where('type','assurance')->count();
     return round(($assuredPayments / $totalPayments) * 100);
 
 }
@@ -432,7 +431,7 @@ function payment_housekeeper()
     if ($totalPayments === 0) {
         return 0;
     }
-    $assuredPayments = \App\Models\Payment::whereNotNull('house_keeper_order_id')->count();
+    $assuredPayments = \App\Models\Payment::where('type','housekeeper')->count();
     return round(($assuredPayments / $totalPayments) * 100);
 
 }
@@ -443,7 +442,7 @@ function payment_housekeeper_hourly()
     if ($totalPayments === 0) {
         return 0;
     }
-    $assuredPayments = \App\Models\Payment::whereNotNull('house_keeper_hourly_order_id')->count();
+    $assuredPayments = \App\Models\Payment::where('type','housekeeper_hourly_order')->count();
     return round(($assuredPayments / $totalPayments) * 100);
 
 }
@@ -454,7 +453,7 @@ function payment_violations()
     if ($totalPayments === 0) {
         return 0;
     }
-    $assuredPayments = \App\Models\Payment::whereNotNull('violation_id')->count();
+    $assuredPayments = \App\Models\Payment::where('type','violation')->count();
     return round(($assuredPayments / $totalPayments) * 100);
 
 }

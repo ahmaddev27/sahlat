@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\Orders\ViolationController;
 use App\Http\Controllers\Api\ReviewController;
 
 
@@ -25,14 +26,11 @@ Route::get('/langs', function () {
 });
 
 
-
-
 Route::controller(AuthController::class)->group(function () {
     Route::post('/send-otp', 'sendOtp');
     Route::post('/verify-otp', 'verifyOtp');
 
 });
-
 
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -134,13 +132,25 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 
 
-    Route::controller(OrderController::class)->group(function () {
+    Route::controller(ViolationController::class)->group(function () {
+        Route::group(['middleware' => 'is_active'], function () {
+            Route::post('/OrderViolation', 'OrderViolation');
+        });
 
+    });
+
+
+
+    Route::controller(OrderController::class)->group(function () {
+        Route::post('/payTabby', 'payTabby');
         Route::get('/balance', 'balance');
-        Route::get('/violation/{id}', 'violationOrder')->name('api.violationsRecords');
+
+
         Route::get('/getHouseKeeperOrder/{id}', 'getHouseKeeperOrder')->name('api.houseKeeperRecords');
         Route::get('/getHourlyHouseKeeperOrder/{id}', 'getHourlyHouseKeeperOrder')->name('api.getHourlyHouseKeeperRecords');
         Route::get('/getAssuranceOrder/{id}', 'getAssuranceOrder')->name('api.assurancesRecords');
+        Route::get('/violationRecords/{id}', 'getAssuranceOrder')->name('api.violationRecords');
+
         Route::get('/records/assurances', 'assurancesRecords');
         Route::get('/records/housekeepers', 'housekeepersRecords');
         Route::get('/records/housekeepersHourly', 'housekeepersHourlyRecords');

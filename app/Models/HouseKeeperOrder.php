@@ -21,10 +21,12 @@ class HouseKeeperOrder extends Model
     }
 
 
-    public function payment()
-    {
-        return $this->hasOne(Payment::class,'house_keeper_order_id');
+
+    public function payment(){
+        return $this->hasOne(Payment::class, 'order_id')->where('type', 'housekeeper');
+
     }
+
 
 
     public function orderattAchments()
