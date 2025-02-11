@@ -41,6 +41,15 @@ class ViolationController extends Controller
             return $this->apiRespose($errors, $errorMessage, false, 400);
         }
 
+//        $existingOrder = Violation::where('user_id', Auth::id())
+//            ->whereNotIn('status', [3, 4]) // Status either pending or closed
+//            ->first();
+//
+//        if ($existingOrder) {
+//            return $this->apiRespose(['error'=>['You already have an active or pending assurance order for this type.']], 'You already have an active or pending assurance order for this type.', false, 400);
+//        }
+
+
         DB::beginTransaction();
 
         try {

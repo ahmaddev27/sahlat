@@ -7,20 +7,16 @@ use App\Http\Resources\AssuranceOrderResources;
 use App\Http\Resources\HouseKeeperHourlyOrderResources;
 use App\Http\Resources\HouseKeeperOrderResources;
 use App\Http\Resources\ViolationResources;
-use App\Models\Assurance;
 use App\Models\AssuranceOrder;
-use App\Models\Company;
-use App\Models\HouseKeeper;
 use App\Models\HouseKeeperHourlyOrder;
 use App\Models\HouseKeeperOrder;
 use App\Models\Payment;
 use App\Models\Violation;
-use App\Models\ViolationAttachment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
+
 
 
 
@@ -39,6 +35,8 @@ class OrderController extends Controller
 
     public function payTabby(Request $request)
     {
+
+
         // Validate the incoming request
         $rules = [
             'order_id' => 'required|numeric',
@@ -55,8 +53,8 @@ class OrderController extends Controller
         // Define the mapping of order types to their corresponding models
         $orderModels = [
             'violation' => Violation::class,
-            'assurance' => Assurance::class,
-            'housekeeper' => HouseKeeper::class,
+            'assurance' => AssuranceOrder::class,
+            'housekeeper' => HouseKeeperOrder::class,
             'housekeeper_hourly_order' => HouseKeeperHourlyOrder::class,
         ];
 
@@ -68,7 +66,7 @@ class OrderController extends Controller
         }
 
         // Retrieve the order by order_id
-        $order = $orderModel::find($request->order_id);
+       $order = $orderModel::find($request->order_id);
 
         if (!$order) {
             return $this->apiRespose([], 'Order not found', false, 404);
@@ -120,7 +118,6 @@ class OrderController extends Controller
             $this->handleStatus($order,$request->type);
 
             DB::commit();
-
             return $this->apiRespose([], 'Payment successful', true, 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -128,10 +125,6 @@ class OrderController extends Controller
             return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
         }
     }
-
-
-
-
 
 
     public function cancelHousekeeperOrder(Request $request)
@@ -158,7 +151,6 @@ class OrderController extends Controller
             []
             , trans('messages.success'), true, 200);
     }
-
 
 
 

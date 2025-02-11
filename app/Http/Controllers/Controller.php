@@ -17,6 +17,8 @@ class Controller extends BaseController
 
     protected function handleStatus($order, $type)
     {
+
+
         $user = $order->user;
         $link = route("api.{$type}Records", $order->id);
 
@@ -69,7 +71,6 @@ class Controller extends BaseController
                 $link,
                 $order->id,
                 $type,
-                'order',
                 $statusMessages[$order->status]['icon']
             );
         }
