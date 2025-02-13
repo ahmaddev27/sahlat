@@ -2,22 +2,7 @@
 @push('css')
 
     <style>
-        .select2-container {
-            z-index: 9999 !important; /* Ensure it has the highest priority */
-        }
 
-        .swal2-container {
-            z-index: 10000; /* SweetAlert z-index */
-        }
-
-
-        .modal {
-            z-index: 1040; /* Ensure the modal stays below the dropdown */
-        }
-
-        #sendSmsModal {
-            z-index: 9999 !important; /* Ensure it has the highest priority */
-        }
     </style>
 @endpush
 @section('left')
@@ -383,13 +368,14 @@
 
 
         {{-- Change status --}}
+
         <script>
             $(document).on('change', '.status-select', function () {
                 var orderId = $(this).data('id');
                 var newStatus = $(this).val();
 
                 // Store the old value to revert if the user cancels
-                $(this).data('old-status', $(this).val());
+                $(this).data('old-status', newStatus);
 
                 // Show confirmation dialog with SweetAlert
                 Swal.fire({
@@ -406,16 +392,25 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         if (newStatus == 3) {
-                            // Fetch housekeepers dynamically based on company_id
                             var companyId = $(this).data('company-id');
-                            // Assume you have company ID in the data attribute
-                            // Show loading indicator
 
+                            // Show loading indicator
+                            Swal.fire({
+                                icon: 'info',
+                                title: '{{trans('messages.loading')}}',
+                                text: '{{trans('messages.processing-request')}}',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // Fetch housekeepers dynamically
                             $.ajax({
                                 url: '{{route('company.housekeepers.HourlyOrders.get-housekeepers', '')}}/' + companyId,
                                 type: 'GET',
                                 success: function (data) {
-                                    var housekeepers = data.housekeepers; // Adjust based on your API response
+                                    var housekeepers = data.housekeepers;
                                     var options = '';
 
                                     housekeepers.forEach(function (housekeeper) {
@@ -434,8 +429,9 @@
                                             cancelButton: 'btn btn-secondary'
                                         },
                                         didOpen: () => {
-                                            $('#housekeeper-select').select2(); // Initialize select2
-                                            $('.select').select2(); // Initialize select2
+                                            $('#housekeeper-select').select2({
+                                                dropdownParent: $('.swal2-popup') // Ensure dropdown appears inside SweetAlert
+                                            });
                                         }
                                     }).then((selectResult) => {
                                         if (selectResult.isConfirmed) {
@@ -450,7 +446,7 @@
                                                 return;
                                             }
 
-
+                                            // Show processing request alert
                                             Swal.fire({
                                                 icon: 'info',
                                                 title: '{{trans('messages.loading')}}',
@@ -471,7 +467,7 @@
                                                     status: newStatus,
                                                     housekeeper_id: housekeeperId
                                                 },
-                                                success: function (data) {
+                                                success: function () {
                                                     Swal.fire({
                                                         title: '{{trans('messages.updated')}}!',
                                                         text: '{{trans('messages.change-success')}}.',
@@ -484,7 +480,7 @@
 
                                                     $('#table').DataTable().ajax.reload();
                                                 },
-                                                error: function (data) {
+                                                error: function () {
                                                     Swal.fire({
                                                         title: '{{trans('messages.not-updated')}}!',
                                                         text: '{{trans('messages.not-update-error')}}.',
@@ -507,7 +503,6 @@
                                 }
                             });
                         } else {
-
                             // Show loading indicator
                             Swal.fire({
                                 icon: 'info',
@@ -518,6 +513,7 @@
                                     Swal.showLoading();
                                 }
                             });
+
                             // Regular status update
                             $.ajax({
                                 url: '{{route('company.housekeepers.HourlyOrders.updateStatus')}}',
@@ -527,7 +523,7 @@
                                     order_id: orderId,
                                     status: newStatus
                                 },
-                                success: function (data) {
+                                success: function () {
                                     Swal.fire({
                                         title: '{{trans('messages.updated')}}!',
                                         text: '{{trans('messages.change-success')}}.',
@@ -540,7 +536,7 @@
 
                                     $('#table').DataTable().ajax.reload();
                                 },
-                                error: function (data) {
+                                error: function () {
                                     Swal.fire({
                                         title: '{{trans('messages.not-updated')}}!',
                                         text: '{{trans('messages.not-update-error')}}.',
@@ -559,6 +555,7 @@
                     }
                 });
             });
+
         </script>
 
     @endpush

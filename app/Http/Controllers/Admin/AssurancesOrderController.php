@@ -172,8 +172,7 @@ class AssurancesOrderController extends Controller
 }
 
 
-    public function updateStatus(Request $request)
-{
+    public function updateStatus(Request $request){
     $validated = $request->validate([
         'order_id' => 'required|exists:assurance_orders,id',
         'status' => 'required|integer',
@@ -190,10 +189,10 @@ class AssurancesOrderController extends Controller
 
     try {
         $order->status = $validated['status'];
-        $this->handleStatusUpdates($order, $request);
+        $this->AssurancehandleStatusUpdates($order, $request);
 
         if ($request->hasFile('attachment')) {
-            $this->handleFileUpload($request, $order);
+            $this->AssurancehandleStatusUpdates($request, $order);
         }
 
         $order->save();

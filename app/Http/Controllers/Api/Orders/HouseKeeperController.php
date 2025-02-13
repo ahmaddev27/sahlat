@@ -50,7 +50,7 @@ class HouseKeeperController extends Controller
             ->first();
 
         if ($existingOrder) {
-            return $this->apiRespose([], 'You already have an active order for this housekeeper.', false, 400);
+            return $this->apiRespose(['error'=>['You already have an active order for this housekeeper']], 'You already have an active order for this housekeeper.', false, 400);
         }
 
         $salary = $housekeeper->salary;

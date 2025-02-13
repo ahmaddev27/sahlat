@@ -41,7 +41,7 @@ class AssuranceController extends Controller
         $assurance = Assurance::find($request->assurance_id);
 
         if (!$assurance) {
-            return $this->apiRespose(['assurance_id' => ['Invalid Assurance ID']], 'Assurance not found.', false, 404);
+            return $this->apiRespose(['error' => ['Invalid Assurance ID']], 'Assurance not found.', false, 404);
         }
 
         // Ensure user doesn't already have an assurance order

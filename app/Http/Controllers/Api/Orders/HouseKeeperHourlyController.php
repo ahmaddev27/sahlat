@@ -17,66 +17,78 @@ class HouseKeeperHourlyController extends Controller
 {
     use ApiResponseTrait;
     use ApiResponsePaginationTrait;
-        public function housekeeperHourlyOrder(Request $request)
+    public function housekeeperHourlyOrder(Request $request)
     {
         $rules = [
             'from' => 'required|date_format:H:i',
             'to' => 'required|date_format:H:i|after:from',
             'date' => 'required|date|after_or_equal:today',
-            'location' => 'required|string|max:255',
+            'location' => 'required',
             'company' => 'required|exists:companies,id',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose($errors, $errorMessage, false, 400);
+            return $this->apiRespose(
+                $validator->errors(),
+                implode(" ", $validator->errors()->all()),
+                false,
+                400
+            );
         }
 
-        // Ensure the user doesn't already have an active order for this housekeeper
+        // Check if user already has an active order for this company
         $existingOrder = HouseKeeperHourlyOrder::where('user_id', Auth::id())
-            ->whereNotIn('status', [3, 4]) // Status either pending or closed
-            ->first();
+            ->where('company_id', $request->company)
+            ->whereNotIn('status', [3, 4]) // Exclude completed/cancelled orders
+            ->exists();
 
         if ($existingOrder) {
-            return $this->apiRespose([], 'You already have an active order .', false, 400);
+            return $this->apiRespose(
+                ['error' => ['You already have an active order.']],
+                'You already have an active order.',
+                false,
+                400
+            );
         }
 
         try {
             DB::beginTransaction();
 
+            // Convert time strings to Carbon instances
             $from = Carbon::createFromFormat('H:i', $request->from);
             $to = Carbon::createFromFormat('H:i', $request->to);
-            $hours = $to->diffInHours($from);
+
+            // Calculate the total duration in hours (including fractions)
+            $hours = $to->diffInMinutes($from) / 60;
 
             $company = Company::findOrFail($request->company);
             $pricePerHour = $company->hourly_price;
-            $totalPrice = $pricePerHour * $hours;
+            $totalPrice = round($pricePerHour * $hours, 2); // Ensure proper rounding
 
-
+            // Create the order
             $houseOrder = HouseKeeperHourlyOrder::create([
-                'from' => $from,
-                'to' => $to,
-                'date' => $request->date,
+                'from' => $from->format('H:i'), // Store time properly
+                'to' => $to->format('H:i'),
+                'date' => Carbon::parse($request->date)->format('Y-m-d'), // Ensure proper date format
                 'location' => $request->location,
                 'hours' => $hours,
                 'company_id' => $request->company,
                 'user_id' => Auth::id(),
                 'value' => $totalPrice,
-                'status' =>  0 ,
+                'status' => 0, // Pending
                 'n_id' => '#H_h' . ((HouseKeeperHourlyOrder::max('id') ?? 0) + 1),
             ]);
 
-
-
             DB::commit();
+
             return $this->apiRespose(
                 [
                     'order_id' => $houseOrder->id,
                     'type' => 'housekeeper_hourly_order',
-                    'message' => 'housekeeper order created successfully. Proceed to payment.',
+                    'totalPrice' => $totalPrice,
+                    'message' => 'Housekeeper order created successfully. Proceed to payment.',
                 ],
                 trans('messages.success'),
                 true,

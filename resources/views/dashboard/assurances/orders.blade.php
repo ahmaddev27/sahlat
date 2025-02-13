@@ -1,9 +1,5 @@
 @extends('dashboard.layouts.master',['title'=>trans('dashboard_aside.assurances-orders')])
 
-@push('css')
-
-
-@endpush
 @section('left')
     {{--    <div class="content-header-right text-md-right col-md-3 col-12 d-md-block d-none">--}}
     {{--        <div class="form-group breadcrumb-right">--}}

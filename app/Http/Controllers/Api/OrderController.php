@@ -62,26 +62,26 @@ class OrderController extends Controller
         $orderModel = $orderModels[$request->type] ?? null;
 
         if (!$orderModel) {
-            return $this->apiRespose([], 'Invalid order type', false, 400);
+            return $this->apiRespose(['Invalid order type'], 'Invalid order type', false, 400);
         }
 
         // Retrieve the order by order_id
        $order = $orderModel::find($request->order_id);
 
         if (!$order) {
-            return $this->apiRespose([], 'Order not found', false, 404);
+            return $this->apiRespose(['error'=>['Order not found']], 'Order not found', false, 404);
         }
 
         // Check if a payment already exists for this order
         $latestPayment = Payment::where('order_id', $order->id)->where('type', $request->type)->first();
 
         if ($latestPayment) {
-            return $this->apiRespose([], 'This order has already been paid and cannot be paid again.', false, 400);
+            return $this->apiRespose(['error'=>['This order has already been paid and cannot be paid again']], 'This order has already been paid and cannot be paid again.', false, 400);
         }
 
         // Ensure the payment value does not exceed the order value
         if ($request->payment_value > $order->value) {
-            return $this->apiRespose([], 'Payment value cannot exceed the order value.', false, 400);
+            return $this->apiRespose(['error'=>['Payment value cannot exceed the order value']], 'Payment value cannot exceed the order value.', false, 400);
         }
 
         DB::beginTransaction();
@@ -151,7 +151,6 @@ class OrderController extends Controller
             []
             , trans('messages.success'), true, 200);
     }
-
 
 
 

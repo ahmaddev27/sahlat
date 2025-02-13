@@ -164,7 +164,7 @@ class HomeController extends Controller
     {
         $rules = [
             'title' => 'required',
-            'email' => 'required|email',
+//            'email' => 'required|email',
             'text' => 'required',
         ];
 
@@ -179,14 +179,14 @@ class HomeController extends Controller
         try {
             Contact::create([
                 'title' => $request->title,
-                'email' => $request->email,
+                'email' => Auth::user()->email,
                 'text' => $request->text,
                 'user_id' => Auth::id(),
             ]);
 
             return $this->apiRespose([], trans('messages.success'), true, 200);
         } catch (\Exception $e) {
-            return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
+            return $this->apiRespose(['error'=>['messages.error_occurred']], trans('messages.error_occurred'), false, 500);
         }
     }
 
@@ -231,7 +231,7 @@ class HomeController extends Controller
                 trans('messages.success'), true, 200
             );
         } catch (\Exception $e) {
-            return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
+            return $this->apiRespose(['error'=>['messages.error_occurred']], trans('messages.error_occurred'), false, 500);
         }
     }
 
@@ -257,7 +257,7 @@ class HomeController extends Controller
 
             return $this->apiRespose($results, trans('messages.success'), true, 200);
         } catch (\Exception $e) {
-            return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
+            return $this->apiRespose(['error'=>['messages.error_occurred']], trans('messages.error_occurred'), false, 500);
         }
     }
 
