@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AssuranceOrderResources;
 use App\Http\Resources\HouseKeeperHourlyOrderResources;
 use App\Http\Resources\HouseKeeperOrderResources;
-use App\Http\Resources\ViolationResources;
 use App\Models\AssuranceOrder;
 use App\Models\HouseKeeperHourlyOrder;
 use App\Models\HouseKeeperOrder;
@@ -35,8 +34,6 @@ class OrderController extends Controller
 
     public function payTabby(Request $request)
     {
-
-
         // Validate the incoming request
         $rules = [
             'order_id' => 'required|numeric',
@@ -49,6 +46,7 @@ class OrderController extends Controller
         if ($validator->fails()) {
             return $this->apiRespose($validator->errors(), 'Validation failed', false, 400);
         }
+
 
         // Define the mapping of order types to their corresponding models
         $orderModels = [
@@ -107,6 +105,7 @@ class OrderController extends Controller
                 'remaining_amount' => $remaining_amount,
                 'status' => $payment_status,
                 'type' => $request->type,
+                'payment_type' =>'Tabby',
                 'order_id' => $order->id,
             ]);
 
@@ -127,101 +126,37 @@ class OrderController extends Controller
     }
 
 
-    public function cancelHousekeeperOrder(Request $request)
-    {
-
-        $rules = [
-            'note' => ['required'],
-            'order_id' => 'required',
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose($errors, $errorMessage, false, 400);
-        }
-
-        $order = HouseKeeperOrder::find($request->order_id);
-
-        $order->update(['status' => 4, 'note' => $request->note]);
-
-        return $this->apiRespose(
-            []
-            , trans('messages.success'), true, 200);
-    }
-
-
-
-    public function violationsRecords(Request $request)
-    {
-
-        $query = Violation::where('user_id', Auth::id());
-        $perPage = $request->input('per_page', 10);
-        $orders = $query->paginate($perPage);
-
-//        if ($orders->isEmpty()) {
-//            return $this->ApiResponsePaginationTrait(
-//                ViolationResources::collection($orders), trans('messages.not_found'), false, 404);
+//    public function cancelHousekeeperOrder(Request $request)
+//    {
+//
+//        $rules = [
+//            'note' => ['required'],
+//            'order_id' => 'required',
+//        ];
+//
+//        $validator = Validator::make($request->all(), $rules);
+//
+//        if ($validator->fails()) {
+//            $errors = $validator->errors()->toArray();
+//            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
+//            return $this->apiRespose($errors, $errorMessage, false, 400);
 //        }
-
-        return $this->ApiResponsePaginationTrait(
-            ViolationResources::collection($orders)
-            , trans('messages.success'), true, 200);
-    }
-
-
-
-    public function assurancesRecords(Request $request)
-    {
-
-        $query = AssuranceOrder::where('user_id', Auth::id());
-        $perPage = $request->input('per_page', 10);
-        $orders = $query->paginate($perPage);
+//
+//        $order = HouseKeeperOrder::find($request->order_id);
+//
+//        $order->update(['status' => 4, 'note' => $request->note]);
+//
+//        return $this->apiRespose(
+//            []
+//            , trans('messages.success'), true, 200);
+//    }
 
 
-//        if ($orders->isEmpty()) {
-//            return $this->ApiResponsePaginationTrait(
-//                AssuranceOrderResources::collection($orders), trans('messages.not_found'), false, 404);
-//        }
-
-        return $this->ApiResponsePaginationTrait(
-            AssuranceOrderResources::collection($orders)
-            , trans('messages.success'), true, 200);
-    }
 
 
-    public function housekeepersRecords(Request $request)
-    {
 
-        $query = HouseKeeperOrder::where('user_id', Auth::id());
-        $perPage = $request->input('per_page', 10);
-        $orders = $query->paginate($perPage);
 
-//        if ($orders->isEmpty()) {
-//            return $this->ApiResponsePaginationTrait(
-//                HouseKeeperOrderResources::collection($orders), trans('messages.not_found'), false, 404);
-//        }
-        return $this->ApiResponsePaginationTrait(
-            HouseKeeperOrderResources::collection($orders)
-            , trans('messages.success'), true, 200);
-    }
 
-    public function housekeepersHourlyRecords(Request $request)
-    {
-
-        $query = HouseKeeperHourlyOrder::where('user_id', Auth::id());
-        $perPage = $request->input('per_page', 10);
-        $orders = $query->paginate($perPage);
-
-//        if ($orders->isEmpty()) {
-//            return $this->ApiResponsePaginationTrait(HouseKeeperHourlyOrderResources::collection($orders), trans('messages.not_found'), false, 404);
-//        }
-        return $this->ApiResponsePaginationTrait(
-            HouseKeeperHourlyOrderResources::collection($orders)
-            , trans('messages.success'), true, 200);
-    }
 
 
 

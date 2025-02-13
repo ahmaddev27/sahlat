@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Orders;
 use App\Http\Controllers\Api\ApiResponsePaginationTrait;
 use App\Http\Controllers\Api\ApiResponseTrait;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ViolationResources;
 use App\Models\Violation;
 use App\Models\ViolationAttachment;
 use Illuminate\Http\Request;
@@ -98,6 +99,37 @@ class ViolationController extends Controller
         }
     }
 
+
+
+    public function violationsRecords(Request $request)
+    {
+
+        $query = Violation::where('user_id', Auth::id());
+        $perPage = $request->input('per_page', 10);
+        $orders = $query->paginate($perPage);
+
+//        if ($orders->isEmpty()) {
+//            return $this->ApiResponsePaginationTrait(
+//                ViolationResources::collection($orders), trans('messages.not_found'), false, 404);
+//        }
+
+        return $this->ApiResponsePaginationTrait(
+            ViolationResources::collection($orders)
+            , trans('messages.success'), true, 200);
+    }
+    public function getViolationOrder($id, Request $request)
+    {
+
+        $order = Violation::where('user_id', Auth::id())->whereId($id)->first();
+
+        if ($order->isEmpty()) {
+            return $this->apiRespose(['error'=>['messages.not_found']], trans('messages.not_found'), false, 404);
+        }
+
+        return $this->apiRespose(
+            ViolationResources::collection($order)
+            , trans('messages.success'), true, 200);
+    }
 
 
 

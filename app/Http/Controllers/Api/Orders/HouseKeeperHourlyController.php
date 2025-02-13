@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api\Orders;
 use App\Http\Controllers\Api\ApiResponsePaginationTrait;
 use App\Http\Controllers\Api\ApiResponseTrait;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\HouseKeeperHourlyOrderResources;
+use App\Http\Resources\HouseKeeperOrderResources;
 use App\Models\Company;
 use App\Models\HouseKeeperHourlyOrder;
+use App\Models\HouseKeeperOrder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -104,6 +107,40 @@ class HouseKeeperHourlyController extends Controller
             );
         }
     }
+
+
+    public function getHourlyHouseKeeperOrder($id, Request $request)
+    {
+
+        $order = HouseKeeperOrder::where('user_id', Auth::id())->whereId($id)->first();
+
+        if ($order->isEmpty()) {
+            return $this->apiRespose(['error'=>['messages.not_found']], trans('messages.not_found'), false, 404);
+        }
+
+        return $this->apiRespose(
+            HouseKeeperOrderResources::collection($order)
+            , trans('messages.success'), true, 200);
+    }
+
+
+
+    public function housekeepersHourlyRecords(Request $request)
+    {
+
+        $query = HouseKeeperHourlyOrder::where('user_id', Auth::id());
+        $perPage = $request->input('per_page', 10);
+        $orders = $query->paginate($perPage);
+
+//        if ($orders->isEmpty()) {
+//            return $this->ApiResponsePaginationTrait(HouseKeeperHourlyOrderResources::collection($orders), trans('messages.not_found'), false, 404);
+//        }
+        return $this->ApiResponsePaginationTrait(
+            HouseKeeperHourlyOrderResources::collection($orders)
+            , trans('messages.success'), true, 200);
+    }
+
+
 
 
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Orders;
 use App\Http\Controllers\Api\ApiResponsePaginationTrait;
 use App\Http\Controllers\Api\ApiResponseTrait;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\HouseKeeperOrderResources;
 use App\Models\HouseKeeper;
 use App\Models\HouseKeeperOrder;
 use Illuminate\Http\Request;
@@ -99,6 +100,36 @@ class HouseKeeperController extends Controller
         }
     }
 
+
+    public function housekeepersRecords(Request $request)
+    {
+
+        $query = HouseKeeperOrder::where('user_id', Auth::id());
+        $perPage = $request->input('per_page', 10);
+        $orders = $query->paginate($perPage);
+
+//        if ($orders->isEmpty()) {
+//            return $this->ApiResponsePaginationTrait(
+//                HouseKeeperOrderResources::collection($orders), trans('messages.not_found'), false, 404);
+//        }
+        return $this->ApiResponsePaginationTrait(
+            HouseKeeperOrderResources::collection($orders)
+            , trans('messages.success'), true, 200);
+    }
+
+    public function getHouseKeeperOrder($id, Request $request)
+    {
+
+        $order = HouseKeeperOrder::where('user_id', Auth::id())->whereId($id)->first();
+
+        if ($order->isEmpty()) {
+            return $this->apiRespose(['error'=>['messages.not_found']], trans('messages.not_found'), false, 404);
+        }
+
+        return $this->apiRespose(
+            HouseKeeperOrderResources::collection($order)
+            , trans('messages.success'), true, 200);
+    }
 
 
 }
