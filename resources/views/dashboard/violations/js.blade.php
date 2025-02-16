@@ -1,4 +1,3 @@
-
 {{-- Change status --}}
 {{--<script>--}}
 {{--    $(document).on('change', '.status-select', function() {--}}
@@ -234,17 +233,17 @@
 {{--</script>--}}
 
 
-
 {{-- Change status --}}
+
 <script>
-    $(document).on('change', '.status-select', function() {
+    $(document).on('change', '.status-select', function () {
         var orderId = $(this).data('id');
-        var newStatus = $(this).val();
+        var $select = $(this);
+        var newStatus = $select.val();
+        var orderValue = $select.data('order-value'); // Retrieve the order value
+        var oldStatus = $select.data('old-status', $select.val());
 
-        // Store the old value to revert if the user cancels
-        $(this).data('old-status', $(this).val());
-
-        // Show confirmation dialog with SweetAlert
+        // Show confirmation dialog
         Swal.fire({
             title: '{{trans('messages.sure?')}}',
             text: "{{trans('messages.change-status')}}",
@@ -258,7 +257,80 @@
             },
         }).then((result) => {
             if (result.isConfirmed) {
+                if (newStatus == 1) {
+                    // Payment Update
+                    Swal.fire({
+                        title: '{{ trans("messages.enter-payment") }}',
+                        html: `<p>{{trans('main.order_value')}}: ADE ${orderValue}</p>`,
+                        input: 'number',
+                        inputAttributes: {min: 0, step: 0.01},
+                        showCancelButton: true,
+                        confirmButtonText: '{{ trans("messages.submit") }}',
+                        cancelButtonText: '{{ trans("messages.cancel") }}',
+                        customClass: {confirmButton: 'btn btn-success', cancelButton: 'btn btn-secondary'},
+                        preConfirm: (paymentValue) => {
+                            let value = parseFloat(paymentValue);
+                            let orderValueFloat = parseFloat(orderValue);
 
+                            if (!value || value <= 0) {
+                                return Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                            } else if (value > orderValueFloat) {
+                                return Swal.showValidationMessage('{{trans('messages.Payment value cannot exceed the order value')}}');
+                            }
+                            return value;
+                        }
+                    }).then((paymentResult) => {
+                        if (paymentResult.isConfirmed) {
+                            var paymentValue = paymentResult.value;
+
+                            // Show Loading
+                            Swal.fire({
+                                icon: 'info',
+                                title: '{{ trans("messages.loading") }}',
+                                text: '{{ trans("messages.processing-request") }}',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // AJAX Request for Payment Update
+                            $.ajax({
+                                url: '{{ route('violations.updateStatus') }}',
+                                type: 'POST',
+                                data: {
+                                    _token: $('meta[name="csrf-token"]').attr('content'),
+                                    order_id: orderId,
+                                    status: newStatus,
+                                    payment_value: paymentValue
+                                },
+                                success: function () {
+                                    Swal.fire({
+                                        title: '{{ trans("messages.updated") }}!',
+                                        text: '{{ trans("messages.change-success") }}.',
+                                        icon: 'success',
+                                        confirmButtonText: '{{ trans("messages.close") }}',
+                                        customClass: {confirmButton: 'btn btn-success'}
+                                    });
+                                    $('#table').DataTable().ajax.reload();
+                                },
+                                error: function () {
+                                    Swal.fire({
+                                        title: '{{ trans("messages.not-updated") }}!',
+                                        text: '{{ trans("messages.not-update-error") }}.',
+                                        icon: 'error',
+                                        confirmButtonText: '{{ trans("messages.close") }}',
+                                    });
+                                    $select.val(oldStatus); // Revert select box on error
+                                    $('#table').DataTable().ajax.reload();
+                                }
+                            });
+                        } else {
+                            $select.val(oldStatus); // Revert on cancel
+                        }
+                    });
+                } else {
+                    // Other Status Updates
                     Swal.fire({
                         icon: 'info',
                         title: '{{trans('messages.loading')}}',
@@ -269,7 +341,6 @@
                         }
                     });
 
-
                     $.ajax({
                         url: '{{route('violations.updateStatus')}}',
                         type: 'POST',
@@ -278,41 +349,36 @@
                             order_id: orderId,
                             status: newStatus
                         },
-
-                        success: function (data) {
+                        success: function () {
                             Swal.fire({
                                 title: '{{trans('messages.updated')}}!',
                                 text: '{{trans('messages.change-success')}}.',
                                 icon: 'success',
                                 confirmButtonText: '{{trans('messages.close')}}',
-                                customClass: {
-                                    confirmButton: 'btn btn-success'
-                                }
+                                customClass: {confirmButton: 'btn btn-success'}
                             });
-
                             $('#table').DataTable().ajax.reload();
                         },
-
-                        error: function (data) {
+                        error: function () {
                             Swal.fire({
                                 title: '{{trans('messages.not-updated')}}!',
                                 text: '{{trans('messages.not-update-error')}}.',
                                 icon: 'error',
                                 confirmButtonText: '{{trans('messages.close')}}',
                             });
-
+                            $select.val(oldStatus); // Revert select box on error
                             $('#table').DataTable().ajax.reload();
                         }
                     });
-
+                }
             } else {
-                $(this).val($(this).data('old-status'));
-                $('#table').DataTable().ajax.reload();
+                $select.val(oldStatus); // Revert select box if user cancels
             }
         });
     });
-</script>
 
+
+</script>
 
 
 {{-- datatable --}}
@@ -336,7 +402,7 @@
                             text: feather.icons['file'].toSvg({class: 'font-small-4 mr-50'}) + 'Excel',
                             className: 'dropdown-item',
                             exportOptions: {
-                                columns: [0, 1, 2, 3 ,4, 5,6,7],  // Specify the columns to export, including the status column (5)
+                                columns: [0, 1, 2, 3, 4, 5, 6, 7],  // Specify the columns to export, including the status column (5)
                                 format: {
                                     body: function (data, row, column, node) {
                                         // Check if the data contains a <select> element (status column)
@@ -377,7 +443,7 @@
                             text: feather.icons['clipboard'].toSvg({class: 'font-small-4 mr-50'}) + 'Pdf',
                             className: 'dropdown-item',
                             exportOptions: {
-                                columns: [0, 1, 2, 3 ,4, 5,6,7],  // Specify the columns to export, including the status column (5)
+                                columns: [0, 1, 2, 3, 4, 5, 6, 7],  // Specify the columns to export, including the status column (5)
                                 format: {
                                     body: function (data, row, column, node) {
                                         // Check if the data contains a <select> element (status column)
@@ -465,6 +531,7 @@
                 }
             },
 
+            order: [[0, 'desc']],
             columns: [
                 {data: 'DT_RowIndex', name: 'id'},
                 {data: 'n_id', name: 'n_id'},
@@ -493,11 +560,11 @@
             @endif
 
 
-            "initComplete": function(settings, json) {
+            "initComplete": function (settings, json) {
                 // Apply select2 after the table has been initialized
                 $('.select2').select2();
             },
-            "drawCallback": function(settings) {
+            "drawCallback": function (settings) {
                 // Reinitialize select2 on every redraw
                 $('.select2').select2();
             }

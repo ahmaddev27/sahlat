@@ -74,32 +74,27 @@ class HouseKeeperHourlyOrderController extends Controller{
                               ' . $item->user->name;
             })
             ->addColumn('status', function ($item) {
-                // Get the status text (to be displayed in the table)
+                // Get the status text and badge class
                 $statusText = HouseKeeperHourlyStatuses($item->status);
-
-                // Get the badge class based on the status
                 $badgeClass = OrdorClass($item->status);
 
-                // Create the select dropdown for status change
-                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-company-id="' . $item->company_id . '" data-id="' . $item->id . '" style="width: auto;">';
+                // Build the select element and add the order value as a data attribute
+                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-company-id="' . $item->company_id . '" data-id="' . $item->id . '" data-order-value="' . $item->value . '" style="width: auto;">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                // Loop through all statuses and mark the current status as selected
+                // Loop through all statuses and mark the current status as selected or disabled if needed
                 foreach (HouseKeeperHourlyStatuses() as $key => $value) {
-                    // Check if the key matches the current status
                     $selected = ($key == $item->status) ? 'selected' : '';
-
-                    // Check if the key is less than the current status, and disable it
                     $disabled = ($key < $item->status) ? 'disabled' : '';
-
                     $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                 }
 
                 $statusSelect .= '</select>';
 
-                // Return the status badge and the select dropdown for display
+                // Return the status badge along with the select dropdown
                 return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
+
             ->editColumn('date', function ($item) {
                 return $item->date->format('Y M d');
             })
@@ -113,11 +108,6 @@ class HouseKeeperHourlyOrderController extends Controller{
         </a>
 
 
-  <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"
-                id="send-stripe" data-toggle="modal" data-target="#sendSmsModal"
-                onclick="setOrderId(' . $item->id . ')" title="Send Link">
-            <i class="fa fa-link text-body"></i>
-        </button>
 
         <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
                 id="delete" route="' . route('housekeepers.HourlyOrders.delete') . '" model_id="' . $item->id . '" data-toggle="modal" title="delete">

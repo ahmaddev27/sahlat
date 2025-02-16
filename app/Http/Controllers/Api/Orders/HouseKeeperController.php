@@ -44,6 +44,11 @@ class HouseKeeperController extends Controller
             );
         }
 
+      $housekeeper = HouseKeeper::where('id', $request->housekeeper_id)->where('status', 0)->first();
+
+        if (!$housekeeper) {
+            return $this->apiRespose(['error'=>['housekeeper doesnt exists']], 'housekeeper doesnt exists.', false, 400);
+        }
         // Ensure the user doesn't already have an active order for this housekeeper
         $existingOrder = HouseKeeperOrder::where('user_id', Auth::id())
             ->where('housekeeper_id', $request->housekeeper_id)
@@ -73,7 +78,7 @@ class HouseKeeperController extends Controller
             ]);
 
             // Update housekeeper status to indicate they are assigned
-            $houseOrder->housekeeper->update(['status' => 1]);
+//            $houseOrder->housekeeper->update(['status' => 1]);
 
 
             DB::commit();

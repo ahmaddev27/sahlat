@@ -70,7 +70,10 @@ return [
 
     'sms-sent-success'=>'SMS Sent Successfully',
     'fail-sms'=>'Failed to send SMS',
-    'invalid-url'=>'invalid url'
+    'invalid-url'=>'invalid url',
+    'enter-payment'=>'Enter Payment Value',
+    'Payment value cannot exceed the order value'=>'Payment value cannot exceed the order value',
+    'invalid-payment'=>'Invalid payment Value'
 
 ];
 

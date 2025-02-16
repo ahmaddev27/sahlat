@@ -129,7 +129,7 @@
 
                                             <tr>
                                                 <td class="pr-1">{{ trans('assurances.payment-type') }}</td>
-                                                <td><span class="font-weight-bold"><div class="d-inline-block m-1"> {{ $order->payment?->type ?: '-' }} </div></span></td>
+                                                <td><span class="font-weight-bold"><div class="d-inline-block m-1"> {{ $order->payment?->payment_type ?: '-' }} </div></span></td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -156,7 +156,7 @@
 
                                         <div class="invoice-total-item mt-2 ">
                                             <p class="invoice-total-title d-inline">{{trans('main.total-payment')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??'-'}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??0}}</p>
                                         </div>
 
 
@@ -165,7 +165,7 @@
 
                                         <div class="invoice-total-item mt-2 ">
                                             <p class="invoice-total-title d-inline">{{trans('main.remain')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??'-'}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??$order->value}}</p>
                                         </div>
 
 
@@ -412,40 +412,116 @@
 
         <script>
             $(document).on('change', '.status-select', function () {
-                var orderId = $(this).data('id');
-                var newStatus = $(this).val();
-
-                // Store the old value to revert if the user cancels
-                var oldStatus = $(this).data('old-status');
-                $(this).data('old-status', oldStatus || $(this).val());
+                var $select = $(this);
+                var orderId = $select.data('id');
+                var newStatus = $select.val();
+                var orderValue = {{$order->value}}; // Make sure this is set on the element
+                var oldStatus = $select.data('old-status') || $select.val();
+                $select.data('old-status', oldStatus);
 
                 // Show confirmation dialog with SweetAlert
                 Swal.fire({
-                    title: '{{trans('messages.sure?')}}',
-                    text: "{{trans('messages.change-status')}}",
+                    title: '{{ trans("messages.sure?") }}',
+                    text: "{{ trans('messages.change-status') }}",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: '{{trans('messages.change')}}!',
-                    cancelButtonText: '{{trans('messages.cancel')}}',
+                    confirmButtonText: '{{ trans("messages.change") }}!',
+                    cancelButtonText: '{{ trans("messages.cancel") }}',
                     customClass: {
                         confirmButton: 'btn btn-danger',
                         cancelButton: 'btn btn-secondary ml-1'
                     },
-                }).then((result) => {
+                }).then(function (result) {
                     if (result.isConfirmed) {
-                         // For other statuses, proceed without additional input
+                        // If the new status is 1, prompt for payment input
+                        if (newStatus == 1) {
+                            Swal.fire({
+                                title: '{{ trans("messages.enter-payment") }}',
+                                html: `<p>{{trans('main.order_value')}}: ADE ${orderValue}</p>`,
+                                input: 'number',
+                                inputAttributes: {
+                                    min: 0,
+                                    step: 0.01
+                                },
+                                showCancelButton: true,
+                                confirmButtonText: '{{ trans("messages.submit") }}',
+                                cancelButtonText: '{{ trans("messages.cancel") }}',
+                                customClass: {
+                                    confirmButton: 'btn btn-success',
+                                    cancelButton: 'btn btn-secondary'
+                                },
+                                preConfirm: function (paymentValue) {
+                                    var value = parseFloat(paymentValue);
+                                    var orderValueFloat = parseFloat(orderValue);
+                                    if (!value || value <= 0) {
+                                        Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                                    } else if (value > orderValueFloat) {
+                                        Swal.showValidationMessage('{{trans('messages.Payment value cannot exceed the order value')}}');
+                                    }
+                                    return value;
+                                }
+                            }).then(function (paymentResult) {
+                                if (paymentResult.isConfirmed) {
+                                    var paymentValue = paymentResult.value;
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: '{{ trans("messages.loading") }}',
+                                        text: '{{ trans("messages.processing-request") }}',
+                                        allowOutsideClick: false,
+                                        didOpen: function () {
+                                            Swal.showLoading();
+                                        }
+                                    });
+                                    $.ajax({
+                                        url: '{{ route("assurances.orders.updateStatus") }}',
+                                        type: 'POST',
+                                        data: {
+                                            _token: $('meta[name="csrf-token"]').attr('content'),
+                                            order_id: orderId,
+                                            status: newStatus,
+                                            payment_value: paymentValue
+                                        },
+                                        success: function (data) {
+                                            Swal.fire({
+                                                title: '{{ trans("messages.updated") }}!',
+                                                text: '{{ trans("messages.change-success") }}.',
+                                                icon: 'success',
+                                                confirmButtonText: '{{ trans("messages.close") }}',
+                                                customClass: {
+                                                    confirmButton: 'btn btn-success'
+                                                }
+                                            }).then(function () {
+                                                location.reload();
+                                            });
+                                        },
+                                        error: function (data) {
+                                            Swal.fire({
+                                                title: '{{ trans("messages.not-updated") }}!',
+                                                text: '{{ trans("messages.not-update-error") }}.',
+                                                icon: 'error',
+                                                confirmButtonText: '{{ trans("messages.close") }}',
+                                            });
+                                            location.reload();
+                                        }
+                                    });
+                                } else {
+                                    // If payment input is cancelled, revert the dropdown value
+                                    $select.val(oldStatus);
+                                }
+                            });
+                        } else {
+                            // For statuses other than 1, proceed without additional input
                             Swal.fire({
                                 icon: 'info',
-                                title: '{{trans('messages.loading')}}',
-                                text: '{{trans('messages.processing-request')}}',
+                                title: '{{ trans("messages.loading") }}',
+                                text: '{{ trans("messages.processing-request") }}',
                                 allowOutsideClick: false,
-                                didOpen: () => {
+                                didOpen: function () {
                                     Swal.showLoading();
                                 }
                             });
-
                             $.ajax({
-                                url: '{{route('assurances.orders.updateStatus')}}',
+                                url: '{{ route("assurances.orders.updateStatus") }}',
                                 type: 'POST',
                                 data: {
                                     _token: $('meta[name="csrf-token"]').attr('content'),
@@ -454,31 +530,31 @@
                                 },
                                 success: function (data) {
                                     Swal.fire({
-                                        title: '{{trans('messages.updated')}}!',
-                                        text: '{{trans('messages.change-success')}}.',
+                                        title: '{{ trans("messages.updated") }}!',
+                                        text: '{{ trans("messages.change-success") }}.',
                                         icon: 'success',
-                                        confirmButtonText: '{{trans('messages.close')}}',
+                                        confirmButtonText: '{{ trans("messages.close") }}',
                                         customClass: {
                                             confirmButton: 'btn btn-success'
                                         }
-                                    }).then(() => {
+                                    }).then(function () {
                                         location.reload();
                                     });
                                 },
                                 error: function (data) {
                                     Swal.fire({
-                                        title: '{{trans('messages.not-updated')}}!',
-                                        text: '{{trans('messages.not-update-error')}}.',
+                                        title: '{{ trans("messages.not-updated") }}!',
+                                        text: '{{ trans("messages.not-update-error") }}.',
                                         icon: 'error',
-                                        confirmButtonText: '{{trans('messages.close')}}',
+                                        confirmButtonText: '{{ trans("messages.close") }}',
                                     });
                                     location.reload();
                                 }
                             });
                         }
-                     else {
+                    } else {
                         // Revert the dropdown to the old value if cancelled
-                        $(this).val(oldStatus);
+                        $select.val(oldStatus);
                     }
                 });
             });

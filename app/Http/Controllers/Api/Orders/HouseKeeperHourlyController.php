@@ -42,19 +42,19 @@ class HouseKeeperHourlyController extends Controller
         }
 
         // Check if user already has an active order for this company
-        $existingOrder = HouseKeeperHourlyOrder::where('user_id', Auth::id())
-            ->where('company_id', $request->company)
-            ->whereNotIn('status', [3, 4]) // Exclude completed/cancelled orders
-            ->exists();
-
-        if ($existingOrder) {
-            return $this->apiRespose(
-                ['error' => ['You already have an active order.']],
-                'You already have an active order.',
-                false,
-                400
-            );
-        }
+//        $existingOrder = HouseKeeperHourlyOrder::where('user_id', Auth::id())
+//            ->where('company_id', $request->company)
+//            ->whereNotIn('status', [3, 4]) // Exclude completed/cancelled orders
+//            ->exists();
+//
+//        if ($existingOrder) {
+//            return $this->apiRespose(
+//                ['error' => ['You already have an active order.']],
+//                'You already have an active order.',
+//                false,
+//                400
+//            );
+//        }
 
         try {
             DB::beginTransaction();

@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\DB;
 
 class Controller extends BaseController
 {
@@ -106,8 +107,8 @@ class Controller extends BaseController
     }
 
 
-
-    protected function AssurancehandleStatusUpdates($order, $request){
+    protected function AssurancehandleStatusUpdates($order, $request)
+    {
         $user = $order->user;
         $link = route('api.assuranceRecords', $order->id); // Modify based on your actual route
 
@@ -118,6 +119,25 @@ class Controller extends BaseController
         app()->setLocale($user->lang);
 
         switch ($order->status) {
+
+            case 1:
+
+                Payment::create([
+                    'user_id' => $order->user_id,
+                    'payment_value' => $request->payment_value,
+                    'order_value' => $order->value,
+                    'remaining_amount' => $order->value - $request->payment_value,
+                    'status' => 1,
+                    'type' => 'assurance',
+                    'payment_type' => 'Dashboard',
+                    'order_id' => $order->id,
+                ]);
+
+
+                $message = 'Your payment for order has been processed successfully';
+                $image = asset('icons/payment-required.png');
+                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'assurance', $image);
+                break;
 
             case 2:
 
@@ -130,10 +150,9 @@ class Controller extends BaseController
                 ]);
 
 
-
                 $message = 'Your payment for order has been processed successfully';
                 $image = asset('icons/payment.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'assurance',$image);
+                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'assurance', $image);
                 break;
 
 
@@ -148,7 +167,7 @@ class Controller extends BaseController
 
                 $message = 'Your Order has been Completed successfully';
                 $image = asset('icons/complete.png');
-                $this->createNotification($user, 'Order Completed', $message, $link, $order->id,'assurance', $image);
+                $this->createNotification($user, 'Order Completed', $message, $link, $order->id, 'assurance', $image);
                 break;
 
 
@@ -157,7 +176,7 @@ class Controller extends BaseController
                 $image = asset('icons/cancel.png');
                 $message = 'Your Order has been Closed';
 
-                $this->createNotification($user, 'Order Closed', $message, $link, $order->id,'assurance', $image);
+                $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'assurance', $image);
                 break;
         }
 
@@ -180,64 +199,88 @@ class Controller extends BaseController
 
 
 //ForValidations
+
+
     protected function ViolationhandleStatusUpdates($order, $request)
     {
+        DB::beginTransaction(); // Start transaction
 
-        $user = $order->user;
-        $link = route('api.violationRecords', $order->id); // Modify based on your actual route
+        try {
+            $user = $order->user;
+            $link = route('api.violationRecords', $order->id); // Modify based on your actual route
 
-        // Store the current locale
-        $currentLocale = app()->getLocale();
+            // Store the current locale
+            $currentLocale = app()->getLocale();
 
-        // Set the locale to the user's language
-        app()->setLocale($user->lang);
+            // Set the locale to the user's language
+            app()->setLocale($user->lang);
 
-        switch ($order->status) {
+            switch ($order->status) {
+                case 1:
+                    // Create payment record
+                    Payment::create([
+                        'user_id' => $order->user_id,
+                        'payment_value' => $request->payment_value,
+                        'order_value' => $order->value,
+                        'remaining_amount' => $order->value - $request->payment_value,
+                        'status' => 1,
+                        'type' => 'violation',
+                        'payment_type' => 'Dashboard',
+                        'order_id' => $order->id,
+                    ]);
 
-            case 2:
+                    $message = 'Your payment for order has been processed successfully';
+                    $image = asset('icons/payment-required.png');
+                    $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'violation', $image);
+                    break;
 
-                $remaining_amount = 0;
+                case 2:
+                case 3:
+                    $remaining_amount = 0;
 
-                $order->payment->update([
-                    'remaining_amount' => $remaining_amount,
-                    'status' => 2,
-                    'payment_value' => $order->value,
-                ]);
+                    if ($order->payment) {
+                        $order->payment->update([
+                            'remaining_amount' => $remaining_amount,
+                            'status' => 2,
+                            'payment_value' => $order->value,
+                        ]);
+                    } else {
+                        throw new \Exception("Payment record not found for order ID: {$order->id}");
+                    }
 
+                    $message = ($order->status == 2)
+                        ? 'Your payment for order has been processed successfully'
+                        : 'Your Order has been Completed successfully';
 
-                $message = 'Your payment for order has been processed successfully';
-                $image = asset('icons/payment.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'violation',$image);
-                break;
+                    $image = ($order->status == 2)
+                        ? asset('icons/payment.png')
+                        : asset('icons/complete.png');
 
+                    $this->createNotification($user, ($order->status == 2) ? 'Payment Processed' : 'Order Complete', $message, $link, $order->id, 'violation', $image);
+                    break;
 
-            case 3:
+                case 4:
+                    $order->note = $request->note;
+                    $order->save();
 
-                $remaining_amount = 0;
-                $order->payment->update([
-                    'remaining_amount' => $remaining_amount,
-                    'status' => 2,
-                    'payment_value' => $order->value,
-                ]);
+                    $image = asset('icons/cancel.png');
+                    $message = 'Your Order has been Closed';
+                    $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'violation', $image);
+                    break;
+            }
 
+            // Commit transaction if everything is successful
+            DB::commit();
 
-                $message = 'Your Order has been Completed successfully';
-                $image = asset('icons/complete.png');
-                $this->createNotification($user, 'Order Complete', $message, $link, $order->id, 'violation',$image);
+            // Revert the locale back to the original
+            app()->setLocale($currentLocale);
+        } catch (Exception $e) {
+            DB::rollBack(); // Rollback on error
+            Log::error("Error updating violation status for order ID {$order->id}: " . $e->getMessage());
 
-                break;
-
-
-            case 4:
-                $order->note = $request->note;
-                $image = asset('icons/cancel.png');
-                $message = 'Your Order has been Closed';
-                $this->createNotification($user, 'Order Closed', $message, $link, $order->id,'violation', $image);
-                break;
+            // Optionally, notify the admin or return an error response
+            return response()->json(['error' => 'An error occurred while updating order status.'], 500);
         }
-
-        // Revert the locale back to the original
-        app()->setLocale($currentLocale);
     }
 
 
@@ -266,6 +309,24 @@ class Controller extends BaseController
         app()->setLocale($user->lang);
 
         switch ($order->status) {
+            case 1:
+                // Create payment record
+                Payment::create([
+                    'user_id' => $order->user_id,
+                    'payment_value' => $request->payment_value,
+                    'order_value' => $order->value,
+                    'remaining_amount' => $order->value - $request->payment_value,
+                    'status' => 1,
+                    'type' => 'housekeeper',
+                    'payment_type' => 'Dashboard',
+                    'order_id' => $order->id,
+                ]);
+
+                $message = 'Your payment for order has been processed successfully';
+                $image = asset('icons/payment-required.png');
+                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper', $image);
+                break;
+
 
             case 2:
 
@@ -280,7 +341,7 @@ class Controller extends BaseController
 
                 $message = 'Your payment for order has been processed successfully';
                 $image = asset('icons/payment.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper',$image);
+                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper', $image);
                 break;
 
 
@@ -294,24 +355,24 @@ class Controller extends BaseController
                 ]);
 
 
+                $order->housekeeper->update(['status' => 1,]);
+
                 $message = 'Your Order has been Completed successfully';
                 $image = asset('icons/complete.png');
-                $this->createNotification($user, 'Order Completed', $message, $link, $order->id,'housekeeper',$image);
+                $this->createNotification($user, 'Order Completed', $message, $link, $order->id, 'housekeeper', $image);
                 break;
-
 
 
             case 4:
                 $message = 'Your order has been closed';
                 $image = asset('icons/cancel.png');
-                $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'housekeeper',$image);
+                $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'housekeeper', $image);
                 break;
         }
 
         // Revert the locale back to the original
         app()->setLocale($currentLocale);
     }
-
 
 
     protected function HouseKeeperhandleFileUpload($request, $order, $file_type, $type)
@@ -339,6 +400,25 @@ class Controller extends BaseController
 
         switch ($order->status) {
 
+            case 1:
+
+                Payment::create([
+                    'user_id' => $order->user_id,
+                    'payment_value' => $request->payment_value,
+                    'order_value' => $order->value,
+                    'remaining_amount' => $order->value - $request->payment_value,
+                    'status' => 1,
+                    'type' => 'housekeeper_hourly_order',
+                    'payment_type' => 'Dashboard',
+                    'order_id' => $order->id,
+                ]);
+
+
+                $message = 'Your payment for order has been processed successfully';
+                $image = asset('icons/payment-required.png');
+                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper_hourly_order', $image);
+                break;
+
             case 2:
 
                 $remaining_amount = 0;
@@ -351,8 +431,8 @@ class Controller extends BaseController
 
 
                 $message = 'Your payment for order has been processed successfully';
-                $image = asset('icons/payment.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link,$order->id, 'housekeeper_hourly_order',$image);
+                $image = asset('icons/payment-required.png');
+                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper_hourly_order', $image);
 
                 break;
 
@@ -369,7 +449,7 @@ class Controller extends BaseController
 
                 $message = 'Your Order has been Completed successfully';
                 $image = asset('icons/complete.png');
-                $this->createNotification($user, 'Order Completed', $message, $link,$order->id, 'housekeeper_hourly_order',$image);
+                $this->createNotification($user, 'Order Completed', $message, $link, $order->id, 'housekeeper_hourly_order', $image);
 
                 break;
 
@@ -377,7 +457,7 @@ class Controller extends BaseController
             case 4:
                 $message = 'Your order has been closed';
                 $image = asset('icons/cancel.png');
-                $this->createNotification($user, 'Order Closed', $message, $link,$order->id, 'housekeeper_hourly_order',$image);
+                $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'housekeeper_hourly_order', $image);
                 break;
 
             default:
@@ -397,8 +477,6 @@ class Controller extends BaseController
             'type' => 'file',
         ]);
     }
-
-
 
 
 }

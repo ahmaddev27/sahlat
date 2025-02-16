@@ -66,12 +66,13 @@
                     <tr>
                         <th>#</th>
                         <th>{{trans('assurances.order_id')}}</th>
+
                         <th>{{trans('housekeeper.housekeeper')}}</th>
-                        <th>{{trans('housekeeper.user')}}</th>
+                        <th >{{trans('housekeeper.user')}}</th>
                         <th>{{trans('housekeeper.date')}}</th>
-                        <th>{{trans('housekeeper.details')}}</th>
-                        <th>{{trans('housekeeper.status')}}</th>
-{{--                        <th>{{trans('housekeeper.payment')}}</th>--}}
+                        {{--                        <th>{{trans('housekeeper.details')}}</th>--}}
+                        <th class="width-150">{{trans('housekeeper.status')}}</th>
+                        {{--                        <th class="width-100">{{trans('housekeeper.payment')}}</th>--}}
                         <th>{{trans('housekeeper.action')}}</th>
 
                     </tr>
@@ -248,27 +249,26 @@
                         },
                     ],
 
+                   order: [[0, 'desc']],
+                   columns: [
+                       {data: 'DT_RowIndex', name: 'id'},
+                       {data: 'n_id', name: 'n_id'},
+                       {data: 'housekeeper', name: 'housekeeper'},
+                       {data: 'user', name: 'user'},
+                       {data: 'created_at', name: 'created_at'},
+                       // {data: 'details', name: 'details'},
+                       {data: 'status', name: 'status'},
 
-                    columns: [
-                        {data: 'DT_RowIndex', name: 'id'},
-                        {data: 'n_id', name: 'n_id'},
-                        {data: 'housekeeper', name: 'housekeeper'},
-                        {data: 'user', name: 'user'},
-                        {data: 'created_at', name: 'created_at'},
-                        {data: 'details', name: 'details'},
-                        {data: 'status', name: 'status'},
-                        // {data: 'payment', name: 'payment'},
 
+                       {
+                           data: 'action',
+                           name: 'action',
+                           orderable: false,
+                           searchable: false,
+                           "className": "text-center",
+                       },
 
-                        {
-                            data: 'action',
-                            name: 'action',
-                            orderable: false,
-                            searchable: false,
-
-                        },
-
-                    ],
+                   ],
 
                     @if(App::getLocale() == 'ar')
 
@@ -310,83 +310,165 @@
         {{-- Change status --}}
         <script>
             $(document).on('change', '.status-select', function () {
-                var orderId = $(this).data('id');
-                var newStatus = $(this).val();
+                var $select = $(this);
+                var orderId = $select.data('id');
+                var newStatus = $select.val();
+                var orderValue = $select.data('order-value');
+                var oldStatus = $select.data('old-status', $select.val());
 
-                // Store the old value to revert if the user cancels
-                $(this).data('old-status', $(this).val());
-
-                // Show confirmation dialog with SweetAlert
                 Swal.fire({
-                    title: '{{trans('messages.sure?')}}',
+                    title: '{{trans("messages.sure?")}}',
                     text: "{{trans('messages.change-status')}}",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: '{{trans('messages.change')}}!',
+                    confirmButtonText: '{{trans("messages.change")}}!',
                     cancelButtonText: '{{trans('messages.cancel')}}',
                     customClass: {
                         confirmButton: 'btn btn-danger',
                         cancelButton: 'btn btn-secondary ml-1'
                     },
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                                                 // Show loading indicator
-                            Swal.fire({
-                                icon:'info',
-                                title: '{{trans('messages.loading')}}',
-                                text: '{{trans('messages.processing-request')}}',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
-                                }
-                            });
+                    if (!result.isConfirmed) {
+                        $select.val(oldStatus);
+                        return;
+                    }
 
-
-                            // If the status is not 4, just proceed with the change without asking for a note
-                            $.ajax({
-                                url: '{{route('company.housekeepers.orders.updateStatus')}}', // Add the URL to update the status
-                                type: 'POST',
-                                data: {
-                                    _token: $('meta[name="csrf-token"]').attr('content'), // CSRF Token
-                                    order_id: orderId,
-                                    status: newStatus
-                                },
-                                success: function (data) {
-                                    // Success case with custom success message
-                                    Swal.fire({
-                                        title: '{{trans('messages.updated')}}!',
-                                        text: '{{trans('messages.change-success')}}.',
-                                        icon: 'success',
-                                        confirmButtonText: '{{trans('messages.close')}}',
-                                        customClass: {
-                                            confirmButton: 'btn btn-success'
-                                        }
-                                    });
-
-                                    $('#table').DataTable().ajax.reload();
-                                },
-                                error: function (data) {
-                                    // Error case with custom error message
-                                    Swal.fire({
-                                        title: '{{trans('messages.not-updated')}}!',
-                                        text: '{{trans('messages.not-update-error')}}.',
-                                        icon: 'error',
-                                        confirmButtonText: '{{trans('messages.close')}}',
-                                    });
-
-                                    // Reload the DataTable to reflect changes
-                                    $('#table').DataTable().ajax.reload();
-                                }
-                            });
-
+                    if (newStatus == 1) {
+                        handlePaymentUpdate(orderId, orderValue, newStatus);
+                    } else if (newStatus == 3) {
+                        handleFileUpload(orderId, newStatus);
+                    } else if (newStatus == 5) {
+                        handleNoteUpdate(orderId, newStatus);
                     } else {
-                        // If the user cancels, revert the status
-                        $(this).val($(this).data('old-status')); // Revert to the old value
-                        $('#table').DataTable().ajax.reload();
+                        updateStatus(orderId, newStatus);
                     }
                 });
             });
+
+            function handlePaymentUpdate(orderId, orderValue, newStatus) {
+                Swal.fire({
+                    title: '{{ trans("messages.enter-payment") }}',
+                    html: `<p>{{trans('main.order_value')}}: ADE ${orderValue}</p>`,
+                    input: 'number',
+                    inputAttributes: { min: 0, step: 0.01 },
+                    showCancelButton: true,
+                    confirmButtonText: '{{ trans("messages.submit") }}',
+                    cancelButtonText: '{{ trans("messages.cancel") }}',
+                    preConfirm: (paymentValue) => {
+                        let value = parseFloat(paymentValue);
+                        if (!value || value <= 0 || value > parseFloat(orderValue)) {
+                            return Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                        }
+                        return value;
+                    }
+                }).then((paymentResult) => {
+                    if (paymentResult.isConfirmed) {
+                        updateStatus(orderId, newStatus, { payment_value: paymentResult.value });
+                    }
+                });
+            }
+
+            function handleFileUpload(orderId, newStatus) {
+                Swal.fire({
+                    html: `
+            <label for="payment-attachment">{{trans('messages.upload-attachment')}}</label>
+            <input type="file" id="payment-attachment" class="swal2-input" required><br><br>
+            <label for="contract-attachment">{{trans('messages.upload-contract')}}</label>
+            <input type="file" id="contract-attachment" class="swal2-input" required>
+        `,
+                    showCancelButton: true,
+                    confirmButtonText: '{{trans('messages.submit')}}',
+                    cancelButtonText: '{{trans('messages.cancel')}}',
+                    preConfirm: () => {
+                        var paymentFile = document.getElementById('payment-attachment').files[0];
+                        var contractFile = document.getElementById('contract-attachment').files[0];
+                        if (!paymentFile || !contractFile) {
+                            return Swal.showValidationMessage('{{trans('messages.required-files')}}');
+                        }
+                        return { paymentFile, contractFile };
+                    }
+                }).then((fileResult) => {
+                    if (fileResult.isConfirmed) {
+                        var formData = new FormData();
+                        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+                        formData.append('order_id', orderId);
+                        formData.append('status', newStatus);
+                        formData.append('payment_attachment', fileResult.value.paymentFile);
+                        formData.append('contract_attachment', fileResult.value.contractFile);
+                        sendAjaxRequest('{{route("company.housekeepers.orders.updateStatus")}}', formData, true);
+                    }
+                });
+            }
+
+            function handleNoteUpdate(orderId, newStatus) {
+                Swal.fire({
+                    title: '{{trans('messages.enter-note')}}',
+                    input: 'text',
+                    inputPlaceholder: '{{trans('messages.enter-note-placeholder')}}',
+                    showCancelButton: true,
+                    confirmButtonText: '{{trans('messages.submit')}}',
+                    preConfirm: (note) => {
+                        if (!note) {
+                            return Swal.showValidationMessage('{{trans('messages.note-required')}}');
+                        }
+                        return note;
+                    }
+                }).then((noteResult) => {
+                    if (noteResult.isConfirmed) {
+                        updateStatus(orderId, newStatus, { note: noteResult.value });
+                    }
+                });
+            }
+
+            function updateStatus(orderId, newStatus, additionalData = {}) {
+                var data = {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    order_id: orderId,
+                    status: newStatus,
+                    ...additionalData
+                };
+                sendAjaxRequest('{{route("company.housekeepers.orders.updateStatus")}}', data);
+            }
+
+            function sendAjaxRequest(url, data, isFormData = false) {
+                Swal.fire({
+                    icon: 'info',
+                    title: '{{ trans("messages.loading") }}',
+                    text: '{{ trans("messages.processing-request") }}',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: data,
+                    contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
+                    processData: !isFormData,
+                    success: function () {
+                        Swal.fire({
+                            title: '{{ trans("messages.updated") }}!',
+                            text: '{{ trans("messages.change-success") }}.',
+                            icon: 'success',
+                            confirmButtonText: '{{ trans("messages.close") }}',
+                            customClass: { confirmButton: 'btn btn-success' }
+                        });
+                        $('#table').DataTable().ajax.reload();
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: '{{ trans("messages.not-updated") }}!',
+                            text: '{{ trans("messages.not-update-error") }}.',
+                            icon: 'error',
+                            confirmButtonText: '{{ trans("messages.close") }}'
+                        });
+                        $('#table').DataTable().ajax.reload();
+                    }
+                });
+            }
+
         </script>
+
     @endpush
 
 

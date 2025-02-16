@@ -15,6 +15,7 @@ return [
     'contract' => 'عقد',
     'Payment received' => 'وصل دفع',
     'done' => 'تم',
+    'in' => 'في تاريخ',
     'profile' => 'البروفايل',
     'logout' => 'تسجيل الخروج',
     'company' => 'شركة',
@@ -91,11 +92,12 @@ return [
     'remain' => 'المتبقي',
     'total-payment' => 'المدفوع',
 
-    'order_value' => 'المبلغ',
+    'order_value' => 'المبلغ المستحق',
     'stripe-link'=>'رابط السترايب',
 'enter-stripe-link'=>'ادخل رابط فاتورة السترايب',
 'Send SMS'=>'ارسال الرسالة',
     'Send SMS Link'=>'ارسال رابط السترايب',
+
 
 ];
 

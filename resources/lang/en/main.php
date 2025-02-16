@@ -12,6 +12,7 @@ return [
     'delete' => 'Delete',
 
     'edit' => 'Edit',
+    'in' => 'In Date',
     'pending' => 'Pending',
     'done' => 'Done',
     'negotiation' => 'Negotiation',
@@ -93,7 +94,7 @@ return [
     'remain' => 'Remain',
     'total-payment' => 'Total payment',
 
-    'order_value' => 'order_value',
+    'order_value' => 'Order Value',
 
 
     'stripe-link'=>'Stripe link',

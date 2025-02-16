@@ -26,9 +26,9 @@
         <section class="invoice-preview-wrapper ">
             <div class="row invoice-preview">
                 <!-- Invoice -->
-                <div class="col-xl-9 col-md-8 col-12">
+                <div class="col-xl-9 col-md-8 col-12 ">
                     <div class="card invoice-preview-card p-2">
-                        <div class="card-body invoice-padding pb-0">
+                        <div class="card-body invoice-padding pb-0 scrollable-container">
                             <!-- Header starts -->
 
                             {{--                            orderDetials--}}
@@ -158,7 +158,7 @@
                                             <tr>
                                                 <td class="pr-1">{{trans('housekeeper.payment-type')}}</td>
                                                 <td><span class="font-weight-bold"><div
-                                                            class="d-inline-block m-1"> {{$order->payment?->type ?: '-'}} </div></span>
+                                                            class="d-inline-block m-1"> {{$order->payment?->payment_type ?: '-'}} </div></span>
                                                 </td>
                                             </tr>
                                             {{--                                                <tr>--}}
@@ -200,7 +200,7 @@
 
                                         <div class="invoice-total-item mt-2 ">
                                             <p class="invoice-total-title d-inline">{{trans('main.total-payment')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??'-'}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??0}}</p>
                                         </div>
 
 
@@ -210,10 +210,8 @@
 
                                         <div class="invoice-total-item mt-2 ">
                                             <p class="invoice-total-title d-inline">{{trans('main.remain')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??'-'}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??$order->value}}</p>
                                         </div>
-
-
 
 
 
@@ -320,82 +318,175 @@
 
         {{-- Change status --}}
 
+
         <script>
             $(document).on('change', '.status-select', function () {
-                var orderId = $(this).data('id');
-                var newStatus = $(this).val();
+                let $select = $(this);
+                let orderId = {{$order->id}};
+                let newStatus = $select.val();
+                let orderValue = {{$order->value}};
+                let oldStatus = $select.data('old-status') || $select.val();
 
-                // Store the old value to revert if the user cancels
-                $(this).data('old-status', $(this).val());
-
-                // Show confirmation dialog with SweetAlert
                 Swal.fire({
-                    title: '{{trans('messages.sure?')}}',
+                    title: '{{trans("messages.sure?")}}',
                     text: "{{trans('messages.change-status')}}",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: '{{trans('messages.change')}}!',
-                    cancelButtonText: '{{trans('messages.cancel')}}',
+                    confirmButtonText: '{{trans("messages.change")}}',
+                    cancelButtonText: '{{trans("messages.cancel")}}',
                     customClass: {
                         confirmButton: 'btn btn-danger',
                         cancelButton: 'btn btn-secondary ml-1'
                     },
                 }).then((result) => {
-                    if (result.isConfirmed) {
-
-
-                        Swal.fire({
-                            icon:'info',
-                            title: '{{trans('messages.loading')}}',
-                            text: '{{trans('messages.processing-request')}}',
-                            allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
-                        });
-
-                        // If the status is not 3 or 4, just proceed with the change
-                        $.ajax({
-                            url: '{{route('company.housekeepers.orders.updateStatus')}}', // Add the URL to update the status
-                            type: 'POST',
-                            data: {
-                                _token: $('meta[name="csrf-token"]').attr('content'), // CSRF Token
-                                order_id: orderId,
-                                status: newStatus
-                            },
-                            success: function (data) {
-                                // Success case with custom success message
-                                Swal.fire({
-                                    title: '{{trans('messages.updated')}}!',
-                                    text: '{{trans('messages.change-success')}}.',
-                                    icon: 'success',
-                                    confirmButtonText: '{{trans('messages.close')}}',
-                                    customClass: {
-                                        confirmButton: 'btn btn-success'
-                                    }
-                                }).then(() => {
-                                    location.reload(); // Reload the entire page
-                                });
-                            },
-                            error: function (data) {
-                                // Error case with custom error message
-                                Swal.fire({
-                                    title: '{{trans('messages.not-updated')}}!',
-                                    text: '{{trans('messages.not-update-error')}}.',
-                                    icon: 'error',
-                                    confirmButtonText: '{{trans('messages.close')}}',
-                                }).then(() => {
-                                    location.reload(); // Reload the entire page
-                                });
-                            }
-                        });
-
-                    } else {
-                        // If the user cancels, revert the status
-                        $(this).val($(this).data('old-status')); // Revert to the old value
+                    if (!result.isConfirmed) {
+                        $select.val(oldStatus);
+                        return;
                     }
+
+                    // Handle status updates
+                    handleStatusUpdate(orderId, newStatus, orderValue, $select, oldStatus);
                 });
             });
+
+            function handleStatusUpdate(orderId, newStatus, orderValue, $select, oldStatus) {
+                switch (parseInt(newStatus)) {
+                    case 1:
+                        promptForPayment(orderId, orderValue, newStatus);
+                        break;
+                    case 3:
+                        promptForFileUpload(orderId, newStatus);
+                        break;
+                    case 5:
+                        promptForNoteUpdate(orderId, newStatus);
+                        break;
+                    default:
+                        updateStatus(orderId, newStatus);
+                }
+            }
+
+            function promptForPayment(orderId, orderValue, newStatus) {
+                Swal.fire({
+                    title: '{{ trans("messages.enter-payment") }}',
+                    html: `<p>{{trans('main.order_value')}}: ADE ${orderValue}</p>
+                   <input type="number" id="payment-value" class="swal2-input" min="0" step="0.01" required>`,
+                    showCancelButton: true,
+                    confirmButtonText: '{{ trans("messages.submit") }}',
+                    preConfirm: () => {
+                        let value = parseFloat(document.getElementById('payment-value').value);
+                        if (!value || value <= 0 || value > parseFloat(orderValue)) {
+                            return Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                        }
+                        return value;
+                    }
+                }).then((paymentResult) => {
+                    if (paymentResult.isConfirmed) {
+                        updateStatus(orderId, newStatus, { payment_value: paymentResult.value });
+                    }
+                });
+            }
+
+            function promptForFileUpload(orderId, newStatus) {
+                Swal.fire({
+                    html: `
+                <label for="payment-attachment">{{trans('messages.upload-attachment')}}</label>
+                <input type="file" id="payment-attachment" class="swal2-input" required><br><br>
+                <label for="contract-attachment">{{trans('messages.upload-contract')}}</label>
+                <input type="file" id="contract-attachment" class="swal2-input" required>
+            `,
+                    showCancelButton: true,
+                    confirmButtonText: '{{trans('messages.submit')}}',
+                    cancelButtonText: '{{trans('messages.cancel')}}',
+
+                    preConfirm: () => {
+                        let paymentFile = document.getElementById('payment-attachment').files[0];
+                        let contractFile = document.getElementById('contract-attachment').files[0];
+                        if (!paymentFile || !contractFile) {
+                            return Swal.showValidationMessage('{{trans('messages.required-files')}}');
+                        }
+                        return { paymentFile, contractFile };
+                    }
+                }).then((fileResult) => {
+                    if (fileResult.isConfirmed) {
+                        let formData = new FormData();
+                        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+                        formData.append('order_id', orderId);
+                        formData.append('status', newStatus);
+                        formData.append('payment_attachment', fileResult.value.paymentFile);
+                        formData.append('contract_attachment', fileResult.value.contractFile);
+                        sendAjaxRequest('{{route("company.housekeepers.orders.updateStatus")}}', formData, true);
+                    }
+                });
+            }
+
+            function promptForNoteUpdate(orderId, newStatus) {
+                Swal.fire({
+                    title: '{{trans('messages.enter-note')}}',
+                    input: 'text',
+                    inputPlaceholder: '{{trans('messages.enter-note-placeholder')}}',
+                    showCancelButton: true,
+                    confirmButtonText: '{{trans('messages.submit')}}',
+                    cancelButtonText: '{{trans('messages.cancel')}}',
+                    preConfirm: (note) => {
+                        if (!note) {
+                            return Swal.showValidationMessage('{{trans('messages.note-required')}}');
+                        }
+                        return note;
+                    }
+                }).then((noteResult) => {
+                    if (noteResult.isConfirmed) {
+                        updateStatus(orderId, newStatus, { note: noteResult.value });
+                    }
+                });
+            }
+
+            function updateStatus(orderId, newStatus, additionalData = {}) {
+                let data = {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    order_id: orderId,
+                    status: newStatus,
+                    ...additionalData
+                };
+
+                Swal.fire({
+                    title: '{{ trans("messages.loading") }}',
+                    text: '{{ trans("messages.processing-request") }}',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    showConfirmButton: false, // Prevents Submit button from showing here
+                    didOpen: () => {
+                        Swal.showLoading();
+                        sendAjaxRequest('{{route("company.housekeepers.orders.updateStatus")}}', data);
+                    }
+                });
+            }
+
+            function sendAjaxRequest(url, data, isFormData = false) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: data,
+                    contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
+                    processData: !isFormData,
+                    success: function () {
+                        Swal.fire({
+                            title: '{{ trans("messages.updated") }}!',
+                            text: '{{ trans("messages.change-success") }}.',
+                            icon: 'success',
+                            confirmButtonText: '{{ trans("messages.close") }}',
+                            customClass: { confirmButton: 'btn btn-success' }
+                        }).then(() => location.reload());
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: '{{ trans("messages.not-updated") }}!',
+                            text: '{{ trans("messages.not-update-error") }}.',
+                            icon: 'error',
+                            confirmButtonText: '{{ trans("messages.close") }}'
+                        }).then(() => location.reload());
+                    }
+                });
+            }
         </script>
 
 

@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AssuranceOrderResources;
-use App\Http\Resources\HouseKeeperHourlyOrderResources;
-use App\Http\Resources\HouseKeeperOrderResources;
 use App\Models\AssuranceOrder;
 use App\Models\HouseKeeperHourlyOrder;
 use App\Models\HouseKeeperOrder;

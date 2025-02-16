@@ -92,7 +92,7 @@ class HouseKeeperOrderController extends Controller
                 $badgeClass = OrdorClass($item->status);
 
                 // Create the select dropdown for status change
-                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" style="width: auto;">';
+                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" style="width: auto;" data-order-value="' . $item->value . '" >';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
                 // Loop through all statuses and mark the current status as selected
@@ -125,11 +125,7 @@ class HouseKeeperOrderController extends Controller
         </a>
 
 
-  <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"
-                id="send-stripe" data-toggle="modal" data-target="#sendSmsModal"
-                onclick="setOrderId(' . $item->id . ')" title="Send Link">
-            <i class="fa fa-link text-body"></i>
-        </button>
+
 
         <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
                 id="delete" route="' . route('housekeepers.orders.delete') . '" model_id="' . $item->id . '" data-toggle="modal" title="delete">
@@ -137,18 +133,9 @@ class HouseKeeperOrderController extends Controller
         </button>
     ';
             })
-            ->editColumn('payment', function ($item) {
-                if ($item->payment()->count() > 0) {
-                    $statusText = paymentStatus($item->payment->status);
-                    $badgeClass = OrdorClass($item->payment->status);
-                    return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
-                } else {
-                    return '     <div class="d-inline-block m-1"><span class="badge badge-glow ' . OrdorClass('0') . '">' . paymentStatus(0) . ' </span></div>';
-                }
 
-            })
             ->addIndexColumn()
-            ->rawColumns(['action', 'housekeeper', 'payment', 'user', 'status', 'details', 'created_at'])
+            ->rawColumns(['action', 'housekeeper', 'user', 'status', 'details', 'created_at'])
             ->make(true);
 
     }

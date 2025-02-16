@@ -28,20 +28,20 @@ if (!function_exists('transformToIdNameArray')) {
 /**
  * Helper to return a standardized API response.
  *
- * @param mixed  $data
+ * @param mixed $data
  * @param string $message
- * @param int    $code
- * @param bool   $status
+ * @param int $code
+ * @param bool $status
  * @return \Illuminate\Http\Response
  */
 if (!function_exists('apiResponse')) {
     function apiResponse($data, string $message = '', int $code = 200, bool $status = true)
     {
         return response([
-            'data'    => $data,
+            'data' => $data,
             'message' => $message,
-            'status'  => $status,
-            'code'    => $code,
+            'status' => $status,
+            'code' => $code,
         ]);
     }
 }
@@ -53,6 +53,21 @@ if (!function_exists('apiResponse')) {
 Route::get('/langs', function () {
     $langs = transformToIdNameArray(getAllLangs());
     return apiResponse($langs, trans('messages.success'));
+});
+
+Route::get('/nationalities', function () {
+    $nationalities = transformToIdNameArray(Nationalities());
+    return apiResponse($nationalities, trans('messages.success'));
+});
+
+Route::get('/cites', function () {
+    $cities = transformToIdNameArray(cities());
+    return apiResponse($cities, trans('messages.success'));
+});
+
+Route::get('/religions', function () {
+    $religions = transformToIdNameArray(getAllReligions());
+    return apiResponse($religions, trans('messages.success'));
 });
 
 // Auth Routes for non-authenticated users.
@@ -71,20 +86,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // AuthController Routes
     // -------------------------------
     Route::controller(AuthController::class)->group(function () {
-        Route::get('/religions', function () {
-            $religions = transformToIdNameArray(getAllReligions());
-            return apiResponse($religions, trans('messages.success'));
-        });
-
-        Route::get('/nationalities', function () {
-            $nationalities = transformToIdNameArray(Nationalities());
-            return apiResponse($nationalities, trans('messages.success'));
-        });
-
-        Route::get('/cites', function () {
-            $cities = transformToIdNameArray(cities());
-            return apiResponse($cities, trans('messages.success'));
-        });
 
         Route::post('/change-lang', 'changLang');
         Route::post('/updateProfile', 'updateProfile');
@@ -153,13 +154,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::controller(ReviewController::class)->group(function () {
             Route::post('/housekeeperReview', 'housekeeperReview');
         });
+
+        Route::controller(OrderController::class)->group(function () {
+            Route::post('/payTabby', 'payTabby');
+            Route::get('/balance', 'balance');
+        });
+
     });
 
-    // -------------------------------
-    // OrderController Routes (no active check required)
-    // -------------------------------
-    Route::controller(OrderController::class)->group(function () {
-        Route::post('/payTabby', 'payTabby');
-        Route::get('/balance', 'balance');
-    });
 });

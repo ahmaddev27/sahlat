@@ -55,80 +55,67 @@
 
                         <div class="card-body invoice-padding pb-0">
                             <!-- Header starts -->
+                            <div class="row invoice-spacing mt-0">
+                                <div class="col-lg-8 col-md-12 p-3">
+                                    <h6 class="mb-3">{{ trans('housekeeper.order-details') }}</h6>
 
-                            {{--                            orderDetials--}}
-                            <div class="d-flex justify-content-between flex-md-row flex-column invoice-spacing mt-0">
-                                <div class="col-xl-8 p-3">
-                                    <h6 class="mb-3">{{trans('housekeeper.order-details')}}</h6>
-
-                                    <table class="table">
-                                        <tbody>
-                                        <tr>
-                                            <td class="pr-2 pb-1">{{trans('housekeeper.from')}}</td>
-                                            <td class="font-weight-bold">{{$order->from}}</td>
-                                            <td class="pr-2">{{trans('housekeeper.to')}}</td>
-                                            <td class="font-weight-bold">{{$order->to}}</td>
-                                        </tr>
-
-                                        <tr>
-                                            <td class="pr-2 pb-1">{{trans('housekeeper.hours')}}</td>
-                                            <td class="font-weight-bold pb-1">{{$order->hours}}</td>
-                                            <td class="pr-2">{{trans('housekeeper.date')}}</td>
-                                            <td class="font-weight-bold">{{$order->date->format('Y M d')}}</td>
-                                        </tr>
-
-                                        <tr>
-                                            <td class="pr-2 pb-2">{{trans('housekeeper.name')}}</td>
-                                            <td class="font-weight-bold pb-2">{{$order->user->name}}</td>
-
-                                            <td class="pr-2 pb-2">{{trans('housekeeper.number_id')}}</td>
-                                            <td class="font-weight-bold pb-2">{{$order->user->number_id}}</td>
-                                        </tr>
-
-                                        @if($order->housekeeper)
+                                    <div class="table-responsive">
+                                        <table class="table">
+                                            <tbody>
                                             <tr>
-                                                <td class="pr-2 pb-2">{{trans('housekeeper.housekeeper')}}</td>
-                                                <td class="d-flex align-items-center pb-2">
-                                                    <img
-                                                        width="60" height="60"
-                                                        class="user-avatar mr-3 rounded-circle"
-                                                        src="{{$order->housekeeper->getAvatar()}}"
-                                                        alt="Housekeeper Avatar">
-                                                    <span class="font-weight-bold">{{$order->housekeeper->name}}</span>
-                                                </td>
+                                                <td class="pr-2 pb-1">{{ trans('housekeeper.from') }}</td>
+                                                <td class="font-weight-bold">{{ $order->from->format('d-M-Y') }}</td>
+                                                <td class="pr-2">{{ trans('housekeeper.to') }}</td>
+                                                <td class="font-weight-bold">{{ $order->to->format('d-M-Y') }}</td>
                                             </tr>
-                                        @endif
-
-                                        <tr>
-                                            <td class="pr-2 pt-3">{{trans('housekeeper.company')}}</td>
-                                            <td class="font-weight-bold pt-3">{{$order->housekeeper?->company->name}}</td>
-                                        </tr>
-
-                                        <tr>
-                                            <td class="pr-2 pt-4">{{trans('housekeeper.details')}}</td>
-                                            <td colspan="3" class="pt-4">{{$order->details ?? '-'}}</td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="col-xl-4 p-3 mt-5">
-                                    <div class="row invoice-spacing">
-                                        <div class="w-100">
-                                            <h4 class="invoice-title mb-3">
-                                                {{trans('housekeeper.order_id')}}
-                                                <span class="invoice-number">{{$order->n_id}}</span>
-                                            </h4>
-
-                                            <div class="invoice-date-wrapper">
-                                                <p class="invoice-date-title mb-1">{{trans('housekeeper.date')}}</p>
-                                                <p class="invoice-date font-weight-bold">{{$order->created_at->format('d/m/Y')}}</p>
-                                            </div>
-                                        </div>
+                                            <tr>
+                                                <td class="pr-2 pb-1">{{ trans('housekeeper.hours') }}</td>
+                                                <td class="font-weight-bold pb-1">{{ $order->hours }}</td>
+                                                <td class="pr-2">{{ trans('housekeeper.date') }}</td>
+                                                <td class="font-weight-bold">{{ $order->date->format('Y M d') }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-2 pb-2">{{ trans('housekeeper.name') }}</td>
+                                                <td class="font-weight-bold pb-2">{{ $order->user->name }}</td>
+                                                <td class="pr-2 pb-2">{{ trans('housekeeper.number_id') }}</td>
+                                                <td class="font-weight-bold pb-2">{{ $order->user->number_id }}</td>
+                                            </tr>
+                                            @if($order->housekeeper)
+                                                <tr>
+                                                    <td class="pr-2 pb-2">{{ trans('housekeeper.housekeeper') }}</td>
+                                                    <td class="d-flex align-items-center pb-2">
+                                                        <img width="60" height="60" class="user-avatar mr-3 rounded-circle img-fluid"
+                                                             src="{{ $order->housekeeper->getAvatar() }}" alt="Housekeeper Avatar">
+                                                        <span class="font-weight-bold">{{ $order->housekeeper->name }}</span>
+                                                    </td>
+                                                </tr>
+                                            @endif
+                                            <tr>
+                                                <td  class="pr-2 pt-3">{{ trans('housekeeper.company') }}</td>
+                                                <td colspan="2" class="font-weight-bold pt-3">{{ $order->company->name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pr-2 pt-4">{{ trans('housekeeper.details') }}</td>
+                                                <td colspan="3" class="pt-4">{{ $order->details ?? '-' }}</td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
 
+                                <div class="col-lg-4 col-md-12 p-3 mt-lg-0 mt-5">
+                                    <div class="invoice-title mb-3">
+                                        <h4>
+                                            {{ trans('housekeeper.order_id') }}
+                                            <span class="invoice-number">{{ $order->n_id }}</span>
+                                        </h4>
+                                    </div>
+                                    <div class="invoice-date-wrapper">
+                                        <p class="invoice-date-title mb-1">{{ trans('housekeeper.date') }}</p>
+                                        <p class="invoice-date font-weight-bold">{{ $order->created_at->format('d/m/Y') }}</p>
+                                    </div>
+                                </div>
                             </div>
-
                             <!-- Header ends -->
                         </div>
 
@@ -173,121 +160,95 @@
                                 </div>
 
                                 <div class="col-xl-4 p-0 mt-xl-0 mt-2">
-                                    <h6 class="mb-2">{{trans('housekeeper.payment')}}</h6>
+                                    <h6 class="mb-2">{{ trans('housekeeper.payment') }}</h6>
 
-                                    @if($order->payment()->count()>0)
+                                    @if($order->payment && $order->payment->count() > 0)
+                                        @php
+                                            $statusText = paymentStatus($order->payment->status);
+                                            $badgeClass = OrdorClass($order->payment->status);
+                                            // Combine the status badge and the select dropdown inline
+                                            $statusBadge = '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
+                                        @endphp
 
                                         <table>
                                             <tbody>
-
-                                            @php
-                                                $statusText = paymentStatus($order->payment->status);
-                                                $badgeClass = OrdorClass($order->payment->status);
-                                                                                                    // Combine the status badge and the select dropdown inline
-                                                $div = '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
-                                            @endphp
-
-
                                             <tr>
-                                                <td class="pr-1 ">{{trans('housekeeper.status')}}</td>
-                                                <td><span class="font-weight-bold">{!! $div!!}</span></td>
+                                                <td class="pr-1">{{ trans('housekeeper.status') }}</td>
+                                                <td><span class="font-weight-bold">{!! $statusBadge !!}</span></td>
                                             </tr>
-
-
                                             <tr>
-                                                <td class="pr-1">{{trans('housekeeper.payment-type')}}</td>
-                                                <td><span class="font-weight-bold"><div
-                                                            class="d-inline-block m-1"> {{$order->payment?->type ?: '-'}} </div></span>
-                                                </td>
+                                                <td class="pr-1">{{ trans('housekeeper.payment-type') }}</td>
+                                                <td><span class="font-weight-bold">
+                        <div class="d-inline-block m-1">
+                            {{ $order->payment->payment_type ?? '-' }}
+                        </div>
+                    </span></td>
                                             </tr>
-                                            {{--                                                <tr>--}}
-                                            {{--                                                    <td class="pr-1">Country:</td>--}}
-                                            {{--                                                    <td>United States</td>--}}
-                                            {{--                                                </tr>--}}
-
                                             </tbody>
                                         </table>
                                     @else
-
-                                        <div class="d-inline-block m-1"><span
-                                                class="badge badge-glow {{OrdorClass('0')}} '">{{paymentStatus(0)}} </span>
+                                        <div class="d-inline-block m-1">
+                                            <span class="badge badge-glow {{ OrdorClass(0) }}">{{ paymentStatus(0) }}</span>
                                         </div>
-
                                     @endif
                                 </div>
 
 
+
                             </div>
                         </div>
-                        <!-- Address and Contact ends -->
 
-
+                        <!-- Invoice Total Section -->
                         <div class="card-body invoice-padding pb-0">
                             <div class="row invoice-sales-total-wrapper">
-
                                 <div class="col-md-9 d-flex justify-content-end order-md-2 order-1">
                                     <div class="invoice-total-wrapper">
-
+                                        <div class="invoice-total-item mt-2">
+                                            <p class="invoice-total-title d-inline">{{ trans('company.hourly_price') }}</p>
+                                            <p class="invoice-total-amount d-inline p-2">ADE {{ $order->company->hourly_price }}</p>
+                                        </div>
 
                                         <div class="invoice-total-item mt-2">
-                                            <p class="invoice-total-title d-inline">{{trans('company.hourly_price')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2">
-                                                ADE {{$order->company->hourly_price}}</p>
-
+                                            <p class="invoice-total-title d-inline">{{ trans('main.hours') }}</p>
+                                            <p class="invoice-total-amount d-inline p-2">{{ $order->hours }}</p>
                                         </div>
-
 
                                         <div class="invoice-total-item mt-2">
-                                            <p class="invoice-total-title d-inline">{{trans('main.hours')}}</p>
+                                            <p class="invoice-total-title d-inline">{{ trans('main.total') }}</p>
+                                            <p class="invoice-total-amount d-inline p-2">{{ $order->hours *$order->company->hourly_price  }}</p>
+                                        </div>
+
+                                        <div class="invoice-total-item mt-2">
+                                            <p class="invoice-total-title d-inline">{{ trans('main.total-payment') }}</p>
                                             <p class="invoice-total-amount d-inline p-2">
-                                                 {{$order->hours}}</p>
+                                                ADE {{ $order->payment->payment_value ?? '0' }}
+                                            </p>
                                         </div>
-
-
-
-
-                                        <div class="invoice-total-item mt-2 ">
-                                            <p class="invoice-total-title d-inline">{{trans('main.total-payment')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??'-'}}</p>
-                                        </div>
-
-
 
                                         <hr class="my-50" />
 
-
-                                        <div class="invoice-total-item mt-2 ">
-                                            <p class="invoice-total-title d-inline">{{trans('main.remain')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??'-'}}</p>
+                                        <div class="invoice-total-item mt-2">
+                                            <p class="invoice-total-title d-inline">{{ trans('main.remain') }}</p>
+                                            <p class="invoice-total-amount d-inline p-2">
+                                                ADE {{ $order->payment->remaining_amount ?? $order->hours* $order->company->hourly_price}}
+                                            </p>
                                         </div>
-
-
-
-
-
-
                                     </div>
-
-
-
-
                                 </div>
-
-
                             </div>
 
-                            @if($order->orderattAchments->count() > 0)
-                                <!-- Invoice Attachments -->
+                            <!-- Invoice Attachments -->
+                            @if($order->orderAttachments->count() > 0)
                                 <div class="attachments-section mt-4">
-                                    <h6 class="mb-3">{{trans('assurances.attachments')}}</h6>
+                                    <h6 class="mb-3">{{ trans('assurances.attachments') }}</h6>
                                     <ul class="list-unstyled d-flex flex-wrap">
-                                        @foreach($order->orderattAchments as $attachment)
+                                        @foreach($order->orderAttachments as $attachment)
                                             <li class="d-flex align-items-center mr-4 mb-2">
                                                 <div class="attachment-title mr-2">
-                                                    <p class="mb-0 font-weight-bold">{{$attachment->title}}</p>
+                                                    <p class="mb-0 font-weight-bold">{{ $attachment->title }}</p>
                                                 </div>
                                                 <div class="attachment-file">
-                                                    <a href="{{$attachment->getFile()}}" target="_blank" class="text-body">
+                                                    <a href="{{ $attachment->getFile() }}" target="_blank" class="text-body">
                                                         <i class="font-large-1" data-feather="file"></i>
                                                     </a>
                                                 </div>
@@ -296,10 +257,8 @@
                                     </ul>
                                 </div>
                             @endif
-
-
                         </div>
-                        <!-- Invoice Description ends -->
+                        <!-- Invoice Description Ends -->
 
 
                     </div>
@@ -370,8 +329,6 @@
     @push('js')
 
         {{-- Change status --}}
-
-
         <script>
             $(document).on('change', '.status-select', function () {
                 var orderId = $(this).data('id');
@@ -382,46 +339,124 @@
 
                 // Show confirmation dialog with SweetAlert
                 Swal.fire({
-                    title: '{{trans('messages.sure?')}}',
-                    text: "{{trans('messages.change-status')}}",
+                    title: '{{ trans("messages.sure?") }}',
+                    text: "{{ trans('messages.change-status') }}",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: '{{trans('messages.change')}}!',
-                    cancelButtonText: '{{trans('messages.cancel')}}',
+                    confirmButtonText: '{{ trans("messages.change") }}!',
+                    cancelButtonText: '{{ trans("messages.cancel") }}',
                     customClass: {
                         confirmButton: 'btn btn-danger',
                         cancelButton: 'btn btn-secondary ml-1'
                     },
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        if (newStatus == 3) {
-                            // Fetch housekeepers dynamically based on company_id
-                            var companyId = '{{$order->company_id}}'; // Assume you have company ID in the data attribute
+                        if (newStatus == 1) {
+                            // Prompt user to enter a payment value with client‑side validation
+                            Swal.fire({
+                                title: '{{ trans("messages.enter-payment") }}',
+                                input: 'number',
+                                html: `<p>{{trans('main.order_value')}}: ADE{{$order->value}}</p>`,
+                                inputAttributes: {
+                                    min: 0,
+                                    step: 1
+                                },
+                                showCancelButton: true,
+                                confirmButtonText: '{{ trans("messages.submit") }}',
+                                cancelButtonText: '{{ trans("messages.cancel") }}',
+                                customClass: {
+                                    confirmButton: 'btn btn-success',
+                                    cancelButton: 'btn btn-secondary'
+                                },
+                                preConfirm: (paymentValue) => {
+                                    let value = parseFloat(paymentValue);
+                                    // Get the order value from a Blade variable
+                                    const orderValue = parseFloat("{{ $order->value }}");
+
+                                    if (!value || value <= 0) {
+                                        Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                                    } else if (value > orderValue) {
+                                        Swal.showValidationMessage('{{ trans("messages.Payment value cannot exceed the order value")}}');
+                                    }
+                                    return value;
+                                }
+                            }).then((paymentResult) => {
+                                if (paymentResult.isConfirmed) {
+                                    var paymentValue = paymentResult.value;
+
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: '{{ trans("messages.loading") }}',
+                                        text: '{{ trans("messages.processing-request") }}',
+                                        allowOutsideClick: false,
+                                        didOpen: () => {
+                                            Swal.showLoading();
+                                        }
+                                    });
+
+                                    // Make AJAX request to update the status with payment value
+                                    $.ajax({
+                                        url: '{{ route("housekeepers.HourlyOrders.updateStatus") }}',
+                                        type: 'POST',
+                                        data: {
+                                            _token: $('meta[name="csrf-token"]').attr('content'),
+                                            order_id: orderId,
+                                            status: newStatus,
+                                            payment_value: paymentValue
+                                        },
+                                        success: function (data) {
+                                            Swal.fire({
+                                                title: '{{ trans("messages.updated") }}!',
+                                                text: '{{ trans("messages.change-success") }}.',
+                                                icon: 'success',
+                                                confirmButtonText: '{{ trans("messages.close") }}',
+                                                customClass: {
+                                                    confirmButton: 'btn btn-success'
+                                                }
+                                            }).then(() => {
+                                                window.location.reload();
+                                            });
+                                        },
+                                        error: function (data) {
+                                            Swal.fire({
+                                                title: '{{ trans("messages.not-updated") }}!',
+                                                text: '{{ trans("messages.not-update-error") }}.',
+                                                icon: 'error',
+                                                confirmButtonText: '{{ trans("messages.close") }}',
+                                            }).then(() => {
+                                                window.location.reload();
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        } else if (newStatus == 3) {
+                            // Fetch housekeepers dynamically based on company_id for status 3
+                            var companyId = '{{ $order->company_id }}';
 
                             $.ajax({
-                                url: '{{route('housekeepers.HourlyOrders.get-housekeepers', '')}}/' + companyId,
+                                url: '{{ route("housekeepers.HourlyOrders.get-housekeepers", "") }}/' + companyId,
                                 type: 'GET',
                                 success: function (data) {
-                                    var housekeepers = data.housekeepers; // Adjust based on your API response
+                                    var housekeepers = data.housekeepers;
                                     var options = '';
 
                                     housekeepers.forEach(function (housekeeper) {
                                         options += `<option value="${housekeeper.id}">${housekeeper.name}</option>`;
                                     });
 
-                                    // Show select2 dropdown in SweetAlert
                                     Swal.fire({
-                                        title: '{{trans('messages.select-housekeeper')}}',
+                                        title: '{{ trans("messages.select-housekeeper") }}',
                                         html: `<select id="housekeeper-select" class="form-control">${options}</select>`,
                                         showCancelButton: true,
-                                        confirmButtonText: '{{trans('messages.submit')}}',
-                                        cancelButtonText: '{{trans('messages.cancel')}}',
+                                        confirmButtonText: '{{ trans("messages.submit") }}',
+                                        cancelButtonText: '{{ trans("messages.cancel") }}',
                                         customClass: {
                                             confirmButton: 'btn btn-success',
                                             cancelButton: 'btn btn-secondary'
                                         },
                                         didOpen: () => {
-                                            $('#housekeeper-select').select2(); // Initialize select2
+                                            $('#housekeeper-select').select2();
                                         }
                                     }).then((selectResult) => {
                                         if (selectResult.isConfirmed) {
@@ -429,8 +464,8 @@
 
                                             if (!housekeeperId) {
                                                 Swal.fire({
-                                                    title: '{{trans('messages.error')}}',
-                                                    text: '{{trans('messages.select-housekeeper-error')}}',
+                                                    title: '{{ trans("messages.error") }}',
+                                                    text: '{{ trans("messages.select-housekeeper-error") }}',
                                                     icon: 'error',
                                                 });
                                                 return;
@@ -438,16 +473,16 @@
 
                                             Swal.fire({
                                                 icon: 'info',
-                                                title: '{{trans('messages.loading')}}',
-                                                text: '{{trans('messages.processing-request')}}',
+                                                title: '{{ trans("messages.loading") }}',
+                                                text: '{{ trans("messages.processing-request") }}',
                                                 allowOutsideClick: false,
                                                 didOpen: () => {
                                                     Swal.showLoading();
                                                 }
                                             });
-                                            // Make AJAX request to update the status with housekeeper ID
+
                                             $.ajax({
-                                                url: '{{route('housekeepers.HourlyOrders.updateStatus')}}',
+                                                url: '{{ route("housekeepers.HourlyOrders.updateStatus") }}',
                                                 type: 'POST',
                                                 data: {
                                                     _token: $('meta[name="csrf-token"]').attr('content'),
@@ -457,25 +492,25 @@
                                                 },
                                                 success: function (data) {
                                                     Swal.fire({
-                                                        title: '{{trans('messages.updated')}}!',
-                                                        text: '{{trans('messages.change-success')}}.',
+                                                        title: '{{ trans("messages.updated") }}!',
+                                                        text: '{{ trans("messages.change-success") }}.',
                                                         icon: 'success',
-                                                        confirmButtonText: '{{trans('messages.close')}}',
+                                                        confirmButtonText: '{{ trans("messages.close") }}',
                                                         customClass: {
                                                             confirmButton: 'btn btn-success'
                                                         }
                                                     }).then(() => {
-                                                        window.location.reload(); // Reload the page after success
+                                                        window.location.reload();
                                                     });
                                                 },
                                                 error: function (data) {
                                                     Swal.fire({
-                                                        title: '{{trans('messages.not-updated')}}!',
-                                                        text: '{{trans('messages.not-update-error')}}.',
+                                                        title: '{{ trans("messages.not-updated") }}!',
+                                                        text: '{{ trans("messages.not-update-error") }}.',
                                                         icon: 'error',
-                                                        confirmButtonText: '{{trans('messages.close')}}',
+                                                        confirmButtonText: '{{ trans("messages.close") }}',
                                                     }).then(() => {
-                                                        window.location.reload(); // Reload the page after error
+                                                        window.location.reload();
                                                     });
                                                 }
                                             });
@@ -484,28 +519,28 @@
                                 },
                                 error: function () {
                                     Swal.fire({
-                                        title: '{{trans('messages.error')}}',
-                                        text: '{{trans('messages.housekeeper-fetch-error')}}',
+                                        title: '{{ trans("messages.error") }}',
+                                        text: '{{ trans("messages.housekeeper-fetch-error") }}',
                                         icon: 'error',
                                     }).then(() => {
-                                        window.location.reload(); // Reload the page after error
+                                        window.location.reload();
                                     });
                                 }
                             });
-                        }
-                      else {
+                        } else {
+                            // For other statuses, simply update via AJAX
                             Swal.fire({
                                 icon: 'info',
-                                title: '{{trans('messages.loading')}}',
-                                text: '{{trans('messages.processing-request')}}',
+                                title: '{{ trans("messages.loading") }}',
+                                text: '{{ trans("messages.processing-request") }}',
                                 allowOutsideClick: false,
                                 didOpen: () => {
                                     Swal.showLoading();
                                 }
                             });
-                            // Regular status update
+
                             $.ajax({
-                                url: '{{route('housekeepers.HourlyOrders.updateStatus')}}',
+                                url: '{{ route("housekeepers.HourlyOrders.updateStatus") }}',
                                 type: 'POST',
                                 data: {
                                     _token: $('meta[name="csrf-token"]').attr('content'),
@@ -514,37 +549,38 @@
                                 },
                                 success: function (data) {
                                     Swal.fire({
-                                        title: '{{trans('messages.updated')}}!',
-                                        text: '{{trans('messages.change-success')}}.',
+                                        title: '{{ trans("messages.updated") }}!',
+                                        text: '{{ trans("messages.change-success") }}.',
                                         icon: 'success',
-                                        confirmButtonText: '{{trans('messages.close')}}',
+                                        confirmButtonText: '{{ trans("messages.close") }}',
                                         customClass: {
                                             confirmButton: 'btn btn-success'
                                         }
                                     }).then(() => {
-                                        window.location.reload(); // Reload the page after success
+                                        window.location.reload();
                                     });
                                 },
                                 error: function (data) {
                                     Swal.fire({
-                                        title: '{{trans('messages.not-updated')}}!',
-                                        text: '{{trans('messages.not-update-error')}}.',
+                                        title: '{{ trans("messages.not-updated") }}!',
+                                        text: '{{ trans("messages.not-update-error") }}.',
                                         icon: 'error',
-                                        confirmButtonText: '{{trans('messages.close')}}',
+                                        confirmButtonText: '{{ trans("messages.close") }}',
                                     }).then(() => {
-                                        window.location.reload(); // Reload the page after error
+                                        window.location.reload();
                                     });
                                 }
                             });
                         }
                     } else {
-                        // If canceled, revert status
+                        // If user cancels, revert to the old status and reload the table
                         $(this).val($(this).data('old-status'));
                         $('#table').DataTable().ajax.reload();
                     }
                 });
             });
         </script>
+
 
     @endpush
 

@@ -63,7 +63,10 @@ return [
     'ok' => 'تم',
     'sms-sent-success'=>'تم ارسال الرسالة بنجاح',
     'fail-sms'=>'فشل ارسال الرسالة',
-    'invalid-url'=>'الرابط خطأ'
+    'invalid-url'=>'الرابط خطأ',
+    'enter-payment'=>'ادخل القيمة المدفوعة',
+    'Payment value cannot exceed the order value'=>'القيمة المدخلة اكبر من المبلغ المستحق',
+    'invalid-payment'=>'القيمة المدخلة خاطئة'
 
 
 ];

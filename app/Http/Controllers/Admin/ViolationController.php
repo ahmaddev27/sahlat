@@ -60,7 +60,7 @@ class ViolationController extends Controller
                 $badgeClass = OrdorClass($item->status);
 
                 // Create the select dropdown for status change
-                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" style="width: auto;">';
+                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" data-order-value="' . $item->value . '" style="width: auto;">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
                 // Loop through all statuses and mark the current status as selected
@@ -103,11 +103,6 @@ class ViolationController extends Controller
                 <i class="fa fa-eye text-body"></i>
             </button>
 
-             <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"
-                id="send-stripe" data-toggle="modal" data-target="#sendSmsModal"
-                onclick="setOrderId(' . $item->id . ')" title="Send Link">
-            <i class="fa fa-link text-body"></i>
-        </button>
 
 
             <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"

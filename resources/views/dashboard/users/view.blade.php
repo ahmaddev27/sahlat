@@ -265,9 +265,9 @@
                                                      height="40" width="40">
                                             </div>
                                             <div class="profile-user-info">
-                                                <h6 class="mb-0">{{$hh->from}}- {{$hh->to}} ({{$hh->hours}}) {{trans('main.hours')}}</h6>
+                                                <h6 class="mb-0">{{$hh->from->format('H:i')}}- {{$hh->to->format('H:i')}} ({{$hh->hours}}) {{trans('main.hours')}}</h6>
                                                 <small
-                                                    class="text-muted">{{$hh->created_at->diffforhumans()}}</small>
+                                                    class="text-muted">{{$hh->created_at->diffforhumans()}} - {{trans('main.in')}} {{$hh->date->format('d-M-Y')}} </small>
                                             </div>
                                             <a href="{{route('housekeepers.HourlyOrders.view',$hh->id)}}"
                                                class="btn btn-primary btn-icon btn-sm ml-auto waves-effect waves-float waves-light">

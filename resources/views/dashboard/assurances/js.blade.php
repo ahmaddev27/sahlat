@@ -14,7 +14,7 @@
             buttons: [
                 {
                     extend: 'collection',
-                    className: 'btn dropdown-toggle mr-2',
+                    className: 'btn btn-outline-secondary dropdown-toggle mr-2',
                     text: feather.icons['share'].toSvg({class: 'font-small-4 mr-50'}) + '{{trans('main.export')}}',
                     buttons: [
                         {
@@ -131,7 +131,7 @@
 
                     ],
                     init: function (api, node, config) {
-                        $(node).removeClass('btn-secondary');
+                        $(node).removeClass('btn-light');
                         $(node).parent().removeClass('btn-group');
                         setTimeout(function () {
                             $(node).closest('.dt-buttons').removeClass('btn-group').addClass('d-inline-flex');
@@ -208,44 +208,127 @@
 
 
 {{--        change status--}}
+{{-- Change status --}}
 <script>
     $(document).on('change', '.status-select', function() {
-        var orderId = $(this).data('id');
-        var newStatus = $(this).val();
+        var $select = $(this);
+        var orderId = $select.data('id');
+        var newStatus = $select.val();
+        var orderValue = $select.data('order-value'); // Retrieve the order value from the data attribute
 
         // Store the old value to revert if the user cancels
-        $(this).data('old-status', $(this).val());
+        $select.data('old-status', $select.val());
 
         // Show confirmation dialog with SweetAlert
         Swal.fire({
-            title: '{{trans('messages.sure?')}}',
-            text: "{{trans('messages.change-status')}}",
+            title: '{{ trans("messages.sure?") }}',
+            text: "{{ trans('messages.change-status') }}",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: '{{trans('messages.change')}}!',
-            cancelButtonText: '{{trans('messages.cancel')}}',
+            confirmButtonText: '{{ trans("messages.change") }}!',
+            cancelButtonText: '{{ trans("messages.cancel") }}',
             customClass: {
                 confirmButton: 'btn btn-danger',
                 cancelButton: 'btn btn-secondary ml-1'
             },
         }).then((result) => {
             if (result.isConfirmed) {
-
+                // If the new status is 1, ask for a payment value
+                if (newStatus == 1) {
                     Swal.fire({
-                        icon:'info',
-                        title: '{{trans('messages.loading')}}',
-                        text: '{{trans('messages.processing-request')}}',
+                        title: '{{ trans("messages.enter-payment") }}',
+                        // Display order value above the input
+                        html: `<p>{{trans('main.order_value')}}: ADE ${orderValue}</p>`,
+                        input: 'number',
+                        inputAttributes: {
+                            min: 0,
+                            step: 0.01
+                        },
+                        showCancelButton: true,
+                        confirmButtonText: '{{ trans("messages.submit") }}',
+                        cancelButtonText: '{{ trans("messages.cancel") }}',
+                        customClass: {
+                            confirmButton: 'btn btn-success',
+                            cancelButton: 'btn btn-secondary'
+                        },
+                        preConfirm: (paymentValue) => {
+                            let value = parseFloat(paymentValue);
+                            const orderValueFloat = parseFloat(orderValue);
+
+                            if (!value || value <= 0) {
+                                Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                            } else if (value > orderValueFloat) {
+                                Swal.showValidationMessage('{{trans('messages.Payment value cannot exceed the order value')}}');
+                            }
+                            return value;
+                        }
+                    }).then((paymentResult) => {
+                        if (paymentResult.isConfirmed) {
+                            var paymentValue = paymentResult.value;
+
+                            // Show loading indicator before making the AJAX call
+                            Swal.fire({
+                                icon: 'info',
+                                title: '{{ trans("messages.loading") }}',
+                                text: '{{ trans("messages.processing-request") }}',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+
+                            // AJAX call to update status with payment_value
+                            $.ajax({
+                                url: '{{ route("assurances.orders.updateStatus") }}',
+                                type: 'POST',
+                                data: {
+                                    _token: $('meta[name="csrf-token"]').attr('content'),
+                                    order_id: orderId,
+                                    status: newStatus,
+                                    payment_value: paymentValue
+                                },
+                                success: function (data) {
+                                    Swal.fire({
+                                        title: '{{ trans("messages.updated") }}!',
+                                        text: '{{ trans("messages.change-success") }}.',
+                                        icon: 'success',
+                                        confirmButtonText: '{{ trans("messages.close") }}',
+                                        customClass: {
+                                            confirmButton: 'btn btn-success'
+                                        }
+                                    });
+                                    $('#table').DataTable().ajax.reload();
+                                },
+                                error: function (data) {
+                                    Swal.fire({
+                                        title: '{{ trans("messages.not-updated") }}!',
+                                        text: '{{ trans("messages.not-update-error") }}.',
+                                        icon: 'error',
+                                        confirmButtonText: '{{ trans("messages.close") }}',
+                                    });
+                                    $('#table').DataTable().ajax.reload();
+                                }
+                            });
+                        } else {
+                            // If the user cancels the payment input, revert the select value
+                            $select.val($select.data('old-status'));
+                            $('#table').DataTable().ajax.reload();
+                        }
+                    });
+                } else {
+                    // For statuses other than 1, proceed with a regular update
+                    Swal.fire({
+                        icon: 'info',
+                        title: '{{ trans("messages.loading") }}',
+                        text: '{{ trans("messages.processing-request") }}',
                         allowOutsideClick: false,
                         didOpen: () => {
                             Swal.showLoading();
                         }
                     });
 
-                    // If the status is not 3 or 4, just proceed with the change without asking for additional input
                     $.ajax({
-
-
-                        url: '{{route('assurances.orders.updateStatus')}}',
+                        url: '{{ route("assurances.orders.updateStatus") }}',
                         type: 'POST',
                         data: {
                             _token: $('meta[name="csrf-token"]').attr('content'),
@@ -254,35 +337,34 @@
                         },
                         success: function (data) {
                             Swal.fire({
-                                title: '{{trans('messages.updated')}}!',
-                                text: '{{trans('messages.change-success')}}.',
+                                title: '{{ trans("messages.updated") }}!',
+                                text: '{{ trans("messages.change-success") }}.',
                                 icon: 'success',
-                                confirmButtonText: '{{trans('messages.close')}}',
+                                confirmButtonText: '{{ trans("messages.close") }}',
                                 customClass: {
                                     confirmButton: 'btn btn-success'
                                 }
                             });
-
                             $('#table').DataTable().ajax.reload();
                         },
                         error: function (data) {
                             Swal.fire({
-                                title: '{{trans('messages.not-updated')}}!',
-                                text: '{{trans('messages.not-update-error')}}.',
+                                title: '{{ trans("messages.not-updated") }}!',
+                                text: '{{ trans("messages.not-update-error") }}.',
                                 icon: 'error',
-                                confirmButtonText: '{{trans('messages.close')}}',
+                                confirmButtonText: '{{ trans("messages.close") }}',
                             });
-
                             $('#table').DataTable().ajax.reload();
                         }
                     });
                 }
-            else {
-                // If the user cancels, revert the status
-                $(this).val($(this).data('old-status')); // Revert to the old value
+            } else {
+                // If the user cancels the confirmation, revert the status
+                $select.val($select.data('old-status'));
                 $('#table').DataTable().ajax.reload();
             }
         });
     });
 </script>
+
 

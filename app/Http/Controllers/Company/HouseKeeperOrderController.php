@@ -65,21 +65,33 @@ class HouseKeeperOrderController extends Controller
                 return  $item->user->name;
             })
             ->addColumn('status', function ($item) {
-                $statusText = OrderStatus($item->status);
+                // Get the status text (to be displayed in the table)
+                $statusText = HouseKeeperStatuses($item->status);
+
+                // Get the badge class based on the status
                 $badgeClass = OrdorClass($item->status);
 
-                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" style="width: auto;">';
+                // Create the select dropdown for status change
+                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" style="width: auto;" data-order-value="' . $item->value . '" >';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
+                // Loop through all statuses and mark the current status as selected
                 foreach (HouseKeeperStatuses() as $key => $value) {
+                    // Check if the key matches the current status
                     $selected = ($key == $item->status) ? 'selected' : '';
-                    $statusSelect .= '<option value="' . $key . '" ' . $selected . '>' . $value . '</option>';
+
+                    // Check if the key is less than the current status, and disable it
+                    $disabled = ($key < $item->status) ? 'disabled' : '';
+
+                    $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                 }
 
                 $statusSelect .= '</select>';
 
+                // Return the status badge and the select dropdown for display
                 return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
+
             ->editColumn('details', function ($item) {
                 return \Illuminate\Support\Str::limit($item->details, 100);
             })
@@ -93,11 +105,8 @@ class HouseKeeperOrderController extends Controller
                 <i class="fa fa-eye text-body"></i>
             </button>
 
- <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"
-                id="send-stripe" data-toggle="modal" data-target="#sendSmsModal"
-                onclick="setOrderId(' . $item->id . ')" title="Send Link">
-            <i class="fa fa-link text-body"></i>
-        </button>
+
+
 
 
             <button type="button" class="btn btn-icon rounded-circle btn-outline-secondary waves-effect waves-float waves-light"

@@ -151,7 +151,7 @@
                                             <tr>
                                                 <td class="pr-1">{{trans('assurances.payment-type')}}</td>
                                                 <td><span class="font-weight-bold"><div
-                                                            class="d-inline-block m-1"> {{$order->payment?->type ?: '-'}} </div></span>
+                                                            class="d-inline-block m-1"> {{$order->payment?->payment_type ?: '0'}} </div></span>
                                                 </td>
                                             </tr>
                                             {{--                                                <tr>--}}
@@ -183,13 +183,13 @@
                                         <div class="invoice-total-item mt-2">
                                             <p class="invoice-total-title d-inline">{{trans('assurances.price')}}</p>
                                             <p class="invoice-total-amount d-inline p-2">
-                                                ADE {{$order->payment?->order_value}}</p>
+                                                ADE {{$order->value}}</p>
 
                                         </div>
 
                                         <div class="invoice-total-item mt-2 ">
                                             <p class="invoice-total-title d-inline">{{trans('main.total-payment')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??'-'}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->payment_value??0}}</p>
                                         </div>
 
 
@@ -197,7 +197,7 @@
 
                                         <div class="invoice-total-item mt-2 ">
                                             <p class="invoice-total-title d-inline">{{trans('main.remain')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??'-'}}</p>
+                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??$order->value}}</p>
                                         </div>
 
 {{--                                        <div class="invoice-total-item mt-2">--}}
@@ -339,232 +339,145 @@
     @push('js')
 
         {{-- Change status --}}
+        {{-- Change status --}}
         <script>
             $(document).on('change', '.status-select', function () {
-                var orderId = $(this).data('id');
-                var newStatus = $(this).val();
-
-                // Store the old value to revert if the user cancels
-                $(this).data('old-status', $(this).val());
+                var $select = $(this);
+                var orderId = $select.data('id');
+                var newStatus = $select.val();
+                var oldStatus = $select.data('old-status');
+                var orderValue = parseFloat("{{ $order->value }}"); // Ensure it's parsed as float
 
                 // Show confirmation dialog with SweetAlert
                 Swal.fire({
-                    title: '{{trans('messages.sure?')}}',
-                    text: "{{trans('messages.change-status')}}",
+                    title: '{{ trans("messages.sure?") }}',
+                    text: "{{ trans("messages.change-status") }}",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: '{{trans('messages.change')}}!',
-                    cancelButtonText: '{{trans('messages.cancel')}}',
+                    confirmButtonText: '{{ trans("messages.change") }}',
+                    cancelButtonText: '{{ trans("messages.cancel") }}',
                     customClass: {
                         confirmButton: 'btn btn-danger',
                         cancelButton: 'btn btn-secondary ml-1'
                     },
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Handle specific cases for status 1, 4, and 3
-                        {{--if (newStatus == 1 || newStatus == 4) {--}}
-                        {{--    let inputPlaceholder = newStatus == 1--}}
-                        {{--        ? '{{trans('messages.enter-price-placeholder')}}'--}}
-                        {{--        : '{{trans('messages.enter-note-placeholder')}}';--}}
-                        {{--    let inputTitle = newStatus == 1--}}
-                        {{--        ? '{{trans('messages.enter-price')}}'--}}
-                        {{--        : '{{trans('messages.enter-note')}}';--}}
-                        {{--    let inputValidationMessage = newStatus == 1--}}
-                        {{--        ? '{{trans('messages.price-required')}}'--}}
-                        {{--        : '{{trans('messages.note-required')}}';--}}
-
-                        {{--    // Prompt for input (price for 1, note for 4)--}}
-                        {{--    Swal.fire({--}}
-                        {{--        title: inputTitle,--}}
-                        {{--        input: 'text',--}}
-                        {{--        inputPlaceholder: inputPlaceholder,--}}
-                        {{--        inputAttributes: {--}}
-                        {{--            'aria-label': inputPlaceholder,--}}
-                        {{--            'aria-required': 'true'--}}
-                        {{--        },--}}
-                        {{--        showCancelButton: true,--}}
-                        {{--        confirmButtonText: '{{trans('messages.submit')}}',--}}
-                        {{--        cancelButtonText: '{{trans('messages.cancel')}}',--}}
-                        {{--        customClass: {--}}
-                        {{--            confirmButton: 'btn btn-success',--}}
-                        {{--            cancelButton: 'btn btn-secondary'--}}
-                        {{--        },--}}
-                        {{--        preConfirm: function (inputValue) {--}}
-                        {{--            if (!inputValue) {--}}
-                        {{--                Swal.showValidationMessage(inputValidationMessage);--}}
-                        {{--                return false; // Prevent submission--}}
-                        {{--            }--}}
-                        {{--            return inputValue;--}}
-                        {{--        }--}}
-                        {{--    }).then((inputResult) => {--}}
-                        {{--        if (inputResult.isConfirmed) {--}}
-                        {{--            var inputValue = inputResult.value;--}}
-                        {{--            Swal.fire({--}}
-                        {{--                icon: 'info',--}}
-                        {{--                title: '{{trans('messages.loading')}}',--}}
-                        {{--                text: '{{trans('messages.processing-request')}}',--}}
-                        {{--                allowOutsideClick: false,--}}
-                        {{--                didOpen: () => {--}}
-                        {{--                    Swal.showLoading();--}}
-                        {{--                }--}}
-                        {{--            });--}}
-                        {{--            $.ajax({--}}
-                        {{--                url: '{{route('violations.updateStatus')}}',--}}
-                        {{--                type: 'POST',--}}
-                        {{--                data: {--}}
-                        {{--                    _token: $('meta[name="csrf-token"]').attr('content'),--}}
-                        {{--                    order_id: orderId,--}}
-                        {{--                    status: newStatus,--}}
-                        {{--                    value: inputValue--}}
-                        {{--                },--}}
-                        {{--                success: function (data) {--}}
-                        {{--                    Swal.fire({--}}
-                        {{--                        title: '{{trans('messages.updated')}}!',--}}
-                        {{--                        text: '{{trans('messages.change-success')}}.',--}}
-                        {{--                        icon: 'success',--}}
-                        {{--                        confirmButtonText: '{{trans('messages.close')}}',--}}
-                        {{--                        customClass: {--}}
-                        {{--                            confirmButton: 'btn btn-success'--}}
-                        {{--                        }--}}
-                        {{--                    }).then(() => {--}}
-                        {{--                        window.location.reload(); // Recarga la página completa--}}
-                        {{--                    });--}}
-                        {{--                },--}}
-                        {{--                error: function (data) {--}}
-                        {{--                    Swal.fire({--}}
-                        {{--                        title: '{{trans('messages.not-updated')}}!',--}}
-                        {{--                        text: '{{trans('messages.not-update-error')}}.',--}}
-                        {{--                        icon: 'error',--}}
-                        {{--                        confirmButtonText: '{{trans('messages.close')}}',--}}
-                        {{--                    }).then(() => {--}}
-                        {{--                        window.location.reload(); // Recarga la página completa--}}
-                        {{--                    });--}}
-                        {{--                }--}}
-                        {{--            });--}}
-                        {{--        }--}}
-                        {{--    });--}}
-                        {{--} else if (newStatus == 2) {--}}
-                        {{--    // If status is 3, show file upload input--}}
-                        {{--    Swal.fire({--}}
-                        {{--        title: '{{trans('messages.upload-attachment')}}',--}}
-                        {{--        html: `<input type="file" id="attachment" name="attachment" class="swal2-input" required>`,--}}
-                        {{--        showCancelButton: true,--}}
-                        {{--        confirmButtonText: '{{trans('messages.submit')}}',--}}
-                        {{--        cancelButtonText: '{{trans('messages.cancel')}}',--}}
-                        {{--        customClass: {--}}
-                        {{--            confirmButton: 'btn btn-success',--}}
-                        {{--            cancelButton: 'btn btn-secondary'--}}
-                        {{--        },--}}
-                        {{--        preConfirm: function () {--}}
-                        {{--            var fileInput = document.getElementById('attachment');--}}
-                        {{--            if (!fileInput.files.length) {--}}
-                        {{--                Swal.showValidationMessage('{{trans('messages.attachment-required')}}');--}}
-                        {{--                return false;--}}
-                        {{--            }--}}
-                        {{--            return fileInput.files[0];--}}
-                        {{--        }--}}
-                        {{--    }).then((fileResult) => {--}}
-                        {{--        if (fileResult.isConfirmed) {--}}
-                        {{--            var file = fileResult.value;--}}
-
-                        {{--            var formData = new FormData();--}}
-                        {{--            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));--}}
-                        {{--            formData.append('order_id', orderId);--}}
-                        {{--            formData.append('status', newStatus);--}}
-                        {{--            formData.append('attachment', file);--}}
-                        {{--            Swal.fire({--}}
-                        {{--                icon: 'info',--}}
-                        {{--                title: '{{trans('messages.loading')}}',--}}
-                        {{--                text: '{{trans('messages.processing-request')}}',--}}
-                        {{--                allowOutsideClick: false,--}}
-                        {{--                didOpen: () => {--}}
-                        {{--                    Swal.showLoading();--}}
-                        {{--                }--}}
-                        {{--            });--}}
-                        {{--            $.ajax({--}}
-                        {{--                url: '{{route('violations.updateStatus')}}',--}}
-                        {{--                type: 'POST',--}}
-                        {{--                data: formData,--}}
-                        {{--                contentType: false,--}}
-                        {{--                processData: false,--}}
-                        {{--                success: function (data) {--}}
-                        {{--                    Swal.fire({--}}
-                        {{--                        title: '{{trans('messages.updated')}}!',--}}
-                        {{--                        text: '{{trans('messages.change-success')}}.',--}}
-                        {{--                        icon: 'success',--}}
-                        {{--                        confirmButtonText: '{{trans('messages.close')}}',--}}
-                        {{--                        customClass: {--}}
-                        {{--                            confirmButton: 'btn btn-success'--}}
-                        {{--                        }--}}
-                        {{--                    }).then(() => {--}}
-                        {{--                        window.location.reload(); // Recarga la página completa--}}
-                        {{--                    });--}}
-                        {{--                },--}}
-                        {{--                error: function (data) {--}}
-                        {{--                    Swal.fire({--}}
-                        {{--                        title: '{{trans('messages.not-updated')}}!',--}}
-                        {{--                        text: '{{trans('messages.not-update-error')}}.',--}}
-                        {{--                        icon: 'error',--}}
-                        {{--                        confirmButtonText: '{{trans('messages.close')}}',--}}
-                        {{--                    }).then(() => {--}}
-                        {{--                        window.location.reload(); // Recarga la página completa--}}
-                        {{--                    });--}}
-                        {{--                }--}}
-                        {{--            });--}}
-                        {{--        }--}}
-                        {{--    });--}}
-                        {{--} else {--}}
-
+                        if (newStatus == 1) {
+                            // If the new status requires payment input
                             Swal.fire({
-                                icon: 'info',
-                                title: '{{trans('messages.loading')}}',
-                                text: '{{trans('messages.processing-request')}}',
-                                allowOutsideClick: false,
-                                didOpen: () => {
-                                    Swal.showLoading();
+                                title: '{{ trans("messages.enter-payment") }}',
+                                html: `<p>{{ trans("main.order_value") }}: ADE ${orderValue}</p>`,
+                                input: 'number',
+                                inputAttributes: { min: 0, step: 0.01 },
+                                showCancelButton: true,
+                                confirmButtonText: '{{ trans("messages.submit") }}',
+                                cancelButtonText: '{{ trans("messages.cancel") }}',
+                                customClass: { confirmButton: 'btn btn-success', cancelButton: 'btn btn-secondary' },
+                                preConfirm: (paymentValue) => {
+                                    let value = parseFloat(paymentValue);
+                                    if (!value || value <= 0) {
+                                        return Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                                    } else if (value > orderValue) {
+                                        return Swal.showValidationMessage('{{ trans("messages.Payment value cannot exceed the order value") }}');
+                                    }
+                                    return value;
+                                }
+                            }).then((paymentResult) => {
+                                if (paymentResult.isConfirmed) {
+                                    var paymentValue = paymentResult.value;
+
+                                    // Show loading indicator
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: '{{ trans("messages.loading") }}',
+                                        text: '{{ trans("messages.processing-request") }}',
+                                        allowOutsideClick: false,
+                                        didOpen: () => Swal.showLoading()
+                                    });
+
+                                    // AJAX Request for Payment Update
+                                    $.ajax({
+                                        url: '{{ route("violations.updateStatus") }}',
+                                        type: 'POST',
+                                        data: {
+                                            _token: $('meta[name="csrf-token"]').attr('content'),
+                                            order_id: orderId,
+                                            status: newStatus,
+                                            payment_value: paymentValue
+                                        },
+                                        success: function () {
+                                            Swal.fire({
+                                                title: '{{ trans("messages.updated") }}!',
+                                                text: '{{ trans("messages.change-success") }}.',
+                                                icon: 'success',
+                                                confirmButtonText: '{{ trans("messages.close") }}',
+                                                customClass: { confirmButton: 'btn btn-success' }
+                                            }).then(() => {
+                                                location.reload(); // Refresh the page
+                                            });
+                                        },
+                                        error: function () {
+                                            Swal.fire({
+                                                title: '{{ trans("messages.not-updated") }}!',
+                                                text: '{{ trans("messages.not-update-error") }}.',
+                                                icon: 'error',
+                                                confirmButtonText: '{{ trans("messages.close") }}',
+                                            });
+                                            $select.val(oldStatus); // Revert select box on error
+                                        }
+                                    });
+                                } else {
+                                    $select.val(oldStatus); // Revert on cancel
                                 }
                             });
+                        } else {
+                            // Show loading indicator
+                            Swal.fire({
+                                icon: 'info',
+                                title: '{{ trans("messages.loading") }}',
+                                text: '{{ trans("messages.processing-request") }}',
+                                allowOutsideClick: false,
+                                didOpen: () => Swal.showLoading()
+                            });
 
+                            // AJAX request for general status update
                             $.ajax({
-                                url: '{{route('violations.updateStatus')}}',
+                                url: '{{ route("violations.updateStatus") }}',
                                 type: 'POST',
                                 data: {
                                     _token: $('meta[name="csrf-token"]').attr('content'),
                                     order_id: orderId,
                                     status: newStatus
                                 },
-                                success: function (data) {
+                                success: function () {
                                     Swal.fire({
-                                        title: '{{trans('messages.updated')}}!',
-                                        text: '{{trans('messages.change-success')}}.',
+                                        title: '{{ trans("messages.updated") }}!',
+                                        text: '{{ trans("messages.change-success") }}.',
                                         icon: 'success',
-                                        confirmButtonText: '{{trans('messages.close')}}',
-                                        customClass: {
-                                            confirmButton: 'btn btn-success'
-                                        }
+                                        confirmButtonText: '{{ trans("messages.close") }}',
+                                        customClass: { confirmButton: 'btn btn-success' }
                                     }).then(() => {
-                                        window.location.reload(); // Recarga la página completa
+                                        location.reload(); // Refresh the page
                                     });
                                 },
-                                error: function (data) {
+                                error: function () {
                                     Swal.fire({
-                                        title: '{{trans('messages.not-updated')}}!',
-                                        text: '{{trans('messages.not-update-error')}}.',
+                                        title: '{{ trans("messages.not-updated") }}!',
+                                        text: '{{ trans("messages.not-update-error") }}.',
                                         icon: 'error',
-                                        confirmButtonText: '{{trans('messages.close')}}',
-                                    }).then(() => {
-                                        window.location.reload(); // Recarga la página completa
+                                        confirmButtonText: '{{ trans("messages.close") }}',
                                     });
+                                    $select.val(oldStatus); // Revert select box on error
                                 }
                             });
-                        // }
+                        }
                     } else {
-                        $(this).val($(this).data('old-status'));
-                        $('#table').DataTable().ajax.reload();
+                        $select.val(oldStatus); // Revert if user cancels confirmation
                     }
                 });
             });
         </script>
+
 
     @endpush
 
