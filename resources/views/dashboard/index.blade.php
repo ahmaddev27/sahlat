@@ -726,7 +726,8 @@
                     dataLabels: {
                         enabled: false
                     },
-                    series: [{{payment_assurances()}}, {{payment_housekeeper()}}, {{payment_housekeeper_hourly()}}, {{payment_violations()}}],
+                    series: [{{ payment_assurances() }}, {{ payment_housekeeper() }}, {{ payment_housekeeper_hourly() }}, {{ payment_violations() }}],
+
                     legend: {show: false},
                     comparedResult: [2, -3, 8],
                     labels: ['{{trans('dashboard_aside.assurances')}}', '{{trans('dashboard_aside.housekeepers')}}', '{{trans('dashboard_aside.housekeepers_hourly')}}', '{{trans('dashboard_aside.violations')}}'],

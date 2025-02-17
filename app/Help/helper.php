@@ -412,18 +412,15 @@ function total_payments()
     return \App\Models\Payment::sum('order_value');
 }
 
-
 function payment_assurances()
 {
     $totalPayments = \App\Models\Payment::count();
     if ($totalPayments === 0) {
         return 0;
     }
-    $assuredPayments = \App\Models\Payment::where('type','assurance')->count();
+    $assuredPayments = \App\Models\Payment::where('type', 'assurance')->count();
     return round(($assuredPayments / $totalPayments) * 100);
-
 }
-
 
 function payment_housekeeper()
 {
@@ -431,9 +428,8 @@ function payment_housekeeper()
     if ($totalPayments === 0) {
         return 0;
     }
-    $assuredPayments = \App\Models\Payment::where('type','housekeeper')->count();
-    return round(($assuredPayments / $totalPayments) * 100);
-
+    $housekeeperPayments = \App\Models\Payment::where('type', 'housekeeper')->count();
+    return round(($housekeeperPayments / $totalPayments) * 100);
 }
 
 function payment_housekeeper_hourly()
@@ -442,9 +438,8 @@ function payment_housekeeper_hourly()
     if ($totalPayments === 0) {
         return 0;
     }
-    $assuredPayments = \App\Models\Payment::where('type','housekeeper_hourly_order')->count();
-    return round(($assuredPayments / $totalPayments) * 100);
-
+    $hourlyHousekeeperPayments = \App\Models\Payment::where('type', 'housekeeper_hourly_order')->count();
+    return round(($hourlyHousekeeperPayments / $totalPayments) * 100);
 }
 
 function payment_violations()
@@ -453,10 +448,10 @@ function payment_violations()
     if ($totalPayments === 0) {
         return 0;
     }
-    $assuredPayments = \App\Models\Payment::where('type','violation')->count();
-    return round(($assuredPayments / $totalPayments) * 100);
-
+    $violationPayments = \App\Models\Payment::where('type', 'violation')->count();
+    return round(($violationPayments / $totalPayments) * 100);
 }
+
 
 
 function paymentsPercentage()
@@ -467,7 +462,7 @@ function paymentsPercentage()
     $houseKeepersHourlyOrdersCount = \App\Models\HouseKeeperHourlyOrder::whereHas('payment')->count(); // Hourly housekeeper orders with payments
     $assuranceOrdersCount = \App\Models\AssuranceOrder::whereHas('payment')->count(); // Assurance orders with payments
 
-    // Total orders with payments
+    // Total orders with payments (all types)
     $totalOrdersWithPayments = $violationsCount + $houseKeepersOrdersCount + $houseKeepersHourlyOrdersCount + $assuranceOrdersCount;
 
     if ($totalOrdersWithPayments === 0) {
@@ -477,9 +472,10 @@ function paymentsPercentage()
     // Total payments count
     $paymentsCount = \App\Models\Payment::count();
 
-    // Calculate the percentage
-    return round(($paymentsCount / $totalOrdersWithPayments) * 100);
+    // Calculate the percentage of orders with payments compared to total payments
+    return round(($totalOrdersWithPayments / $paymentsCount) * 100);  // Adjusted logic here
 }
+
 
 
 function getDoneviolationsPercentage()
