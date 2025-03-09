@@ -50,9 +50,9 @@ class HouseKeeperController extends Controller
         return DataTables::of($houseKeeper)
             ->addColumn('status', function ($item) {
                 $statusText = HouseKeepersStatus($item->status);
-                $badgeClass = $item->status == 1 ? 'badge-primary' : 'badge-success';
+                $badgeClass = $item->status == 1 ? 'primary' : 'success';
 
-                return '<div class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</div>';
+                return '<div class="badge badge-light-' . $badgeClass . '">' . $statusText . '</div>';
             })
 
 

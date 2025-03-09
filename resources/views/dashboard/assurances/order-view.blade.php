@@ -111,7 +111,7 @@
                                 </div>
 
                                 <div class="col-xl-4 p-0 mt-xl-0 mt-2">
-                                    <h6 class="mb-2">{{ trans('assurances.payment') }}</h6>
+
 
                                     @if ($order->payment)
                                         <table>
@@ -119,33 +119,99 @@
                                             @php
                                                 $statusText = paymentStatus($order->payment->status);
                                                 $badgeClass = OrdorClass($order->payment->status);
-                                                $div = '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
+                                                $div = '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>';
                                             @endphp
 
                                             <tr>
-                                                <td class="pr-1 ">{{ trans('assurances.status') }}</td>
+                                                <td class="pr-1 ">     <h6>{{ trans('assurances.payment') }}</h6></td>
                                                 <td><span class="font-weight-bold">{!! $div !!}</span></td>
                                             </tr>
 
-                                            <tr>
-                                                <td class="pr-1">{{ trans('assurances.payment-type') }}</td>
-                                                <td><span class="font-weight-bold"><div class="d-inline-block m-1">
+{{--                                            <tr>--}}
+{{--                                                <td class="pr-1">{{ trans('assurances.payment-type') }}</td>--}}
+{{--                                                <td>--}}
+{{--                                                    <span class="font-weight-bold"><div class="d-inline-block m-1">--}}
+{{--                                                            {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>--}}
 
-                                                                                                                    {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>
-
-                                                    </span></td>
-                                            </tr>
+{{--                                                    </span></td>--}}
+{{--                                            </tr>--}}
                                             </tbody>
                                         </table>
                                     @else
                                         <div class="d-inline-block m-1">
-                                            <span class="badge badge-glow {{ OrdorClass('0') }}">{{ paymentStatus(0) }} </span>
+                                            <span class="badge badge-light-{{ OrdorClass('0') }}">{{ paymentStatus(0) }} </span>
                                         </div>
                                     @endif
                                 </div>
                             </div>
                         </div>
                         <!-- Address and Contact ends -->
+
+                        @if($order->payment && ($order->payment->tabby || $order->payment->stripe ||  $order->payment->ddashboard ))
+                            <div class="row" id="table-hover-animation">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">{{ trans('main.payments') }}</h4>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover-animation">
+                                                <thead>
+                                                <tr>
+                                                    <th>{{ trans('main.date') }}</th>
+                                                    <th>{{ trans('main.value') }}</th>
+                                                    <th>{{ trans('main.pay') }}</th>
+                                                    {{--                                                    <th>{{ trans('main.remaining') }}</th>--}}
+                                                    <th>{{ trans('main.type') }}</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @if($order->payment->tabby)
+                                                    @foreach($order->payment->tabby as $tabby)
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">{{ $tabby->created_at->format('d/m/Y') }}</span></td>
+                                                            <td>ADE {{ $order->payment->order_value }}</td>
+                                                            <td>ADE {{ $tabby->amount }}</td>
+                                                            {{--                                                            <td>ADE {{ $order->payment->order_value - $tabby->amount }}</td>--}}
+                                                            <td><span class="badge badge-pill badge-light-success mr-1">Tabby</span></td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+
+                                                @if($order->payment->stripe)
+                                                    @foreach($order->payment->stripe as $stripe)
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">{{ $stripe->created_at->format('d/m/Y') }}</span></td>
+                                                            <td>ADE {{ $order->payment->order_value }}</td>
+                                                            <td>ADE {{ $stripe->amount }}</td>
+                                                            {{--                                                            <td>ADE {{ $order->payment->order_value - $stripe->amount }}</td>--}}
+                                                            <td><span class="badge badge-pill badge-light-info mr-1">Stripe</span></td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+
+                                                @if($order->payment->dashboard)
+                                                    @foreach($order->payment->dashboard as $dashboard)
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">{{ $dashboard->created_at->format('d/m/Y') }}</span></td>
+                                                            <td>ADE {{ $order->payment->order_value }}</td>
+                                                            <td>ADE {{ $dashboard->amount }}</td>
+                                                            {{--                                                            <td>ADE {{ $order->payment->order_value - $dashboard->amount }}</td>--}}
+                                                            <td><span class="badge badge-pill badge-light-primary mr-1">Dashboard</span></td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+
+
 
                         <div class="card-body invoice-padding pb-0">
                             <div class="row invoice-sales-total-wrapper">
@@ -167,9 +233,20 @@
                                         <hr class="my-50" />
 
 
-                                        <div class="invoice-total-item mt-2 ">
-                                            <p class="invoice-total-title d-inline">{{trans('main.remain')}}</p>
-                                            <p class="invoice-total-amount d-inline p-2"> ADE {{$order->payment?->remaining_amount??$order->value}}</p>
+
+                                        <div class="invoice-total-item mt-2">
+                                            <p class="invoice-total-title d-inline">{{ trans('main.remain') }}</p>
+                                            <p class="invoice-total-amount d-inline p-2">
+                                                @php
+                                                    $remaining = $order->payment?->remaining_amount ?? $order->value;
+                                                @endphp
+
+                                                @if($remaining > 0)
+                                                    <span class="badge badge-pill badge-light-danger mr-1">ADE {{ $remaining }}</span>
+                                                @else
+                                                    ADE {{ $remaining }}
+                                                @endif
+                                            </p>
                                         </div>
 
 
@@ -191,7 +268,7 @@
                                                     <i class="font-large-1" data-feather="file"></i>
                                                     <span class="font-weight-bold">
                                                     <div class="d-inline-block m-1">
-                                                        <span class="badge badge-glow badge-info">{{ trans('main.' . $attachment->type) }}</span>
+                                                        <span class="badge badge-light-info">{{ trans('main.' . $attachment->type) }}</span>
                                                     </div>
                                                 </span>
                                                 </a>
@@ -219,17 +296,34 @@
                 <div class="col-xl-3 col-md-4 col-12 invoice-actions mt-md-0 mt-2">
                     <div class="card">
                         <div class="card-body">
-                            <div class="d-inline-block ">
-                                <span class="badge badge-glow {{ OrdorClass($order->status) }}"> {{ StatusesAssurance($order->status) }}</span>
+                            <div class="d-inline-block">
+                                <span class="badge badge-light-{{ OrdorClass($order->status) }}"> {{ StatusesAssurance($order->status) }}</span>
                             </div>
 
                             @php
+                                // Initialize the select dropdown
                                 $statusSelect = '<select class="status-select form-control d-inline-block status-font" data-id="' . $order->id . '" data-old-status="' . $order->status . '" style="width: 100%;">';
                                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                                foreach (StatusesAssurance() as $key => $value) {
+                                $nextStatus = null;
+                                $statuses = StatusesAssurance();
+
+                                // Find the next status in the list based on the current status
+                                $keys = array_keys($statuses);
+                                $currentStatusIndex = array_search($order->status, $keys);
+
+                                if ($currentStatusIndex !== false && isset($keys[$currentStatusIndex + 1])) {
+                                    $nextStatus = $keys[$currentStatusIndex + 1];
+                                }
+
+                                // Loop through available statuses and enable only the next status
+                                foreach ($statuses as $key => $value) {
+                                    // Check if the key matches the current status
                                     $selected = ($key == $order->status) ? 'selected' : '';
-                                    $disabled = ($key < $order->status) ? 'disabled' : '';
+
+                                    // Enable only the next status, disable all others
+                                    $disabled = ($key != $nextStatus) ? 'disabled' : '';
+
                                     $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                                 }
                                 $statusSelect .= '</select>';
@@ -238,6 +332,7 @@
                             <div class="p-1">{{ trans('assurances.change-status') }}</div>
                             <div class="mb-2"> {!! $statusSelect !!}</div>
                         </div>
+
                     </div>
 
                     @if ($order->note)

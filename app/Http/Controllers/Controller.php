@@ -113,6 +113,7 @@ class Controller extends BaseController
     {
         $user = $order->user;
         $link = route('api.assuranceRecords', $order->id); // Modify based on your actual route
+        $payment = $order->payment ?? null;
 
         // Store the current locale
         $currentLocale = app()->getLocale();
@@ -124,7 +125,7 @@ class Controller extends BaseController
 
             case 1:
 
-                Payment::create([
+                $payment=Payment::create([
                     'user_id' => $order->user_id,
                     'payment_value' => $request->payment_value,
                     'order_value' => $order->value,
@@ -136,6 +137,12 @@ class Controller extends BaseController
                 ]);
 
 
+                DashboardPayment::create([
+                    'payment_id' => $payment->id,
+                    'amount' => $request->payment_value,
+                ]);
+
+
                 $message = 'Your payment for order has been processed successfully';
                 $image = asset('icons/payment-required.png');
                 $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'assurance', $image);
@@ -143,13 +150,20 @@ class Controller extends BaseController
 
             case 2:
 
-                $remaining_amount = 0;
+                if ($payment) {
 
-                $order->payment->update([
-                    'remaining_amount' => $remaining_amount,
-                    'status' => 2,
-                    'payment_value' => $order->price,
-                ]);
+                    DashboardPayment::create([
+                        'payment_id' => $payment->id,
+                        'amount' => $payment->remaining_amount,
+                    ]);
+
+                    $payment->update([
+                        'remaining_amount' => 0,
+                        'status' => 2, // fully paid
+                        'payment_value' => $order->price,
+                    ]);
+
+                }
 
 
                 $message = 'Your payment for order has been processed successfully';

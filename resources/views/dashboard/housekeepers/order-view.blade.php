@@ -43,8 +43,8 @@
                                         </tr>
                                         @if($order->housekeeper)
                                             <tr>
-                                                <td class="pr-2 pb-2">{{ trans('housekeeper.housekeeper') }}</td>
-                                                <td colspan="3" class="d-flex align-items-center">
+                                                <td  class="pr-2 pb-2">{{ trans('housekeeper.housekeeper') }}</td>
+                                                <td  class="d-flex align-items-center">
                                                     <img width="60" height="60" class="user-avatar mr-3 rounded-circle" src="{{ $order->housekeeper->getAvatar() }}" alt="Housekeeper Avatar">
                                                     <span class="font-weight-bold">{{ $order->housekeeper->name }}</span>
                                                 </td>
@@ -99,14 +99,14 @@
                                 @endif
                             </div>
                             <div class="col-xl-4 p-0 mt-xl-0 mt-2">
-                                <h6 class="mb-2">{{ trans('housekeeper.payment') }}</h6>
+
                                 @if($order->payment()->count() > 0)
                                     <table>
                                         <tbody>
                                             @php
                                                 $statusText = paymentStatus($order->payment->status);
                                                 $badgeClass = OrdorClass($order->payment->status);
-                                                $div = '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
+                                                $div = '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>';
                                             @endphp
                                             <tr>
                                                 <td class="pr-1">{{ trans('housekeeper.status') }}</td>
@@ -114,15 +114,15 @@
                                             </tr>
                                             <tr>
                                                 <td class="pr-1">{{ trans('housekeeper.payment-type') }}</td>
-                                                <td><span class="font-weight-bold">
-                                                        <div class="d-inline-block m-1">
-                                                            {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>
-                                                    </span></td>
+{{--                                                <td><span class="font-weight-bold">--}}
+{{--                                                        <div class="d-inline-block m-1">--}}
+{{--                                                            {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>--}}
+{{--                                                    </span></td>--}}
                                             </tr>
                                         </tbody>
                                     </table>
                                 @else
-                                    <div class="d-inline-block m-1"><span class="badge badge-glow {{ OrdorClass('0') }}">{{ paymentStatus(0) }}</span></div>
+                                    <div class="d-inline-block m-1"><span class="badge badge-light-{{ OrdorClass('0') }}">{{ paymentStatus(0) }}</span></div>
                                 @endif
                             </div>
                         </div>
@@ -177,7 +177,7 @@
             <div class="col-xl-3 col-md-4 col-12 invoice-actions mt-md-0 mt-2">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-inline-block"><span class="badge badge-glow {{ OrdorClass($order->status) }}">{{ HouseKeeperStatuses($order->status) }}</span></div>
+                        <div class="d-inline-block"><span class="badge badge-light-{{ OrdorClass($order->status) }}">{{ HouseKeeperStatuses($order->status) }}</span></div>
                         @php
                             $statusSelect = '<select class="status-select form-control d-inline-block status-font" data-id="' . $order->id . '" data-old-status="' . $order->status . '" style="width: 100%;">';
                             $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
