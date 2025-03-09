@@ -63,13 +63,24 @@ class ViolationController extends Controller
                 $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" data-order-value="' . $item->value . '" style="width: auto;">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                // Loop through all statuses and mark the current status as selected
-                foreach (StatusesViolations() as $key => $value) {
+                $nextStatus = null;
+                $statuses = StatusesViolations();
+
+                // Find the next status in the list based on the current status
+                $keys = array_keys($statuses);
+                $currentStatusIndex = array_search($item->status, $keys);
+
+                if ($currentStatusIndex !== false && isset($keys[$currentStatusIndex + 1])) {
+                    $nextStatus = $keys[$currentStatusIndex + 1];
+                }
+
+                // Loop through all statuses and mark the current status as selected, disable all except next
+                foreach ($statuses as $key => $value) {
                     // Check if the key matches the current status
                     $selected = ($key == $item->status) ? 'selected' : '';
 
-                    // Check if the key is less than the current status, and disable it
-                    $disabled = ($key < $item->status) ? 'disabled' : '';
+                    // Enable only the next status, disable all others
+                    $disabled = ($key != $nextStatus) ? 'disabled' : '';
 
                     $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                 }
@@ -78,6 +89,7 @@ class ViolationController extends Controller
                 // Return the status badge and the select dropdown for display
                 return '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
+
             ->editColumn('phone', function ($item) {
                 return $item->user->phone;
             })

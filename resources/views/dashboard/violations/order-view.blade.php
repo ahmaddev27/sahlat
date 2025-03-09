@@ -371,26 +371,39 @@
                                     class="badge badge-light-{{OrdorClass($order->status)}}"> {{StatusesViolations($order->status)}}</span>
                             </div>
 
+                            @php
+                                // Create the select dropdown for status change
+                                $statusSelect = '<select class="status-select form-control d-inline-block status-font" data-id="' . $order->id . '" data-old-status="' . $order->status . '" style="width: 100%;">';
 
-                            @php    // Create the select dropdown for status change
-                                                    $statusSelect = '<select class="status-select form-control d-inline-block status-font" data-id="' . $order->id . '" data-old-status="' . $order->status . '" style="width: 100%;">';
+                                $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                                                    $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
+                                $nextStatus = null;
+                                $statuses = StatusesViolations();
 
-                                                    foreach (StatusesViolations() as $key => $value) {
-                    // Check if the key matches the current status
-                    $selected = ($key == $order->status) ? 'selected' : '';
+                                // Find the next status in the list based on the current status
+                                $keys = array_keys($statuses);
+                                $currentStatusIndex = array_search($order->status, $keys);
 
-                    // Check if the key is less than the current status, and disable it
-                    $disabled = ($key < $order->status) ? 'disabled' : '';
+                                if ($currentStatusIndex !== false && isset($keys[$currentStatusIndex + 1])) {
+                                    $nextStatus = $keys[$currentStatusIndex + 1];
+                                }
 
-                    $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
-                }
-                                                    $statusSelect .= '</select>';  @endphp
+                                foreach ($statuses as $key => $value) {
+                                    // Check if the key matches the next status
+                                    $selected = ($key == $order->status) ? 'selected' : '';
+
+                                    // Enable only the next status, disable others
+                                    $disabled = ($key != $nextStatus) ? 'disabled' : '';
+
+                                    $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
+                                }
+
+                                $statusSelect .= '</select>';
+                            @endphp
 
                             <div class="p-1">{{trans('violations.change-status')}}</div>
 
-                            <div class="mb-2"> {!! $statusSelect!!}</div>
+                            <div class="mb-2"> {!! $statusSelect !!}</div>
 
 
                         </div>

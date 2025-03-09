@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class Controller extends BaseController
 {
@@ -208,88 +209,100 @@ class Controller extends BaseController
 
         try {
             $user = $order->user;
-            $link = route('api.violationRecords', $order->id); // Modify based on your actual route
+            $link = route('api.violationRecords', $order->id);
 
-            // Store the current locale
+            // Store current locale and switch to user's preferred language
             $currentLocale = app()->getLocale();
+            app()->setLocale($user->lang ?? $currentLocale);
 
-            // Set the locale to the user's language
-            app()->setLocale($user->lang);
+            // Ensure payment record exists if needed
+            $payment = $order->payment ?? null;
 
             switch ($order->status) {
-                case 1:
-                    // Create payment record
-                  $payment= Payment::create([
+                case 1: // Process payment
+                    $payment = Payment::create([
                         'user_id' => $order->user_id,
                         'payment_value' => $request->payment_value,
                         'order_value' => $order->value,
-                        'remaining_amount' => $order->value - $request->payment_value,
-                        'status' => 1,
+                        'remaining_amount' => max(0, $order->value - $request->payment_value),
+                        'status' => 1, // pending or partial payment
                         'type' => 'violation',
                         'payment_type' => 'Dashboard',
                         'order_id' => $order->id,
                     ]);
 
-                  DashboardPayment::create([
-                      'payment_id' => $payment->id,
-                      'amount' => $request->payment_value,
-                  ]);
+                    DashboardPayment::create([
+                        'payment_id' => $payment->id,
+                        'amount' => $request->payment_value,
+                    ]);
 
-                    $message = 'Your payment for order has been processed successfully';
-                    $image = asset('icons/payment-required.png');
-                    $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'violation', $image);
+                    $this->createNotification($user, 'Payment Processed', 'Your payment has been processed successfully', $link, $order->id, 'violation', asset('icons/payment-required.png'));
                     break;
 
-                case 2:
-                case 3:
-                    $remaining_amount = 0;
 
-                    if ($order->payment) {
-                        $order->payment->update([
-                            'remaining_amount' => $remaining_amount,
-                            'status' => 2,
+                case 2:
+
+                    if ($payment) {
+
+                        DashboardPayment::create([
+                            'payment_id' => $payment->id,
+                            'amount' => $payment->remaining_amount,
+                        ]);
+
+                        $payment->update([
+                            'remaining_amount' => 0,
+                            'status' => 2, // fully paid
                             'payment_value' => $order->value,
                         ]);
 
-                        DashboardPayment::create([
-                            'payment_id' => $order->payment->id,
-                            'amount' =>  $order->value,
-                        ]);
+
+
+                        $this->createNotification($user, 'Payment Processed', 'Your  payment has been processed successfully', $link, $order->id, 'violation', asset('icons/payment.png'));
                     } else {
-                        throw new \Exception("Payment record not found for order ID: {$order->id}");
+                        throw new \Exception("No payment record found for order ID: {$order->id}");
                     }
-
-                    $message = ($order->status == 2)
-                        ? 'Your payment for order has been processed successfully'
-                        : 'Your Order has been Completed successfully';
-
-                    $image = ($order->status == 2)
-                        ? asset('icons/payment.png')
-                        : asset('icons/complete.png');
-
-                    $this->createNotification($user, ($order->status == 2) ? 'Payment Processed' : 'Order Complete', $message, $link, $order->id, 'violation', $image);
                     break;
 
-                case 4:
-                    $order->note = $request->note;
-                    $order->save();
+                case 3: // Complete payment and finalize order
+                    if ($payment) {
+                        $payment->update([
+                            'remaining_amount' => 0,
+                            'status' => 2, // fully paid
+                            'payment_value' => $order->value,
+                        ]);
 
-                    $image = asset('icons/cancel.png');
-                    $message = 'Your Order has been Closed';
-                    $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'violation', $image);
+
+                        $this->createNotification(
+                            $user,
+                            'Order Complete',
+                            'Your Order has been Completed successfully',
+                            $link,
+                            $order->id,
+                            'violation',
+                            asset('icons/complete.png')
+                        );
+                    } else {
+                        throw new \Exception("No payment record found for order ID: {$order->id}");
+                    }
                     break;
+
+                case 4: // Close the order with a note
+                    $order->update(['note' => $request->note]);
+                    $this->createNotification($user, 'Order Closed', 'Your Order has been Closed', $link, $order->id, 'violation', asset('icons/cancel.png'));
+                    break;
+
+                default:
+                    throw new \Exception("Invalid status for order ID: {$order->id}");
             }
 
-            // Commit transaction if everything is successful
             DB::commit();
+            app()->setLocale($currentLocale); // Restore locale
 
-            // Revert the locale back to the original
-            app()->setLocale($currentLocale);
-        } catch (Exception $e) {
-            DB::rollBack(); // Rollback on error
+        } catch (\Exception $e) {
+            DB::rollBack();
             Log::error("Error updating violation status for order ID {$order->id}: " . $e->getMessage());
+            app()->setLocale($currentLocale); // Ensure locale is always restored
 
-            // Optionally, notify the admin or return an error response
             return response()->json(['error' => 'An error occurred while updating order status.'], 500);
         }
     }
