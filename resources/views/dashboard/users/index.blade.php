@@ -3,7 +3,6 @@
 @push('css')
     <link rel="stylesheet" type="text/css" href="{{url('app-assets/css-rtl/pages/page-auth.css')}}">
 
-
 @endpush
 @section('left')
     <div class="content-header-right text-md-right col-md-3 col-12 d-md-block d-none">
@@ -14,76 +13,86 @@
         </div>
     </div>
 
-
-
 @endsection
 
 @section('content')
 
-<div class="content-body">
-    <div class="card">
+    <div class="content-body">
+        <div class="card">
 
-        <div class="card-datatable table-responsive p-2">
-            <div class="row">
-                <div class="col-sm-12 col-md-3 mb-2">
-                    <code style="font-family: 'Tajawal';" class="text-body p-1 m-2">{{ trans('main.send-notifications') }}</code>
-                    <button type="button" title="{{ trans('notifications.new_notification') }}" id="notify-users-btn" disabled class="btn btn-icon btn-icon rounded-circle btn-warning waves-effect waves-float waves-light">
-                        <i class="font-medium-3" data-feather='bell'></i>
-                    </button>
+            <div class="card-datatable table-responsive p-2">
+                <div class="row">
+                    <div class="col-sm-12 col-md-3 mb-2">
+                        <code style="font-family: 'Tajawal';"
+                              class="text-body p-1 m-2">{{ trans('main.send-notifications') }}</code>
+                        <button type="button" title="{{ trans('notifications.new_notification') }}"
+                                id="notify-users-btn" disabled
+                                class="btn btn-icon btn-icon rounded-circle btn-warning waves-effect waves-float waves-light">
+                            <i class="font-medium-3" data-feather='bell'></i>
+                        </button>
+                    </div>
+
+                    <div class="col-sm-12 col-md-4 mb-2">
+                        <label>{{ trans('company.address') }}</label>
+                        <select id="city-filter" class="select2 form-control">
+                            <option selected disabled>{{ trans('main.change') }}</option>
+                            <option value="">{{ trans('main.all') }}</option>
+                            @foreach(cities() as $key => $city)
+                                <option value="{{ $key }}">{{ $city }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
-                <div class="col-sm-12 col-md-4 mb-2">
-                    <label>{{ trans('company.address') }}</label>
-                    <select id="city-filter" class="select2 form-control">
-                        <option selected disabled>{{ trans('main.change') }}</option>
-                        <option value="">{{ trans('main.all') }}</option>
-                        @foreach(cities() as $key => $city)
-                            <option value="{{ $key }}">{{ $city }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <!-- Notification Modal -->
-            <div class="modal fade text-left" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="myModalLabel33">{{ trans('notifications.new_notification') }}</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="{{ trans('buttons.close') }}">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-2">
-                                <label for="notification-title" class="form-label">{{ trans('notifications.title') }}</label>
-                                <input type="text" id="notification-title" class="form-control" placeholder="{{ trans('notifications.enter_title') }}">
-                                <div class="invalid-feedback">
-                                    {{ trans('notifications.title_required') }}
+                <!-- Notification Modal -->
+                <div class="modal fade text-left" id="notificationModal" tabindex="-1" role="dialog"
+                     aria-labelledby="notificationModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title"
+                                    id="myModalLabel33">{{ trans('notifications.new_notification') }}</h4>
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-label="{{ trans('buttons.close') }}">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-2">
+                                    <label for="notification-title"
+                                           class="form-label">{{ trans('notifications.title') }}</label>
+                                    <input type="text" id="notification-title" class="form-control"
+                                           placeholder="{{ trans('notifications.enter_title') }}">
+                                    <div class="invalid-feedback">
+                                        {{ trans('notifications.title_required') }}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="notification-text"
+                                           class="form-label">{{ trans('notifications.message') }}</label>
+                                    <textarea id="notification-text" class="form-control" rows="4"
+                                              placeholder="{{ trans('notifications.enter_message') }}"></textarea>
+                                    <div class="invalid-feedback">
+                                        {{ trans('notifications.message_required') }}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="notification-text" class="form-label">{{ trans('notifications.message') }}</label>
-                                <textarea id="notification-text" class="form-control" rows="4" placeholder="{{ trans('notifications.enter_message') }}"></textarea>
-                                <div class="invalid-feedback">
-                                    {{ trans('notifications.message_required') }}
-                                </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary mb-1 mb-sm-0 mr-0 mr-sm-1"
+                                        id="send-notification-btn">
+                                    <div id="spinner_notification" class="spinner-border spinner-border-sm text-light"
+                                         role="status" style="display: none;">
+                                        <span class="sr-only"></span>
+                                    </div>
+                                    {{ trans('main.save') }}
+                                </button>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary mb-1 mb-sm-0 mr-0 mr-sm-1" id="send-notification-btn">
-                                <div id="spinner_notification" class="spinner-border spinner-border-sm text-light" role="status" style="display: none;">
-                                    <span class="sr-only"></span>
-                                </div>
-                                {{ trans('main.save') }}
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <table class="table" id="table">
-                <thead class="thead-light">
+                <table class="table" id="table">
+                    <thead class="thead-light">
                     <tr>
                         <th><input type="checkbox" id="select-all"></th>
                         <th style="width: 30%">{{ trans('user.name') }}</th>
@@ -93,69 +102,67 @@
                         <th>{{ trans('user.created_at') }}</th>
                         <th>{{ trans('user.action') }}</th>
                     </tr>
-                </thead>
-            </table>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 
 
 
     @push('js')
 
+        {{--datatable--}}
+        <script>
+            $(document).ready(function () {
+                var table = $('#table').DataTable({
+                    processing: false,
+                    serverSide: true,
 
-            {{--datatable--}}
-            <script>
-                $(document).ready(function () {
-                   var table= $('#table').DataTable({
-                        processing: false,
-                        serverSide: true,
 
+                    dom: 'frtilp',
 
-                       dom: 'frtilp',
+                    ajax: {
+                        url: "{{ route('users.list') }}",
+                        data: function (d) {
+                            d.city = $('#city-filter').val();
+                        }
+                    },
 
-                       ajax: {
-                           url: "{{ route('users.list') }}",
-                           data: function (d) {
-                               d.city = $('#city-filter').val();
-                           }
-                       },
+                    order: [[6, 'desc']],
+                    columns: [
+                        {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false},
+                        {data: 'name', name: 'name'},
+                        // {data: 'phone', name: 'phone'},
+                        // {data: 'email', name: 'email'},
+                        {data: 'location', name: 'location'},
+                        {data: 'gender', name: 'gender'},
+                        {data: 'status', name: 'status'},
+                        {data: 'created_at', name: 'created_at', visible: false}, // Hidden column for ordering
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false,
 
-                        order: [[6, 'desc']],
-                        columns: [
-                            {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false},
-                            {data: 'name', name: 'name'},
-                            // {data: 'phone', name: 'phone'},
-                            // {data: 'email', name: 'email'},
-                            {data: 'location', name: 'location'},
-                            {data: 'gender', name: 'gender'},
-                            {data: 'status', name: 'status'},
-                            {data: 'created_at', name: 'created_at', visible: false}, // Hidden column for ordering
-                            {
-                                data: 'action',
-                                name: 'action',
-                                orderable: false,
-                                searchable: false,
-
-                            },
-
-                        ],
-
-                        @if(App::getLocale() == 'ar')
-
-                        language: {
-                            "url": "https://cdn.datatables.net/plug-ins/2.1.8/i18n/ar.json"
                         },
-                        @endif
-                    });
 
+                    ],
 
+                    @if(App::getLocale() == 'ar')
 
-                    $('#city-filter').on('change', function () {
-                        table.ajax.reload();
-                    });
+                    language: {
+                        "url": "https://cdn.datatables.net/plug-ins/2.1.8/i18n/ar.json"
+                    },
+                    @endif
                 });
-            </script>
+
+
+                $('#city-filter').on('change', function () {
+                    table.ajax.reload();
+                });
+            });
+        </script>
 
         {{-- images preview--}}
         <script>
@@ -175,7 +182,7 @@
                 }
             }
 
-            $(document).ready(function() {
+            $(document).ready(function () {
                 var changeLogo = $('#add-avatar'),
                     logoAvatar = $('#add-avatar-img');
 
@@ -199,7 +206,7 @@
         </script>
 
 
-{{--        notify--}}
+        {{--        notify--}}
         <script>
             $(document).ready(function () {
                 let selectedUsers = [];
@@ -321,35 +328,67 @@
         </script>
 
 
-{{--        change status--}}
+        {{--        change status--}}
+        {{--        change status--}}
         <script>
             $(document).on('click', '.change-status-btn', function (e) {
                 e.preventDefault();
                 var userId = $(this).data('id');
                 var status = $(this).data('status');
 
-                $.ajax({
-                    url: 'users/change-status/' + userId,
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        id: userId,
-                        status: status
-                    },
-                    success: function (response) {
-                        if (response.status) {
-                            toastr.success(response.message, '{{ trans('messages.success') }}');
-                            // Reload DataTable
-                            $('#table').DataTable().ajax.reload();
-                        } else {
-                            toastr.error(response.message, '{{ trans('messages.error') }}');
-                            // Reload DataTable
-                            $('#table').DataTable().ajax.reload();
+                Swal.fire({
+                    title: '{{ trans("messages.sure?") }}',
+                    text: '{{ trans("messages.change_status_confirm") }}',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '{{ trans("messages.yes_change_it") }}',
+                    cancelButtonText: '{{ trans("messages.cancel") }}',
+                    customClass: {
+                        confirmButton: 'btn btn-danger',
+                        cancelButton: 'btn btn-secondary ml-1'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: 'users/change-status/' + userId,
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                id: userId,
+                                status: status
+                            },
+                            beforeSend: function () {
+                                Swal.fire({
+                                    title: '{{ trans("messages.loading") }}',
+                                    text: '{{ trans("messages.processing-request") }}',
+                                    icon: 'info',
+                                    allowOutsideClick: false,
+                                    showConfirmButton: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
 
-                        }
-                    },
-                    error: function (xhr) {
-                        alert('An error occurred while changing the status.');
+                            },
+                            success: function (response) {
+                                Swal.close();
+                                if (response.status) {
+                                    toastr.success(response.message, '{{ trans("messages.success") }}');
+                                } else {
+                                    toastr.error(response.message, '{{ trans("messages.error") }}');
+                                }
+                                $('#table').DataTable().ajax.reload();
+                            },
+                            error: function (xhr) {
+                                Swal.close();
+                                Swal.fire({
+                                    title: '{{ trans("messages.error") }}',
+                                    text: '{{ trans("messages.something_went_wrong") }}',
+                                    icon: 'error',
+                                    confirmButtonText: '{{ trans("messages.close") }}'
+                                });
+                            }
+                        });
                     }
                 });
             });

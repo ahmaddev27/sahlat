@@ -76,7 +76,7 @@ class ViolationController extends Controller
                 $statusSelect .= '</select>';
 
                 // Return the status badge and the select dropdown for display
-                return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
+                return '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
             ->editColumn('phone', function ($item) {
                 return $item->user->phone;
@@ -144,6 +144,7 @@ class ViolationController extends Controller
             if ($request->status == 4) {
                 $order->note = $request->note;
             }
+
 
             // Handle specific statuses
             $this->ViolationhandleStatusUpdates($order, $request);

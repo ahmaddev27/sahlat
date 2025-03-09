@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\TabbyPayment;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\AssuranceOrder;
@@ -98,7 +99,7 @@ class OrderController extends Controller
             }
 
             // Create a new payment record
-            Payment::create([
+          $payment= Payment::create([
                 'user_id' => Auth::id(),
                 'payment_value' => $request->payment_value,
                 'order_value' => $order->value,
@@ -111,6 +112,13 @@ class OrderController extends Controller
 
             /// call tabby pay function here
 
+            TabbyPayment::create([
+                'payment_id' => $payment->id,
+                'paymentID' => 'fromTabby_id',
+                'order_id' => $order->id,
+                'amount' => $request->payment_value,
+
+            ]);
 
             // Update order status based on remaining amount
             $order->update(['status' => $payment_status]);
@@ -247,6 +255,7 @@ class OrderController extends Controller
                     Log::warning("Payment not succeeded for Order Number ($orderNumber). Order status remains unchanged.");
                 }
 
+                $order->update(['status' => 2]);
                 // Update existing payment or create a new one
                 if ($order->payment) {
                     // Update the existing payment record

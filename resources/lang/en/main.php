@@ -95,12 +95,19 @@ return [
     'total-payment' => 'Total payment',
 
     'order_value' => 'Order Value',
-
+'payments'=>'Payments',
 
     'stripe-link'=>'Stripe link',
     'enter-stripe-link'=>'Enter Stripe Link',
     'Send SMS'=>'Send SMS',
     'Send SMS Link'=>'Send SMS Link',
-];
+
+    'date'=>'Date',
+    'value'=>'Value',
+    'pay'=>'Pay',
+    'remaining'=>'Remaining',
+    'type'=>'Type',
+    ];
+
 
 

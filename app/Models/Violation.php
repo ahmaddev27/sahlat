@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Violation extends Model
 {
 
+    use HasFactory;
+
     protected $guarded=[];
 
 
@@ -33,6 +35,5 @@ class Violation extends Model
         return $this->hasOne(Payment::class, 'order_id')->where('type', 'violation');
     }
 
-    use HasFactory;
 }
 

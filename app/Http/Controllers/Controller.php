@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DashboardPayment;
 use App\Models\Notification;
 use App\Models\OrderAttachment;
 use App\Models\Payment;
@@ -218,7 +219,7 @@ class Controller extends BaseController
             switch ($order->status) {
                 case 1:
                     // Create payment record
-                    Payment::create([
+                  $payment= Payment::create([
                         'user_id' => $order->user_id,
                         'payment_value' => $request->payment_value,
                         'order_value' => $order->value,
@@ -228,6 +229,11 @@ class Controller extends BaseController
                         'payment_type' => 'Dashboard',
                         'order_id' => $order->id,
                     ]);
+
+                  DashboardPayment::create([
+                      'payment_id' => $payment->id,
+                      'amount' => $request->payment_value,
+                  ]);
 
                     $message = 'Your payment for order has been processed successfully';
                     $image = asset('icons/payment-required.png');
@@ -243,6 +249,11 @@ class Controller extends BaseController
                             'remaining_amount' => $remaining_amount,
                             'status' => 2,
                             'payment_value' => $order->value,
+                        ]);
+
+                        DashboardPayment::create([
+                            'payment_id' => $order->payment->id,
+                            'amount' =>  $order->value,
                         ]);
                     } else {
                         throw new \Exception("Payment record not found for order ID: {$order->id}");

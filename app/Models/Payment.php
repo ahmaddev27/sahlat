@@ -23,6 +23,13 @@ class Payment extends Model
 
     public function tabby()
     {
+
         return $this->hasMany(TabbyPayment::class);
+    }
+
+    public function dashboard()
+    {
+
+        return $this->hasMany(DashboardPayment::class);
     }
 }

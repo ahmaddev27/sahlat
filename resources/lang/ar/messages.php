@@ -10,6 +10,8 @@ return [
     'success-update' => 'تم التحديث بنجاح',
     'success-created' => 'تم الاضافة بنجاح',
     'sure?' => 'هل انت متأكد',
+    'change_status_confirm'=>'هل انت متأكد من تغيير الحالة؟',
+'yes_change_it' => 'نعم, غيرها!',
     'wont' => 'لن تكون قادر على الاستعادة',
     'delete' => 'حذف',
     'deleted' => 'تم الحذف',
@@ -66,7 +68,8 @@ return [
     'invalid-url'=>'الرابط خطأ',
     'enter-payment'=>'ادخل القيمة المدفوعة',
     'Payment value cannot exceed the order value'=>'القيمة المدخلة اكبر من المبلغ المستحق',
-    'invalid-payment'=>'القيمة المدخلة خاطئة'
+    'invalid-payment'=>'القيمة المدخلة خاطئة',
+    'required-files' =>'ارفق العقد و وصل الدفع',
 
 
 ];

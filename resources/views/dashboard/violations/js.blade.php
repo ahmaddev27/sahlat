@@ -402,7 +402,7 @@
                             text: feather.icons['file'].toSvg({class: 'font-small-4 mr-50'}) + 'Excel',
                             className: 'dropdown-item',
                             exportOptions: {
-                                columns: [0, 1, 2, 3, 4, 5, 6, 7],  // Specify the columns to export, including the status column (5)
+                                columns: [0, 1, 2, 3, 4, 5],  // Specify the columns to export, including the status column (5)
                                 format: {
                                     body: function (data, row, column, node) {
                                         // Check if the data contains a <select> element (status column)
@@ -443,7 +443,7 @@
                             text: feather.icons['clipboard'].toSvg({class: 'font-small-4 mr-50'}) + 'Pdf',
                             className: 'dropdown-item',
                             exportOptions: {
-                                columns: [0, 1, 2, 3, 4, 5, 6, 7],  // Specify the columns to export, including the status column (5)
+                                columns: [0, 1, 2, 3, 4, 5],  // Specify the columns to export, including the status column (5)
                                 format: {
                                     body: function (data, row, column, node) {
                                         // Check if the data contains a <select> element (status column)

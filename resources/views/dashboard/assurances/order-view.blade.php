@@ -129,7 +129,11 @@
 
                                             <tr>
                                                 <td class="pr-1">{{ trans('assurances.payment-type') }}</td>
-                                                <td><span class="font-weight-bold"><div class="d-inline-block m-1"> {{ $order->payment?->payment_type ?: '-' }} </div></span></td>
+                                                <td><span class="font-weight-bold"><div class="d-inline-block m-1">
+
+                                                                                                                    {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>
+
+                                                    </span></td>
                                             </tr>
                                             </tbody>
                                         </table>

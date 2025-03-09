@@ -19,8 +19,8 @@ return [
     'profile' => 'البروفايل',
     'logout' => 'تسجيل الخروج',
     'company' => 'شركة',
-    'active' => 'مفعلة',
-    'not-active' => 'غير مفعلة',
+    'active' => 'نشط',
+    'not-active' => 'غير نشط',
     'AssuranceOrders' => 'طلبات الضمانات',
     'HouseKeepersOrders' => 'طلبات الشغالات',
     'HouseKeepersOrders-hourly' => 'طلبات الشغالات بالساعة',
@@ -98,6 +98,13 @@ return [
 'Send SMS'=>'ارسال الرسالة',
     'Send SMS Link'=>'ارسال رابط السترايب',
 
+'payments'=>'المدفوعات',
+
+      'date'=>'التاريخ',
+    'value'=>'القيمة',
+    'pay'=>'المدفوع',
+    'remaining'=>'المتبقي',
+    'type'=>'الطريقة',
 
 ];
 

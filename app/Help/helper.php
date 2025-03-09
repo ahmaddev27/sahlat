@@ -260,18 +260,18 @@ function OrdorClass($status)
 {
 
     if ($status == 0) {
-        return 'badge-warning';
+        return 'warning';
     } elseif ($status == 1) {
-        return trans('badge-success');
+        return trans('success');
     } elseif ($status == 2) {
-        return trans('badge-info');
+        return trans('info');
     } elseif ($status == 3) {
-        return trans('badge-primary');
+        return trans('primary');
     } elseif ($status == 4) {
-        return trans('badge-secondary');
+        return trans('secondary');
 
     } elseif ($status == 5) {
-        return trans('badge-dark');
+        return trans('dark');
     }
 
 }

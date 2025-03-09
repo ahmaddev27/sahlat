@@ -11,6 +11,8 @@ return [
     'success-update' => 'Updated successfully',
     'success-created' => 'Added successfully',
     'sure?' => 'Are you sure?',
+    'change_status_confirm'=>'Are you sure you want to change the status?',
+    'yes_change_it' => 'Yes, change it!',
     'wont' => 'You wont be able to restore this',
     'delete' => 'Delete',
     'upload-contract' => 'Upload Contract',
@@ -44,6 +46,7 @@ return [
     'not-update-error' => 'Error in Update Status',
     'not_found' => 'Not Found Data',
     'upload-attachment' => 'Payment received',
+    'required-files' => 'Attachments Required',
 
     'attachment-required' => 'Attachment Required',
     'select-housekeeper' => 'Select Housekeeper',

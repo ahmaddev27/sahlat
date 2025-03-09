@@ -114,7 +114,10 @@
                                             </tr>
                                             <tr>
                                                 <td class="pr-1">{{ trans('housekeeper.payment-type') }}</td>
-                                                <td><span class="font-weight-bold"><div class="d-inline-block m-1">{{ $order->payment?->payment_type ?: '-' }}</div></span></td>
+                                                <td><span class="font-weight-bold">
+                                                        <div class="d-inline-block m-1">
+                                                            {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>
+                                                    </span></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -208,9 +211,6 @@
 
     @push('js')
 
-        {{-- Change status --}}
-
-
         <script>
             $(document).on('change', '.status-select', function () {
                 let $select = $(this);
@@ -232,16 +232,14 @@
                     },
                 }).then((result) => {
                     if (!result.isConfirmed) {
-                        $select.val(oldStatus);
+                        $select.val(oldStatus); // Revert to old status if canceled
                         return;
                     }
-
-                    // Handle status updates
-                    handleStatusUpdate(orderId, newStatus, orderValue, $select, oldStatus);
+                    handleStatusUpdate(orderId, newStatus, orderValue);
                 });
             });
 
-            function handleStatusUpdate(orderId, newStatus, orderValue, $select, oldStatus) {
+            function handleStatusUpdate(orderId, newStatus, orderValue) {
                 switch (parseInt(newStatus)) {
                     case 1:
                         promptForPayment(orderId, orderValue, newStatus);
@@ -253,7 +251,7 @@
                         promptForNoteUpdate(orderId, newStatus);
                         break;
                     default:
-                        updateStatus(orderId, newStatus);
+                        showLoadingAndUpdate(orderId, newStatus);
                 }
             }
 
@@ -268,13 +266,14 @@
                     preConfirm: () => {
                         let value = parseFloat(document.getElementById('payment-value').value);
                         if (!value || value <= 0 || value > parseFloat(orderValue)) {
-                            return Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                            Swal.showValidationMessage('{{ trans("messages.invalid-payment") }}');
+                            return false;
                         }
                         return value;
                     }
-                }).then((paymentResult) => {
-                    if (paymentResult.isConfirmed) {
-                        updateStatus(orderId, newStatus, { payment_value: paymentResult.value });
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        showLoadingAndUpdate(orderId, newStatus, { payment_value: result.value });
                     }
                 });
             }
@@ -290,24 +289,24 @@
                     showCancelButton: true,
                     confirmButtonText: '{{trans('messages.submit')}}',
                     cancelButtonText: '{{trans('messages.cancel')}}',
-
                     preConfirm: () => {
                         let paymentFile = document.getElementById('payment-attachment').files[0];
                         let contractFile = document.getElementById('contract-attachment').files[0];
                         if (!paymentFile || !contractFile) {
-                            return Swal.showValidationMessage('{{trans('messages.required-files')}}');
+                            Swal.showValidationMessage('{{trans('messages.required-files')}}');
+                            return false;
                         }
                         return { paymentFile, contractFile };
                     }
-                }).then((fileResult) => {
-                    if (fileResult.isConfirmed) {
+                }).then((result) => {
+                    if (result.isConfirmed) {
                         let formData = new FormData();
                         formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
                         formData.append('order_id', orderId);
                         formData.append('status', newStatus);
-                        formData.append('payment_attachment', fileResult.value.paymentFile);
-                        formData.append('contract_attachment', fileResult.value.contractFile);
-                        sendAjaxRequest('{{route("housekeepers.orders.updateStatus")}}', formData, true);
+                        formData.append('payment_attachment', result.value.paymentFile);
+                        formData.append('contract_attachment', result.value.contractFile);
+                        showLoadingAndUpdate(orderId, newStatus, formData, true);
                     }
                 });
             }
@@ -319,22 +318,23 @@
                     inputPlaceholder: '{{trans('messages.enter-note-placeholder')}}',
                     showCancelButton: true,
                     confirmButtonText: '{{trans('messages.submit')}}',
-                   cancelButtonText: '{{trans('messages.cancel')}}',
+                    cancelButtonText: '{{trans('messages.cancel')}}',
                     preConfirm: (note) => {
                         if (!note) {
-                            return Swal.showValidationMessage('{{trans('messages.note-required')}}');
+                            Swal.showValidationMessage('{{trans('messages.note-required')}}');
+                            return false;
                         }
                         return note;
                     }
-                }).then((noteResult) => {
-                    if (noteResult.isConfirmed) {
-                        updateStatus(orderId, newStatus, { note: noteResult.value });
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        showLoadingAndUpdate(orderId, newStatus, { note: result.value });
                     }
                 });
             }
 
-            function updateStatus(orderId, newStatus, additionalData = {}) {
-                let data = {
+            function showLoadingAndUpdate(orderId, newStatus, additionalData = {}, isFormData = false) {
+                let data = isFormData ? additionalData : {
                     _token: $('meta[name="csrf-token"]').attr('content'),
                     order_id: orderId,
                     status: newStatus,
@@ -346,10 +346,10 @@
                     text: '{{ trans("messages.processing-request") }}',
                     icon: 'info',
                     allowOutsideClick: false,
-                    showConfirmButton: false, // Prevents Submit button from showing here
+                    showConfirmButton: false,
                     didOpen: () => {
                         Swal.showLoading();
-                        sendAjaxRequest('{{route("housekeepers.orders.updateStatus")}}', data);
+                        sendAjaxRequest('{{route("housekeepers.orders.updateStatus")}}', data, isFormData);
                     }
                 });
             }
@@ -361,7 +361,7 @@
                     data: data,
                     contentType: isFormData ? false : 'application/x-www-form-urlencoded; charset=UTF-8',
                     processData: !isFormData,
-                    success: function () {
+                    success: () => {
                         Swal.fire({
                             title: '{{ trans("messages.updated") }}!',
                             text: '{{ trans("messages.change-success") }}.',
@@ -370,7 +370,7 @@
                             customClass: { confirmButton: 'btn btn-success' }
                         }).then(() => location.reload());
                     },
-                    error: function () {
+                    error: () => {
                         Swal.fire({
                             title: '{{ trans("messages.not-updated") }}!',
                             text: '{{ trans("messages.not-update-error") }}.',

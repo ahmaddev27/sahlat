@@ -67,13 +67,15 @@ class UserController extends Controller
                 return gender($item->gender);
             })
             ->editColumn('status', function ($item) {
-                return user_statuts($item->is_active);
+                $badgeClass = $item->is_active == 1 ? 'info' : 'warning';
+                return '<div class="badge badge-pill badge-light-' . $badgeClass . '">' . user_statuts($item->is_active) . '</div>';
             })
+
             ->editColumn('location', function ($item) {
                 return $item->location ? cities($item->location) : '-';
             })
             ->addIndexColumn()
-            ->rawColumns(['action', 'name', 'gender', 'phone', 'location', 'checkbox', 'number_id'])
+            ->rawColumns(['action', 'name', 'gender', 'phone', 'location', 'checkbox', 'number_id','status'])
             ->make(true);
 
     }
