@@ -23,7 +23,7 @@ class AssuranceOrderResources extends JsonResource
 
             'details'=>$this->details,
             'assurance_number'=>$this->assurance_number,
-            'status'=>['status'=>OrderStatus((int)$this->status),'id'=>(int)$this->status],
+            'status'=>['status'=>StatusesAssurance((int)$this->status),'id'=>(int)$this->status],
 
 
             'note'=>$this->note,

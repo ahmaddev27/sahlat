@@ -23,7 +23,7 @@ class ViolationResources extends JsonResource
 //            'user'=> UserResources::collection([$this->user]),
             'details'=>$this->details,
 //            'violation_number'=>$this->violation_number,
-            'status'=>['status'=>OrderStatus((int)$this->status),'id'=>(int)$this->status],
+            'status'=>['status'=>StatusesViolations((int)$this->status),'id'=>(int)$this->status],
 
             'order_value'=>$this->payment?->order_value,
             'payment_value'=>$this->payment?->payment_value,

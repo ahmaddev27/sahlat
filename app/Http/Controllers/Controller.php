@@ -349,7 +349,7 @@ class Controller extends BaseController
         switch ($order->status) {
             case 1:
                 // Create payment record
-                Payment::create([
+                $payment= Payment::create([
                     'user_id' => $order->user_id,
                     'payment_value' => $request->payment_value,
                     'order_value' => $order->value,
@@ -360,6 +360,11 @@ class Controller extends BaseController
                     'order_id' => $order->id,
                 ]);
 
+                DashboardPayment::create([
+                    'payment_id' => $payment->id,
+                    'amount' => $payment->remaining_amount,
+                ]);
+
                 $message = 'Your payment for order has been processed successfully';
                 $image = asset('icons/payment-required.png');
                 $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper', $image);
@@ -367,14 +372,21 @@ class Controller extends BaseController
 
 
             case 2:
-
+                $payment= $order->payment;
                 $remaining_amount = 0;
+
+                DashboardPayment::create([
+                    'payment_id' => $payment->id,
+                    'amount' => $payment->remaining_amount,
+                ]);
+
 
                 $order->payment->update([
                     'remaining_amount' => $remaining_amount,
                     'status' => 2,
                     'payment_value' => $order->value,
                 ]);
+
 
 
                 $message = 'Your payment for order has been processed successfully';
@@ -440,7 +452,7 @@ class Controller extends BaseController
 
             case 1:
 
-                Payment::create([
+              $payment= Payment::create([
                     'user_id' => $order->user_id,
                     'payment_value' => $request->payment_value,
                     'order_value' => $order->value,
@@ -451,6 +463,10 @@ class Controller extends BaseController
                     'order_id' => $order->id,
                 ]);
 
+                DashboardPayment::create([
+                    'payment_id' => $payment->id,
+                    'amount' => $payment->remaining_amount,
+                ]);
 
                 $message = 'Your payment for order has been processed successfully';
                 $image = asset('icons/payment-required.png');
@@ -458,6 +474,12 @@ class Controller extends BaseController
                 break;
 
             case 2:
+
+                $payment= $order->payment;
+                DashboardPayment::create([
+                    'payment_id' => $payment->id,
+                    'amount' => $payment->remaining_amount,
+                ]);
 
                 $remaining_amount = 0;
 

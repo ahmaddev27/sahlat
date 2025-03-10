@@ -3,6 +3,13 @@
 @push('css')
     <link rel="stylesheet" type="text/css" href="{{url('app-assets/css-rtl/plugins/forms/form-validation.css')}}">
 
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
     <style>
         .float-end {
             display: flex;
@@ -19,6 +26,7 @@
 
     <section id="page-account-settings">
         <div class="row">
+
             <!-- left menu section -->
             <div class="col-md-3 mb-2 mb-md-0">
                 <ul class="nav nav-pills flex-column nav-left">
@@ -104,19 +112,45 @@
                                             </div>
                                         </div>
 
+                                        <!-- Latitude and Longitude input fields -->
                                         <div class="col-6 col-sm-6">
                                             <div class="form-group">
                                                 <label for="account-e-mail">{{trans('company.long')}}</label>
-                                                <input type="text" class="form-control" id="long" name="long" placeholder="{{trans('company.long')}}" value="{{$user->long}}" />
+                                                <input type="text" class="form-control" id="long" name="long" placeholder="{{trans('company.long')}}" value="{{$user->long}}" onclick="openMap('long')" readonly />
                                             </div>
                                         </div>
 
                                         <div class="col-6 col-sm-6">
                                             <div class="form-group">
                                                 <label for="account-e-mail">{{trans('company.lat')}}</label>
-                                                <input type="text" class="form-control" id="lat" name="lat" placeholder="{{trans('company.lat')}}" value="{{$user->lat}}" />
+                                                <input type="text" class="form-control" id="lat" name="lat" placeholder="{{trans('company.lat')}}" value="{{$user->lat}}" onclick="openMap('lat')" readonly />
                                             </div>
                                         </div>
+
+                                        <!-- Modal for the map -->
+                                        <div id="mapModal" class="modal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content ">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="mapModalLabel">{{trans('main.Select Location')}}</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="map" style="height: 600px;"></div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary" id="saveLocation">{{trans('main.Save Location')}}</button>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{trans('main.close')}}</button>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
 
                                         <div class="col-6 col-sm-6">
                                             <div class="form-group">
@@ -246,6 +280,101 @@
     @if(app()->getLocale() === 'ar')
         <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/localization/messages_ar.js"></script>
     @endif
+
+
+{{--    map location--}}
+    <script>
+        var map;
+        var marker;
+        var currentInput = '';
+
+        // Function to initialize the map
+        function initializeMap(latitude = 51.505, longitude = -0.09) {
+            // Create the map centered at the specified coordinates
+            map = L.map('map').setView([latitude, longitude], 13); // Default zoom level 13
+
+            // Add OpenStreetMap tile layer (you can try other tile providers if necessary)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Listen for click on the map to place a marker
+            map.on('click', function(e) {
+                var lat = e.latlng.lat;
+                var lng = e.latlng.lng;
+
+                // Place a marker at the clicked position
+                if (marker) {
+                    marker.setLatLng(e.latlng);
+                } else {
+                    marker = L.marker(e.latlng).addTo(map);
+                }
+
+                // Update the input fields with the selected latitude and longitude
+                document.getElementById('lat').value = lat.toFixed(6);
+                document.getElementById('long').value = lng.toFixed(6);
+            });
+        }
+
+        // Function to open the map modal
+        function openMap(inputType) {
+            currentInput = inputType;
+            // Try to get the user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var userLat = position.coords.latitude;
+                    var userLng = position.coords.longitude;
+
+                    // Initialize the map with the user's location
+                    if (!map) {
+                        initializeMap(userLat, userLng);
+                    } else {
+                        map.setView([userLat, userLng], 13); // Zoom level 13 is typically appropriate
+                    }
+
+                    // Place a marker at the user's location
+                    if (marker) {
+                        marker.setLatLng([userLat, userLng]);
+                    } else {
+                        marker = L.marker([userLat, userLng]).addTo(map);
+                    }
+
+                    // Populate the input fields with the current location
+                    document.getElementById('lat').value = userLat.toFixed(6);
+                    document.getElementById('long').value = userLng.toFixed(6);
+                }, function() {
+                    // If geolocation fails, fallback to a default location (e.g., London)
+                    console.log("Geolocation failed, fallback to default location.");
+                    if (!map) {
+                        initializeMap(); // Default to London if geolocation is not available
+                    }
+                });
+            } else {
+                // If geolocation is not supported, fallback to a default location
+                console.log("Geolocation not supported, fallback to default location.");
+                if (!map) {
+                    initializeMap(); // Default to London if geolocation is not supported
+                }
+            }
+
+            // Open the modal
+            $('#mapModal').modal('show');
+        }
+
+        // Function to save the location and close the modal
+        $('#saveLocation').click(function() {
+            $('#mapModal').modal('hide');
+        });
+
+        // Optionally, close the modal when clicking outside
+        $('#mapModal').on('hidden.bs.modal', function() {
+            // Reset the marker and map if needed
+            if (marker) {
+                marker.remove();
+                marker = null;
+            }
+        });
+    </script>
 
 
     {{--        images preview--}}

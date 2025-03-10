@@ -89,6 +89,8 @@ return [
     'completely-payed' => 'Completely payed',
 
 
+    'Save Location'=>'Save Location',
+    'Select Location'=>'Select Location',
 
 
     'remain' => 'Remain',

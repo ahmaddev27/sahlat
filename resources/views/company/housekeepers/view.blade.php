@@ -76,9 +76,9 @@
                         </div>
                         <div class="col-12 col-md-7">
                             <?php $statusText = HouseKeepersStatus($housekeeper->status);
-                            $badgeClass = $housekeeper->status == 1 ? 'badge-primary' : 'badge-success';
+                            $badgeClass = $housekeeper->status == 1 ? 'primary' : 'success';
 
-                            $div = '<div class="badge badge-glow mt-1 ' . $badgeClass . '">' . $statusText . '</div>';
+                            $div = '<div class="badge badge-light-' . $badgeClass . '  mt-1">' . $statusText . '</div>';
                             ?>
 
 

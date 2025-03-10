@@ -34,7 +34,7 @@ return [
     'closed' => 'مغلق',
     'export' => 'تصدير',
     'change' => 'تغيير',
-    'hours' => 'ساعات',
+    'hours' => 'الساعات',
     'otp-login-send' => 'تم ارسال رمز التحقق لتسجيل الدخول',
     'otp-register-send' => 'تم ارسال رمز التحقق لانشاء حساب جديد',
     'login-success' => 'تم تسجيل الدخول بنجاح',
@@ -57,7 +57,9 @@ return [
     'completed' => 'مكتمل',
     'no-banners' => 'لا يوجد بنرات',
 
+    'Save Location'=>'حفظ الموقع',
 
+    'Select Location'=>'اختر الموقع',
     'not-payed' => 'لم يتم الدفع',
     'print' => 'طباعة',
     'no-orders' => 'لايوجد طلبات',

@@ -17,7 +17,7 @@ class HomeController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'phone' => 'required|regex:/^[5][0-9]{8}$/|unique:companies,phone,' . $request->id,
+            'phone' => 'required|regex:/^[5][0-9]{8}$/|unique:companies,phone,' . \auth()->id(),
             'email' => 'required|email|max:255|unique:users,email,' . Auth::id(),
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);

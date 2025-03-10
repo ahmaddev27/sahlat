@@ -63,37 +63,30 @@ class AssurancesOrderController extends Controller
                 $statusText = StatusesAssurance($item->status);
                 $badgeClass = OrdorClass($item->status);
 
-                // Build the select element and include the order value (assuming $item->value exists)
+                // Build the select element
                 $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" data-order-value="' . $item->value . '" style="width: auto;">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                $nextStatus = null;
                 $statuses = StatusesAssurance();
-
-                // Find the next status in the list based on the current status
                 $keys = array_keys($statuses);
                 $currentStatusIndex = array_search($item->status, $keys);
 
-                if ($currentStatusIndex !== false && isset($keys[$currentStatusIndex + 1])) {
-                    $nextStatus = $keys[$currentStatusIndex + 1];
-                }
+                // Check if current status is the last one
+                $isLastStatus = ($currentStatusIndex === count($keys) - 1);
 
-                // Loop through available statuses and enable only the next status
+                // Populate dropdown options
                 foreach ($statuses as $key => $value) {
-                    // Check if the key matches the current status
                     $selected = ($key == $item->status) ? 'selected' : '';
-
-                    // Enable only the next status, disable all others
-                    $disabled = ($key != $nextStatus) ? 'disabled' : '';
+                    $disabled = $isLastStatus ? 'disabled' : (($key != $keys[$currentStatusIndex + 1] ?? null) ? 'disabled' : '');
 
                     $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                 }
+
                 $statusSelect .= '</select>';
 
-                // Return the badge and select
+                // Return badge and select
                 return '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
-
 
             //            ->editColumn('payment', function ($item) {
 //                if ($item->payment()->count() > 0) {

@@ -127,56 +127,34 @@
 
 
                                 <div class="col-xl-4 p-0 mt-xl-0 mt-2">
+                                    @if($order->payment()->count() > 0)
 
-
-                                    @if($order->payment)
-
-                                        <table>
-                                            <tbody>
-
-                                            @php
-                                                $statusText = paymentStatus($order->payment->status);
-                                                $badgeClass = OrdorClass($order->payment->status);
-                                                                                                    // Combine the status badge and the select dropdown inline
-                                                $div = '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>';
-                                            @endphp
-
-
-                                            <tr>
-                                                <td class="pr-1 "><h6 class="">{{trans('assurances.payment')}}</h6></td>
-                                                <td><span class="font-weight-bold">{!! $div!!}</span></td>
-                                            </tr>
-
-
-{{--                                            <tr>--}}
-{{--                                                <td class="pr-1">{{trans('assurances.payment-type')}}</td>--}}
-
-
-{{--                                                <td>--}}
-{{--                                                    <span class="font-weight-bold"><div class="d-inline-block m-1">--}}
-{{--                                                        {{$order->payment->is_tabby ? $order->payment->is_tabby? 'Tabby' : ($order->payment->is_stripe ? 'stripe' :  $order->payment->payment_type):  $order->payment->payment_type}}</div>--}}
-{{--                                                    </span>--}}
-{{--                                                </td>--}}
-{{--                                            </tr>--}}
-                                            {{--                                                <tr>--}}
-                                            {{--                                                    <td class="pr-1">Country:</td>--}}
-                                            {{--                                                    <td>United States</td>--}}
-                                            {{--                                                </tr>--}}
-
-                                            </tbody>
-                                        </table>
-
-
+                                        @php
+                                            $statusText = paymentStatus($order->payment->status);
+                                            $badgeClass = OrdorClass($order->payment->status);
+                                            $div = '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>';
+                                        @endphp
+                                        <tr>
+                                            <td class="pr-1"><h6>{{ trans('housekeeper.payment') }}</h6></td>
+                                            <td><span class="font-weight-bold">{!! $div !!}</span></td>
+                                        </tr>
+                                        <tr>
+                                            {{--                                                <td class="pr-1">{{ trans('housekeeper.payment-type') }}</td>--}}
+                                            {{--                                                <td><span class="font-weight-bold">--}}
+                                            {{--                                                        <div class="d-inline-block m-1">--}}
+                                            {{--                                                            {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>--}}
+                                            {{--                                                    </span></td>--}}
+                                        </tr>
 
                                     @else
-
-                                        <div class="d-inline-block m-1">
-                                            <span
-                                                class="badge badge-light-{{OrdorClass('0')}} '">{{paymentStatus(0)}} </span>
-                                        </div>
+                                        <tr>
+                                            <td class="pr-3"><h6 class="mb-1">{{ trans('housekeeper.payment') }}</h6></td>
+                                            <td class="pt-2"><span class= "badge badge-light-{{ OrdorClass('0') }}">{{ paymentStatus(0) }}</span></td>
+                                        </tr>
 
                                     @endif
                                 </div>
+
                             </div>
                         </div>
                         <!-- Address and Contact ends -->
@@ -377,29 +355,26 @@
 
                                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                                $nextStatus = null;
                                 $statuses = StatusesViolations();
-
-                                // Find the next status in the list based on the current status
                                 $keys = array_keys($statuses);
                                 $currentStatusIndex = array_search($order->status, $keys);
 
-                                if ($currentStatusIndex !== false && isset($keys[$currentStatusIndex + 1])) {
-                                    $nextStatus = $keys[$currentStatusIndex + 1];
-                                }
+                                // Check if current status is the last one
+                                $isLastStatus = ($currentStatusIndex === count($keys) - 1);
 
                                 foreach ($statuses as $key => $value) {
-                                    // Check if the key matches the next status
+                                    // Check if the key matches the current status
                                     $selected = ($key == $order->status) ? 'selected' : '';
 
-                                    // Enable only the next status, disable others
-                                    $disabled = ($key != $nextStatus) ? 'disabled' : '';
+                                    // Disable all if it's the last status, otherwise enable only the next status
+                                    $disabled = $isLastStatus ? 'disabled' : (($key != $keys[$currentStatusIndex + 1] ?? null) ? 'disabled' : '');
 
                                     $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                                 }
 
                                 $statusSelect .= '</select>';
                             @endphp
+
 
                             <div class="p-1">{{trans('violations.change-status')}}</div>
 

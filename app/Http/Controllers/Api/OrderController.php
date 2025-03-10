@@ -128,7 +128,7 @@ class OrderController extends Controller
             return $this->apiRespose([], 'Payment successful', true, 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Error occurred while processing payment: ' . $e->getMessage());
+            Log::error('Error occurred while processing payment: ' . $e->getMessage());
             return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
         }
     }

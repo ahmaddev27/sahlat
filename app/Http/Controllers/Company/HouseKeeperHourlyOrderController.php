@@ -74,21 +74,29 @@ class HouseKeeperHourlyOrderController extends Controller
                 $statusText = HouseKeeperHourlyStatuses($item->status);
                 $badgeClass = OrdorClass($item->status);
 
-                // Build the select element and add the order value as a data attribute
+                // Build the select element with data attributes
                 $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-company-id="' . $item->company_id . '" data-id="' . $item->id . '" data-order-value="' . $item->value . '" style="width: auto;">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                // Loop through all statuses and mark the current status as selected or disabled if needed
-                foreach (HouseKeeperHourlyStatuses() as $key => $value) {
+                $statuses = HouseKeeperHourlyStatuses();
+                $keys = array_keys($statuses);
+                $currentStatusIndex = array_search($item->status, $keys);
+
+                // Check if the current status is the last one
+                $isLastStatus = ($currentStatusIndex === count($keys) - 1);
+
+                // Loop through all statuses and handle selection/disable logic
+                foreach ($statuses as $key => $value) {
                     $selected = ($key == $item->status) ? 'selected' : '';
-                    $disabled = ($key < $item->status) ? 'disabled' : '';
+                    $disabled = $isLastStatus ? 'disabled' : (($key != $keys[$currentStatusIndex + 1] ?? null) ? 'disabled' : '');
+
                     $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                 }
 
                 $statusSelect .= '</select>';
 
-                // Return the status badge along with the select dropdown
-                return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
+                // Return the badge and select dropdown
+                return '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
             ->editColumn('date', function ($item) {
                 return $item->date->format('Y M d');

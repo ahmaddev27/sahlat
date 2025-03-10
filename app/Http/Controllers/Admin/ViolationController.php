@@ -53,42 +53,35 @@ class ViolationController extends Controller
                       ' . $item->user->name;
             })
             ->addColumn('status', function ($item) {
-                // Get the status text (to be displayed in the table)
+                // Get the status text and badge class
                 $statusText = StatusesViolations($item->status);
-
-                // Get the badge class based on the status
                 $badgeClass = OrdorClass($item->status);
 
-                // Create the select dropdown for status change
+                // Build the select dropdown for status change
                 $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" data-order-value="' . $item->value . '" style="width: auto;">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                $nextStatus = null;
                 $statuses = StatusesViolations();
-
-                // Find the next status in the list based on the current status
                 $keys = array_keys($statuses);
                 $currentStatusIndex = array_search($item->status, $keys);
 
-                if ($currentStatusIndex !== false && isset($keys[$currentStatusIndex + 1])) {
-                    $nextStatus = $keys[$currentStatusIndex + 1];
-                }
+                // Check if current status is the last one
+                $isLastStatus = ($currentStatusIndex === count($keys) - 1);
 
-                // Loop through all statuses and mark the current status as selected, disable all except next
+                // Populate dropdown options
                 foreach ($statuses as $key => $value) {
-                    // Check if the key matches the current status
                     $selected = ($key == $item->status) ? 'selected' : '';
-
-                    // Enable only the next status, disable all others
-                    $disabled = ($key != $nextStatus) ? 'disabled' : '';
+                    $disabled = $isLastStatus ? 'disabled' : (($key != $keys[$currentStatusIndex + 1] ?? null) ? 'disabled' : '');
 
                     $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                 }
+
                 $statusSelect .= '</select>';
 
-                // Return the status badge and the select dropdown for display
+                // Return the badge and select dropdown for display
                 return '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
+
 
             ->editColumn('phone', function ($item) {
                 return $item->user->phone;

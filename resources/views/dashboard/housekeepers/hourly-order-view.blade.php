@@ -1,25 +1,25 @@
 @extends('dashboard.layouts.master',['title'=>trans('dashboard_aside.housekeepers_hourly')])
 
 @push('css')
-<style>
-    .select2-container {
-        z-index: 9999 !important; /* Ensure it has the highest priority */
-    }
+    <style>
+        .select2-container {
+            z-index: 9999 !important; /* Ensure it has the highest priority */
+        }
 
 
-    .swal2-container {
-        z-index: 10000; /* SweetAlert z-index */
-    }
+        .swal2-container {
+            z-index: 10000; /* SweetAlert z-index */
+        }
 
 
-    .modal {
-        z-index: 1040; /* Ensure the modal stays below the dropdown */
-    }
+        .modal {
+            z-index: 1040; /* Ensure the modal stays below the dropdown */
+        }
 
-    #sendSmsModal {
-        z-index: 9999 !important; /* Ensure it has the highest priority */
-    }
-</style>
+        #sendSmsModal {
+            z-index: 9999 !important; /* Ensure it has the highest priority */
+        }
+    </style>
 @endpush
 
 @section('left')
@@ -84,15 +84,19 @@
                                                 <tr>
                                                     <td class="pr-2 pb-2">{{ trans('housekeeper.housekeeper') }}</td>
                                                     <td class="d-flex align-items-center pb-2">
-                                                        <img width="60" height="60" class="user-avatar mr-3 rounded-circle img-fluid"
-                                                             src="{{ $order->housekeeper->getAvatar() }}" alt="Housekeeper Avatar">
-                                                        <span class="font-weight-bold">{{ $order->housekeeper->name }}</span>
+                                                        <img width="60" height="60"
+                                                             class="user-avatar mr-3 rounded-circle img-fluid"
+                                                             src="{{ $order->housekeeper->getAvatar() }}"
+                                                             alt="Housekeeper Avatar">
+                                                        <span
+                                                            class="font-weight-bold">{{ $order->housekeeper->name }}</span>
                                                     </td>
                                                 </tr>
                                             @endif
                                             <tr>
-                                                <td  class="pr-2 pt-3">{{ trans('housekeeper.company') }}</td>
-                                                <td colspan="2" class="font-weight-bold pt-3">{{ $order->company->name }}</td>
+                                                <td class="pr-2 pt-3">{{ trans('housekeeper.company') }}</td>
+                                                <td colspan="2"
+                                                    class="font-weight-bold pt-3">{{ $order->company->name }}</td>
                                             </tr>
                                             <tr>
                                                 <td class="pr-2 pt-4">{{ trans('housekeeper.details') }}</td>
@@ -123,6 +127,7 @@
                         <hr class="invoice-spacing"/>
 
                         <!-- Address and Contact starts -->
+
 
                         <div class="card-body invoice-padding pt-0">
                             <div class="row invoice-spacing">
@@ -156,47 +161,104 @@
                                     @endif
 
 
-
                                 </div>
 
                                 <div class="col-xl-4 p-0 mt-xl-0 mt-2">
-                                    <h6 class="mb-2">{{ trans('housekeeper.payment') }}</h6>
+                                    @if($order->payment()->count() > 0)
 
-                                    @if($order->payment && $order->payment->count() > 0)
                                         @php
                                             $statusText = paymentStatus($order->payment->status);
                                             $badgeClass = OrdorClass($order->payment->status);
-                                            // Combine the status badge and the select dropdown inline
-                                            $statusBadge = '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>';
+                                            $div = '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>';
                                         @endphp
+                                        <tr>
+                                            <td class="pr-1"><h6>{{ trans('housekeeper.payment') }}</h6></td>
+                                            <td><span class="font-weight-bold">{!! $div !!}</span></td>
+                                        </tr>
+                                        <tr>
+                                            {{--                                                <td class="pr-1">{{ trans('housekeeper.payment-type') }}</td>--}}
+                                            {{--                                                <td><span class="font-weight-bold">--}}
+                                            {{--                                                        <div class="d-inline-block m-1">--}}
+                                            {{--                                                            {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>--}}
+                                            {{--                                                    </span></td>--}}
+                                        </tr>
 
-                                        <table>
-                                            <tbody>
-                                            <tr>
-                                                <td class="pr-1">{{ trans('housekeeper.status') }}</td>
-                                                <td><span class="font-weight-bold">{!! $statusBadge !!}</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="pr-1">{{ trans('housekeeper.payment-type') }}</td>
-                                                <td><span class="font-weight-bold">
-                        <div class="d-inline-block m-1">
-                                                                                                                                              {{$order->payment->is_tabby ? $order->payment->is_tabby?'Tabby' : ($order->payment->is_stripe ? 'stripe' : $order->payment->payment_type): $order->payment->payment_type}}</div>
-
-                    </span></td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
                                     @else
-                                        <div class="d-inline-block m-1">
-                                            <span class="badge badge-glow {{ OrdorClass(0) }}">{{ paymentStatus(0) }}</span>
-                                        </div>
+                                        <tr>
+                                            <td class="pr-1"><h6>{{ trans('housekeeper.payment') }}</h6></td>
+                                            <td><span class="badge badge-light-{{ OrdorClass('0') }}">{{ paymentStatus(0) }}</span></td>
+                                        </tr>
+
                                     @endif
                                 </div>
 
 
-
                             </div>
                         </div>
+
+
+                        @if($order->payment && ($order->payment->tabby || $order->payment->stripe ||  $order->payment->ddashboard ))
+                            <div class="row" id="table-hover-animation">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">{{ trans('main.payments') }}</h4>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover-animation">
+                                                <thead>
+                                                <tr>
+                                                    <th>{{ trans('main.date') }}</th>
+                                                    <th>{{ trans('main.value') }}</th>
+                                                    <th>{{ trans('main.pay') }}</th>
+                                                    {{--                                                    <th>{{ trans('main.remaining') }}</th>--}}
+                                                    <th>{{ trans('main.type') }}</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @if($order->payment->tabby)
+                                                    @foreach($order->payment->tabby as $tabby)
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">{{ $tabby->created_at->format('d/m/Y') }}</span></td>
+                                                            <td>ADE {{ $order->payment->order_value }}</td>
+                                                            <td>ADE {{ $tabby->amount }}</td>
+                                                            {{--                                                            <td>ADE {{ $order->payment->order_value - $tabby->amount }}</td>--}}
+                                                            <td><span class="badge badge-pill badge-light-success mr-1">Tabby</span></td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+
+                                                @if($order->payment->stripe)
+                                                    @foreach($order->payment->stripe as $stripe)
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">{{ $stripe->created_at->format('d/m/Y') }}</span></td>
+                                                            <td>ADE {{ $order->payment->order_value }}</td>
+                                                            <td>ADE {{ $stripe->amount }}</td>
+                                                            {{--                                                            <td>ADE {{ $order->payment->order_value - $stripe->amount }}</td>--}}
+                                                            <td><span class="badge badge-pill badge-light-info mr-1">Stripe</span></td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+
+                                                @if($order->payment->dashboard)
+                                                    @foreach($order->payment->dashboard as $dashboard)
+                                                        <tr>
+                                                            <td><span class="font-weight-bold">{{ $dashboard->created_at->format('d/m/Y') }}</span></td>
+                                                            <td>ADE {{ $order->payment->order_value }}</td>
+                                                            <td>ADE {{ $dashboard->amount }}</td>
+                                                            {{--                                                            <td>ADE {{ $order->payment->order_value - $dashboard->amount }}</td>--}}
+                                                            <td><span class="badge badge-pill badge-light-primary mr-1">Dashboard</span></td>
+                                                        </tr>
+                                                    @endforeach
+                                                @endif
+
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Invoice Total Section -->
                         <div class="card-body invoice-padding pb-0">
@@ -205,7 +267,8 @@
                                     <div class="invoice-total-wrapper">
                                         <div class="invoice-total-item mt-2">
                                             <p class="invoice-total-title d-inline">{{ trans('company.hourly_price') }}</p>
-                                            <p class="invoice-total-amount d-inline p-2">ADE {{ $order->company->hourly_price }}</p>
+                                            <p class="invoice-total-amount d-inline p-2">
+                                                ADE {{ $order->company->hourly_price }}</p>
                                         </div>
 
                                         <div class="invoice-total-item mt-2">
@@ -215,7 +278,8 @@
 
                                         <div class="invoice-total-item mt-2">
                                             <p class="invoice-total-title d-inline">{{ trans('main.total') }}</p>
-                                            <p class="invoice-total-amount d-inline p-2">{{ $order->hours *$order->company->hourly_price  }}</p>
+                                            <p class="invoice-total-amount d-inline p-2">
+                                                ADE {{ $order->hours *$order->company->hourly_price  }}</p>
                                         </div>
 
                                         <div class="invoice-total-item mt-2">
@@ -225,7 +289,7 @@
                                             </p>
                                         </div>
 
-                                        <hr class="my-50" />
+                                        <hr class="my-50"/>
 
                                         <div class="invoice-total-item mt-2">
                                             <p class="invoice-total-title d-inline">{{ trans('main.remain') }}</p>
@@ -248,7 +312,8 @@
                                                     <p class="mb-0 font-weight-bold">{{ $attachment->title }}</p>
                                                 </div>
                                                 <div class="attachment-file">
-                                                    <a href="{{ $attachment->getFile() }}" target="_blank" class="text-body">
+                                                    <a href="{{ $attachment->getFile() }}" target="_blank"
+                                                       class="text-body">
                                                         <i class="font-large-1" data-feather="file"></i>
                                                     </a>
                                                 </div>
@@ -271,25 +336,34 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-inline-block "><span
-                                    class="badge badge-glow {{OrdorClass($order->status)}}"> {{HouseKeeperHourlyStatuses($order->status)}}</span>
+                                    class="badge badge-light-{{OrdorClass($order->status)}}"> {{HouseKeeperHourlyStatuses($order->status)}}</span>
                             </div>
 
 
-                            @php    // Create the select dropdown for status change
-                                                    $statusSelect = '<select class="status-select form-control d-inline-block status-font" data-id="' . $order->id . '" data-old-status="' . $order->status . '" style="width: 100%;">';
+                            @php
+                                // Create the select dropdown for status change
+                                $statusSelect = '<select class="status-select form-control d-inline-block status-font" data-id="' . $order->id . '" data-old-status="' . $order->status . '" style="width: 100%;">';
 
-                                                    $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
+                                $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                                                        foreach (HouseKeeperHourlyStatuses() as $key => $value) {
-                    // Check if the key matches the current status
-                    $selected = ($key == $order->status) ? 'selected' : '';
+                                $statuses = HouseKeeperHourlyStatuses();
+                                $keys = array_keys($statuses);
+                                $currentStatusIndex = array_search($order->status, $keys);
 
-                    // Check if the key is less than the current status, and disable it
-                    $disabled = ($key < $order->status) ? 'disabled' : '';
+                                // Check if the current status is the last one
+                                $isLastStatus = ($currentStatusIndex === count($keys) - 1);
 
-                    $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
-                }
-                                                    $statusSelect .= '</select>';  @endphp
+                                // Loop through statuses, disabling all if last status is selected
+                                foreach ($statuses as $key => $value) {
+                                    $selected = ($key == $order->status) ? 'selected' : '';
+                                    $disabled = $isLastStatus ? 'disabled' : (($key != $keys[$currentStatusIndex + 1] ?? null) ? 'disabled' : '');
+
+                                    $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
+                                }
+
+                                $statusSelect .= '</select>';
+                            @endphp
+
 
                             <div class="p-1">{{trans('housekeeper.change-status')}}</div>
 
@@ -580,7 +654,6 @@
                 });
             });
         </script>
-
 
     @endpush
 

@@ -72,16 +72,20 @@ class HouseKeeperOrderController extends Controller
                 $badgeClass = OrdorClass($item->status);
 
                 // Create the select dropdown for status change
-                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" style="width: auto;" data-order-value="' . $item->value . '" >';
+                $statusSelect = '<select class="status-select select2 form-control d-inline-block" data-id="' . $item->id . '" style="width: auto;" data-order-value="' . $item->value . '">';
                 $statusSelect .= '<option selected disabled>' . trans('main.change') . '</option>';
 
-                // Loop through all statuses and mark the current status as selected
-                foreach (HouseKeeperStatuses() as $key => $value) {
-                    // Check if the key matches the current status
-                    $selected = ($key == $item->status) ? 'selected' : '';
+                $statuses = HouseKeeperStatuses();
+                $keys = array_keys($statuses);
+                $currentStatusIndex = array_search($item->status, $keys);
 
-                    // Check if the key is less than the current status, and disable it
-                    $disabled = ($key < $item->status) ? 'disabled' : '';
+                // Check if current status is the last one
+                $isLastStatus = ($currentStatusIndex === count($keys) - 1);
+
+                // Populate dropdown options
+                foreach ($statuses as $key => $value) {
+                    $selected = ($key == $item->status) ? 'selected' : '';
+                    $disabled = $isLastStatus ? 'disabled' : (($key != $keys[$currentStatusIndex + 1] ?? null) ? 'disabled' : '');
 
                     $statusSelect .= '<option value="' . $key . '" ' . $selected . ' ' . $disabled . '>' . $value . '</option>';
                 }
@@ -89,7 +93,7 @@ class HouseKeeperOrderController extends Controller
                 $statusSelect .= '</select>';
 
                 // Return the status badge and the select dropdown for display
-                return '<div class="d-inline-block m-1"><span class="badge badge-glow ' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
+                return '<div class="d-inline-block m-1"><span class="badge badge-light-' . $badgeClass . '">' . $statusText . '</span></div>' . $statusSelect;
             })
 
             ->editColumn('details', function ($item) {
