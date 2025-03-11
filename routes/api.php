@@ -158,7 +158,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::controller(OrderController::class)->group(function () {
             Route::post('/payTabby', 'payTabby');
             Route::get('/balance', 'balance');
-            Route::post('/stripe-check', 'checkOrderStatus');
+            Route::post('/stripe-check', 'checkOrderStatusStripe');
             Route::post('/deleteFailedOrder', 'deleteFailedOrder');
         });
 

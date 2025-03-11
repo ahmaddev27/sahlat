@@ -25,14 +25,15 @@ class HouseKeeperOrderResources extends JsonResource
 //            'name'=>$this->name,
 //            'user'=> UserResources::collection([$this->user]),
 //            'details'=>$this->details,
-            'housekeeper'=> new HouseKeeperResources($this->housekeeper),
+//            'housekeeper'=> new HouseKeeperResources($this->housekeeper),
             'status'=>['status'=>HouseKeeperStatuses((int)$this->status),'id'=>(int)$this->status],
             'order_value'=>$this->payment?->order_value,
             'payment_value'=>$this->payment?->payment_value,
             'remaining_amount'=>$this->payment?->remaining_amount,
-            'payment_status'=>paymentStatus($this->payment?->status),
+//            'payment_status'=>paymentStatus($this->payment?->status),
             'date'=>$this->created_at->format('Y-m-d'),
             'date_ForHumans'=>$this->created_at->diffForHumans(),
+            'type'=>'housekeeper',
         ];
 
     }

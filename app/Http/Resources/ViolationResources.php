@@ -24,12 +24,12 @@ class ViolationResources extends JsonResource
             'details'=>$this->details,
 //            'violation_number'=>$this->violation_number,
             'status'=>['status'=>StatusesViolations((int)$this->status),'id'=>(int)$this->status],
-
             'order_value'=>$this->payment?->order_value,
             'payment_value'=>$this->payment?->payment_value,
             'remaining_amount'=>$this->payment?->remaining_amount,
-            'payment_status'=>paymentStatus($this->payment?->status),
+//            'payment_status'=>paymentStatus($this->payment?->status),
             'date'=>$this->created_at->format('Y-m-d'),
+            'type'=>'violation',
             'date_ForHumans'=>$this->created_at->diffForHumans(),
         ];
 

@@ -1,6 +1,6 @@
 <!-- Add Banner Modal (Create) -->
 <div class="modal fade" id="inlineForm" tabindex="-1" role="dialog" aria-labelledby="inlineFormLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <form id="createBannerForm" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
@@ -16,16 +16,16 @@
                         <input type="text" class="form-control" id="bannerTitle" name="title" required>
                     </div>
 
-                    <div class="mb-2 col-12 justify-content-center">
+                    <div class="mb-2 col-12 justify-content-center text-center">
                         <img
                             id="avatarPreview-create-banner"
-                            src="{{url('blank.png')}}"
+                            src="{{url('blank-banner.png')}}"
                             alt="icon avatar"
                             class="user-avatar icon users-avatar-shadow rounded mr-2 my-25 cursor-pointer"
-                            height="120" width="200"
+                            height="175"
                         />
-                        <div class="media-body mt-50">
-                            <div class="col-12 d-flex mt-1 px-0">
+                        <div class="media-body mt-50 ">
+                            <div class="col-12 d-flex mt-1 px-0 justify-content-center ">
                                 <label class="btn btn-primary mr-75 mb-0" for="change-create-icon">
                                     <span class="d-none d-sm-block">
                                         <i data-feather="edit"></i> {{ trans('settings.change') }}

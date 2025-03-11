@@ -23,6 +23,27 @@ return [
     'new-banner'=>'New Banner',
     'policy'=>'Privacy Policy',
     'conditions'=>'Terms and Conditions',
+    'app'=>'App Settings',
+    'Android Version'=>'Android Version',
+    'Android Url'=>'Android Url',
+    'Android Force Update'=>'Android Force Update',
+    'Ios Force Update'=>'Ios Force Update',
+    'checked'=>'Checked',
+    'Ios Url'=>'Ios Url',
+    'ios_version'=>'Ios Version',
+    'update_title_en '=>'English Update Title ',
+    'update_body_en '=>'English Update Body ',
+    'update_title_ar '=>'Arabic Update Title ',
+    'update_body_ar '=>'Arabic Update Body ',
+    'credentials'=>'Credentials Payments',
+    'Stripe Public test'=>'Stripe Public Key Test',
+    'Stripe Secret test'=>'Stripe Secret Key Test',
+    'Stripe Public live'=>'Stripe Public Key Live',
+    'Stripe Secret live'=>'Stripe Secret Key Live',
+    'payment_is_live'=>'Is Payment Stripe Live?',
+    'yes'=>'Yes',
+
+
 
 
 

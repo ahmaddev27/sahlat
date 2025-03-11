@@ -6,6 +6,7 @@
 <meta name="author" content="PIXINVENT">
 
 
+
 <link rel="apple-touch-icon"  href="{{url('storage/'.setting('icon'))}}">
 <link rel="shortcut icon" type="image/x-icon" href="{{url('storage/'.setting('icon'))}}">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500;1,600" rel="stylesheet">
@@ -80,6 +81,12 @@
             bottom: auto;
         }
 
+        body,html, *{
+            font-family: 'Tajawal', sans-serif;
+
+        }
+
+
 
 
     </style>
@@ -151,14 +158,16 @@
         visibility: hidden;
     }
 
-    body,html, *{
-        font-family: 'Tajawal', sans-serif;
 
-    }
 
 
 
 
 </style>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css"
+      integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"/>
 @stack('css')
 

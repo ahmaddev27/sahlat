@@ -27,8 +27,10 @@ class HouseKeeperHourlyOrderResources extends JsonResource
             'created_date'=>$this->created_at->format('Y-m-d'),
             'date_ForHumans'=>$this->created_at->diffForHumans(),
             'order_value'=>$this->payment?->order_value,
+//            'payment_status'=>paymentStatus($this->payment?->status),
             'payment_value'=>$this->payment?->payment_value,
             'remaining_amount'=>$this->payment?->remaining_amount,
+            'type'=>'housekeeper_hourly_order',
 
         ];
 

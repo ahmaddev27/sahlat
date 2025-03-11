@@ -23,42 +23,42 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth')->except('home');
+        $this->middleware('admin')->except('home');
     }
 
-    public function getPaymentHistory()
-    {
-        // Set your Stripe secret key
-        Stripe::setApiKey(config('services.stripe.secret'));
+//    public function getPaymentHistory()
+//    {
+//        // Set your Stripe secret key
+//        Stripe::setApiKey(config('services.stripe.secret'));
+//
+//        try {
+//            // Retrieve payment history (charges)
+//            $charges = Charge::all([
+//                'limit' => 10, // you can modify the limit as needed
+//            ]);
+//            return response()->json($charges);
+//        } catch (\Exception $e) {
+//            return response()->json(['error' => $e->getMessage()], 500);
+//        }
+//
+//    }
 
-        try {
-            // Retrieve payment history (charges)
-            $charges = Charge::all([
-                'limit' => 10, // you can modify the limit as needed
-            ]);
-            return response()->json($charges);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
 
-    }
-
-
-    public function getPaymentDetails($payment_id)
-    {
-        // Set your Stripe secret key
-        Stripe::setApiKey(config('services.stripe.secret'));
-
-        try {
-            // Retrieve the specific charge using the payment ID
-            $charge = Charge::retrieve($payment_id);
-
-            // Return the charge details
-            return response()->json($charge);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
+//    public function getPaymentDetails($payment_id)
+//    {
+//        // Set your Stripe secret key
+//        Stripe::setApiKey(config('services.stripe.secret'));
+//
+//        try {
+//            // Retrieve the specific charge using the payment ID
+//            $charge = Charge::retrieve($payment_id);
+//
+//            // Return the charge details
+//            return response()->json($charge);
+//        } catch (\Exception $e) {
+//            return response()->json(['error' => $e->getMessage()], 500);
+//        }
+//    }
 
     /**
      * Show the application dashboard.
@@ -78,7 +78,8 @@ class HomeController extends Controller
         }
 
         if (Auth::guard('company')->check()) {
-            return 450;
+            return redirect()->route('company.home');
+
         }
 
         return redirect()->route('login');
@@ -114,7 +115,22 @@ class HomeController extends Controller
             'commission' => $request->input('commission'),
             'conditions' => $request->input('conditions'),
             'policy' => $request->input('policy'),
+            'android_version' => $request->input('android_version'),
+            'ios_version' => $request->input('ios_version'),
+            'android_url' => $request->input('android_url'),
+            'ios_url' => $request->input('ios_url'),
+            'android_force_update' => $request->input('android_force_update'),
+            'ios_force_update' => $request->input('ios_force_update'),
             'x' => $request->input('x'),
+            'payment_is_live' => $request->input('payment_is_live'),
+            'stripe_public_key_live' => $request->input('stripe_public_key_live'),
+            'stripe_public_key_test' => $request->input('stripe_public_key_test'),
+            'stripe_secret_key_test' => $request->input('stripe_secret_key_test'),
+            'stripe_secret_key_live' => $request->input('stripe_secret_key_live'),
+            'update_title_en' => $request->input('update_title_en'),
+            'update_body_en' => $request->input('update_body_en'),
+            'update_title_ar' => $request->input('update_title_ar'),
+            'update_body_ar' => $request->input('update_body_ar'),
         ];
 
 

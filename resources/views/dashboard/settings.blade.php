@@ -38,6 +38,7 @@
                                                 class="d-none d-sm-block">{{trans('settings.info')}}</span>
                                         </a>
                                     </li>
+
                                     <li class="nav-item">
                                         <a class="nav-link d-flex align-items-center" id="social-tab" data-toggle="tab"
                                            href="#social" aria-controls="social" role="tab" aria-selected="false">
@@ -45,7 +46,23 @@
                                                 class="d-none d-sm-block">{{trans('settings.social')}}</span>
                                         </a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" id="social-tab" data-toggle="tab"
+                                           href="#app" aria-controls="app" role="tab" aria-selected="false">
+                                            <i data-feather="smartphone"></i><span
+                                                class="d-none d-sm-block">{{trans('settings.app')}}</span>
+                                        </a>
+                                    </li>
 
+                                    <li class="nav-item">
+                                        <a class="nav-link d-flex align-items-center" id="credentials-tab"
+                                           data-toggle="tab"
+                                           href="#credentials" aria-controls="credentials" role="tab"
+                                           aria-selected="false">
+                                            <i data-feather="key"></i><span
+                                                class="d-none d-sm-block">{{trans('settings.credentials')}}</span>
+                                        </a>
+                                    </li>
 
                                 </ul>
 
@@ -57,69 +74,61 @@
                                         <div class="tab-pane active" id="account" aria-labelledby="account-tab"
                                              role="tabpanel">
                                             <!-- users edit media object start -->
-                                            <div class="row mt-3 justify-content-center">
+                                            <div class="row m-3  text-center">
                                                 <!-- Icon Section -->
-                                                <div class="col-3 col-md-6 ">
-                                                    <div class="media mb-2">
+                                                <div class="col-12 col-md-6 justify-content-center  ">
 
-                                                        <div class="media-body mt-50">
-                                                            <h4>{{trans('settings.icon')}}</h4>
-                                                            <div class="col-12 d-flex mt-1 px-0">
-                                                                <label class="btn btn-primary mr-75 mb-0"
-                                                                       for="change-icon">
+                                                    <h4>{{trans('settings.icon')}}</h4>
+                                                    <div
+                                                        class="col-12 d-flex mt-1 px-0 text-center justify-content-center ">
+                                                        <label class="btn btn-primary mr-75 mb-0"
+                                                               for="change-icon">
                                                                     <span
                                                                         class="d-none d-sm-block">{{trans('settings.change')}}</span>
-                                                                    <input class="form-control" type="file" name="icon"
-                                                                           id="change-icon" hidden
-                                                                           accept="image/png, image/jpeg, image/jpg"/>
-                                                                    <span class="d-block d-sm-none">
+                                                            <input class="form-control" type="file" name="icon"
+                                                                   id="change-icon" hidden
+                                                                   accept="image/png, image/jpeg, image/jpg"/>
+                                                            <span class="d-block d-sm-none">
                         <i class="mr-0" data-feather="edit"></i>
                     </span>
-                                                                </label>
-                                                            </div>
-
-                                                            <img
-                                                                src="{{ setting('icon') !='' ? url('storage').'/'.setting('icon') :  url('blank.png') }}"
-                                                                alt="icon avatar"
-                                                                class="img-fluid user-avatar icon users-avatar-shadow rounded mr-2 my-25 cursor-pointer"
-                                                                style="max-width: 90%; height: auto;"/>
-                                                        </div>
+                                                        </label>
                                                     </div>
+
+                                                    <img
+                                                        src="{{ setting('icon') !='' ? url('storage').'/'.setting('icon') :  url('blank.png') }}"
+                                                        alt="icon avatar"
+                                                        class="img-fluid user-avatar icon users-avatar-shadow rounded mr-2 my-25 cursor-pointer mt-2"
+                                                        style="max-width: 90%; height: 120px"/>
                                                 </div>
+
 
                                                 <!-- Logo Section -->
-                                                <div class="col-8 col-md-4 justify-content-end">
-                                                    <div class="media mb-2">
+                                                <div class="col-12 col-md-6 justify-content-center">
 
-                                                        <div class="media-body mt-50">
-                                                            <h4>{{trans('settings.logo')}}</h4>
-                                                            <div class="col-12 d-flex mt-1 px-0">
-                                                                <label class="btn btn-primary mr-75 mb-0"
-                                                                       for="change-logo">
+                                                    <h4>{{trans('settings.logo')}}</h4>
+                                                    <div class="col-12 d-flex mt-1 px-0 justify-content-center">
+                                                        <label class="btn btn-primary mr-75 mb-0"
+                                                               for="change-logo">
                                                                     <span
                                                                         class="d-none d-sm-block">{{trans('settings.change')}}</span>
-                                                                    <input class="form-control" type="file" name="logo"
-                                                                           id="change-logo" hidden
-                                                                           accept="image/png, image/jpeg, image/jpg"/>
-                                                                    <span class="d-block d-sm-none">
-                        <i class="mr-0" data-feather="edit"></i>
-                    </span>
+                                                            <input class="form-control" type="file" name="logo"
+                                                                   id="change-logo" hidden
+                                                                   accept="image/png, image/jpeg, image/jpg"/>
+                                                            <span class="d-block d-sm-none">
+                                                                        <i class="mr-0" data-feather="edit"></i>
+                                                                    </span>
 
 
-                                                                </label>
+                                                        </label>
 
 
-                                                            </div>
-
-                                                            <img
-                                                                src="{{ setting('logo') !='' ?  url('storage').'/'.setting('logo') :  url('blank.png') }}"
-                                                                alt="logo avatar"
-                                                                class="img-fluid rounded logo"
-                                                                style="max-width: 90%; height: auto;"/>
-                                                        </div>
                                                     </div>
+                                                    <img
+                                                        src="{{ setting('logo') !='' ?  url('storage').'/'.setting('logo') :  url('blank.png') }}"
+                                                        alt="logo avatar"
+                                                        class="img-fluid rounded logo mt-1"
+                                                        style="max-width: 90%; height: 120px;"/>
                                                 </div>
-
                                             </div>
 
 
@@ -279,20 +288,311 @@
                                         </div>
                                         <!-- Social Tab ends -->
 
+                                        <!-- app Tab starts -->
+                                        <div class="tab-pane" id="app" aria-labelledby="app-tab"
+                                             role="tabpanel">
+                                            <!-- users edit social form start -->
+                                            <div class="row">
 
-                                    </div>
+                                                <div class="col-lg-4 col-md-6 form-group mb-2">
+                                                    <label for="twitter-input">{{trans('settings.Android Url')}}</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" id="basic-addon3">
+                                                                <i class="font-medium-2 fa fa-android"></i>
+                                                            </span>
+                                                        </div>
 
-                                    <div class="col-12 d-flex flex-sm-row flex-column mt-2 justify-content-end">
-                                        <button type="button" class="btn btn-primary mb-1 mb-sm-0 mr-0 mr-sm-1"
-                                                id="submitBtn">
-                                            <div id="spinner"
-                                                 class="spinner-border spinner-border-sm text-light"
-                                                 role="status" style="display: none;">
-                                                <span class="sr-only"></span>
+                                                        <input id="android_version-input" type="text" name="android_url"
+                                                               class="form-control"
+                                                               value="{{ old('android_url', setting('android_url')) }}"
+                                                               placeholder="https://play.google.com/store/apps/details?id=com.example.app"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('android_url')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-4 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="twitter-input">{{trans('settings.Android Version')}}</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" id="basic-addon3">
+                                                                <i class="font-medium-2 fa fa-android"></i>
+                                                            </span>
+                                                        </div>
+
+                                                        <input id="android_version-input" type="text"
+                                                               name="android_version"
+                                                               class="form-control"
+                                                               value="{{ old('android_version', setting('android_version')) }}"
+                                                               placeholder="1.0.0"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('android_version')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="android_force_update">{{trans('settings.Ios Force Update')}}</label>
+
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                               id="android_force_update" name="android_force_update"
+                                                               @if(setting('android_force_update')) checked @endif>
+                                                        <label class="custom-control-label"
+                                                               for="android_force_update">{{trans('settings.checked')}}</label>
+                                                    </div>
+
+                                                </div>
+
+
+                                                <div class="col-lg-4 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="instagram-input">{{trans('settings.Ios Url')}}</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" id="basic-addon5">
+                                                                <i class="font-medium-2 fa fa-apple"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input name="Ios Url" id="Ios Url-input" type="text"
+                                                               class="form-control"
+                                                               value="{{ old('Ios Url', setting('ios_url')) }}"
+                                                               placeholder="https://apps.apple.com/us/app/example/id4525252"
+                                                               aria-describedby="basic-addon5"/>
+                                                        @error('Ios Url')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="twitter-input">{{trans('settings.ios_version')}}</label>
+                                                    <div class="input-group input-group-merge">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text" id="basic-addon3">
+                                                                <i class="font-medium-2 fa fa-apple"></i>
+                                                            </span>
+                                                        </div>
+
+                                                        <input id="ios_version-input" type="text"
+                                                               name="ios_version"
+                                                               class="form-control"
+                                                               value="{{ old('android_version', setting('ios_version')) }}"
+                                                               placeholder="1.0.0"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('ios_version')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-4 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="ios_force_update">{{trans('settings.Ios Force Update')}}</label>
+
+                                                    <div class="custom-control custom-checkbox">
+                                                        <input type="checkbox" class="custom-control-input"
+                                                               id="ios_force_update" name="ios_force_update"
+                                                               @if(setting('ios_force_update')) checked @endif>
+                                                        <label class="custom-control-label"
+                                                               for="ios_force_update">{{trans('settings.checked')}}</label>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-lg-6 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="update_title_en">{{trans('settings.update_title_en')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <input id="update_title_en-input" type="text"
+                                                               name="update_title_en"
+                                                               class="form-control"
+                                                               value="{{ old('update_title_en', setting('update_title_en')) }}"
+                                                               placeholder="{{trans('settings.update_title_en')}}"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('update_title_en')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="twitter-update_body_en">{{trans('settings.update_body_en')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <textarea rows="3" id="update_body-input" name="update_body"
+                                                                  class="form-control"
+                                                                  placeholder="{{trans('settings.update_body_en')}}"
+                                                                  aria-describedby="basic-addon3">{{ old('update_body_en', setting('update_body_en')) }}</textarea>
+                                                        @error('update_body_en')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-6 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="update_title_en">{{trans('settings.update_title_ar')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <input id="update_title_en-input" type="text"
+                                                               name="update_title_ar"
+                                                               class="form-control"
+                                                               value="{{ old('update_title_ar', setting('update_title_ar')) }}"
+                                                               placeholder="{{trans('settings.update_title_ar')}}"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('update_title_ar')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6 col-md-6 form-group mb-2">
+                                                    <label
+                                                        for="twitter-update_body_en">{{trans('settings.update_body_ar')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <textarea rows="3" id="update_body-input" name="update_body"
+                                                                  class="form-control"
+                                                                  placeholder="{{trans('settings.update_body_ar')}}"
+                                                                  aria-describedby="basic-addon3">{{ old('update_body_ar', setting('update_body_ar')) }}</textarea>
+                                                        @error('update_body_ar')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
                                             </div>
-                                            {{ trans('main.save') }}
-                                        </button>
-                                    </div>
+                                            <!-- users edit social form ends -->
+                                        </div>
+                                        <!-- app Tab ends -->
+
+                                        <!-- credentials Tab starts -->
+                                        <div class="tab-pane" id="credentials" aria-labelledby="credentials-tab"
+                                             role="tabpanel">
+                                            <!-- users edit social form start -->
+                                            <div class="row">
+                                                <div class="col-lg-12 col-md-12 form-group mb-2">
+                                                    <label
+                                                        for="twitter-input">{{trans('settings.Stripe Public test')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <input id="stripe_public_key_test-input" type="text"
+                                                               name="stripe_public_key_test"
+                                                               class="form-control"
+                                                               value="{{ old('stripe_public_key_test', setting('stripe_public_key_test')) }}"
+                                                               placeholder="stripe_public_key_test"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('stripe_public_key_test')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-12 col-md-12 form-group mb-2">
+                                                    <label
+                                                        for="twitter-input">{{trans('settings.Stripe Secret test')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <input id="stripe_secret_key_test-input" type="text"
+                                                               name="stripe_secret_key_test"
+                                                               class="form-control"
+                                                               value="{{ old('stripe_secret_key_test', setting('stripe_secret_key_test')) }}"
+                                                               placeholder="stripe_secret_key_test"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('stripe_secret_key_test')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-12 col-md-12 form-group mb-2">
+                                                    <label
+                                                        for="twitter-input">{{trans('settings.Stripe Public live')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <input id="stripe_public_key_live-input" type="text"
+                                                               name="stripe_public_key_live"
+                                                               class="form-control"
+                                                               value="{{ old('stripe_public_key_live', setting('stripe_public_key_live')) }}"
+                                                               placeholder="stripe_public_key_live"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('stripe_public_key_live')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-12 col-md-12 form-group mb-2">
+                                                    <label
+                                                        for="twitter-input">{{trans('settings.Stripe Secret live')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <input id="stripe_secret_key_live-input" type="text"
+                                                               name="stripe_secret_key_live"
+                                                               class="form-control"
+                                                               value="{{ old('stripe_secret_key_live', setting('stripe_secret_key_live')) }}"
+                                                               placeholder="stripe_secret_key_live"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('stripe_secret_key_live')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+
+                                                <div class="col-lg-12 col-md-12 form-group mb-2">
+                                                    <label
+                                                        for="twitter-input">{{trans('settings.Stripe Secret live')}}</label>
+                                                    <div class="input-group input-group-merge">
+
+                                                        <input id="stripe_secret_key_live-input" type="text"
+                                                               name="stripe_secret_key_live"
+                                                               class="form-control"
+                                                               value="{{ old('stripe_secret_key_live', setting('stripe_secret_key_live')) }}"
+                                                               placeholder="stripe_secret_key_live"
+                                                               aria-describedby="basic-addon3"/>
+                                                        @error('stripe_secret_key_live')
+                                                        <div class="text-danger">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-lg-12 col-md-12 form-group mb-2 d-flex align-items-center">
+
+                                                    <label for="payment_is_live " class="me-2">{{ trans('settings.payment_is_live') }}</label>
+                                                    <div class="form-check m-0 p-1">
+                                                        <div class="custom-control custom-checkbox">
+                                                            <input type="checkbox" name="payment_is_live"
+                                                                   class="custom-control-input" id="payment_is_live"
+                                                                   @if(setting('payment_is_live')==1) checked @endif>
+                                                            <label class="custom-control-label"
+                                                                   for="payment_is_live">{{trans('settings.yes')}}</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- users edit social form ends -->
+                                            </div>
+                                            <!-- credentials Tab ends -->
+
+
+                                        </div>
+
+                                        <div class="col-12 d-flex flex-sm-row flex-column mt-2 justify-content-end">
+                                            <button type="button" class="btn btn-primary mb-1 mb-sm-0 mr-0 mr-sm-1"
+                                                    id="submitBtn">
+                                                <div id="spinner"
+                                                     class="spinner-border spinner-border-sm text-light"
+                                                     role="status" style="display: none;">
+                                                    <span class="sr-only"></span>
+                                                </div>
+                                                {{ trans('main.save') }}
+                                            </button>
+                                        </div>
 
 
                                 </form>
@@ -304,6 +604,7 @@
             </div>
         </div>
     </div>
+
 
 
 
