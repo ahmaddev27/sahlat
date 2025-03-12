@@ -21,20 +21,30 @@
         <div class="card">
 
             <div class="card-datatable table-responsive p-2">
-                <div class="row">
-                    <div class="col-sm-12 col-md-3 mb-2">
-                        <code style="font-family: 'Tajawal';"
-                              class="text-body p-1 m-2">{{ trans('main.send-notifications') }}</code>
-                        <button type="button" title="{{ trans('notifications.new_notification') }}"
-                                id="notify-users-btn" disabled
-                                class="btn btn-icon btn-icon rounded-circle btn-warning waves-effect waves-float waves-light">
-                            <i class="font-medium-3" data-feather='bell'></i>
-                        </button>
+
+                <div class="row g-3 align-items-center text">
+                    <!-- Notification Button -->
+                    <div class="col-12 col-md-3 text-center text-md-start mb-1">
+                        <div class="d-flex align-items-center justify-content-between p-1 bg-dark rounded shadow-sm">
+            <span class="text-body" style="font-family: 'Tajawal'; font-weight: bold;">
+                {{ trans('main.send-notifications') }}
+            </span>
+                            <button type="button"
+                                    title="{{ trans('notifications.new_notification') }}"
+                                    id="notify-users-btn"
+                                    disabled
+                                    class="btn btn-warning btn-icon rounded-circle waves-effect">
+                                <i class="font-medium-3" data-feather="bell"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="col-sm-12 col-md-4 mb-2">
-                        <label>{{ trans('company.address') }}</label>
-                        <select id="city-filter" class="select2 form-control">
+                    <!-- City Filter -->
+                    <div class="col-12 col-md-2 mb-1">
+                        <label for="city-filter" class="form-label fw-bold">
+                            {{ trans('company.address') }}
+                        </label>
+                        <select id="city-filter" class="form-select select2">
                             <option selected disabled>{{ trans('main.change') }}</option>
                             <option value="">{{ trans('main.all') }}</option>
                             @foreach(cities() as $key => $city)
@@ -43,6 +53,8 @@
                         </select>
                     </div>
                 </div>
+
+
 
                 <!-- Notification Modal -->
                 <div class="modal fade text-left" id="notificationModal" tabindex="-1" role="dialog"

@@ -40,29 +40,49 @@ class UserController extends Controller
                 return '<input type="checkbox" class="user-checkbox" value="' . $item->id . '">';
             })
             ->editColumn('action', function ($item) {
-                return '
-                 <a href="' . route('users.view', $item->id) . '" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
-               title="view">
+                $statusChecked = $item->is_active == 1 ? 'checked' : '';
+                $statusValue = $item->is_active == 1 ? '0' : '1';
 
+                return '<div class="custom-control custom-switch custom-switch-primary d-inline">
+            <input type="checkbox"
+                   class="custom-control-input change-status-btn"
+                   id="customSwitch' . $item->id . '"
+                   data-id="' . $item->id . '"
+                   data-status="' . $statusValue . '"
+                   ' . $statusChecked . '>
+            <label class="custom-control-label" for="customSwitch' . $item->id . '">
+                <span class="switch-icon-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <span class="switch-icon-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </span>
+            </label>
+        </div>
+        <a href="' . route('users.view', $item->id) . '" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light" title="View">
             <i class="fa fa-eye text-body"></i>
         </a>
 
-
-        <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
-                id="edit" model_id="' . $item->id . '" data-toggle="modal" title="edit">
+        <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light" id="edit" data-model-id="' . $item->id . '" data-toggle="modal" title="Edit">
             <i class="fa fa-edit text-body"></i>
         </button>
 
-         <a  data-id="' . $item->id . '" data-status="' . ($item->is_active == 1 ? '0' : '1') . '" class="change-status-btn btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light" title="change status">
-            <i class="fa fa-toggle-on text-body"></i>
-        </a>
 
-        <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
-                id="delete" route="' . route('users.delete') . '" model_id="' . $item->id . '" data-toggle="modal" title="delete">
+
+        <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light" id="delete" data-route="' . route('users.delete') . '" data-model-id="' . $item->id . '" data-toggle="modal" title="Delete">
             <i class="fa fa-trash text-body"></i>
         </button>
+
+
+
     ';
             })
+
             ->editColumn('gender', function ($item) {
                 return gender($item->gender);
             })

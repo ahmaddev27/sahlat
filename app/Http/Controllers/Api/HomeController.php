@@ -29,6 +29,7 @@ class HomeController extends Controller
     use ApiResponsePaginationTrait;
 
 
+
     public function companies(Request $request)
     {
 
@@ -60,7 +61,7 @@ class HomeController extends Controller
             ->exists();
 
 
-        if (!$existingView) {
+        if (!$existingView && $userId) {
             CompanyViewer::create([
                 'company_id' => $company->id,
                 'user_id' => $userId,
@@ -83,7 +84,7 @@ class HomeController extends Controller
 
 
         if ($housekeepers->isEmpty()) {
-            return $this->apiRespose([], trans('messages.no t_found'), false, 404);
+            return $this->apiRespose([], trans('messages.not_found'), false, 404);
         }
 
 
@@ -111,7 +112,7 @@ class HomeController extends Controller
             ->exists();
 
 
-        if (!$existingView) {
+        if (!$existingView && $userId) {
             HouseKeeperViewer::create([
                 'houseKeeper_id' => $houseKeeper->id,
                 'user_id' => $userId,

@@ -80,8 +80,7 @@ Route::controller(AuthController::class)->group(function () {
 // Authenticated Routes (requires sanctum auth)
 // ==================================================================
 
-Route::middleware('auth:sanctum')->group(function () {
-
+//Route::middleware('auth:sanctum')->group(function () {
     // -------------------------------
     // AuthController Routes
     // -------------------------------
@@ -110,11 +109,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/housekeepers', 'housekeepers');
         Route::get('/housekeeper/{id}', 'housekeeper');
         Route::get('/settings', 'settings');
-        Route::post('/contact', 'contact');
         Route::post('/search', 'search');
         Route::get('/topRatedHousekeeper', 'topRatedHousekeeper');
         Route::get('/mostOrderedAssurances', 'mostOrderedAssurances');
-        Route::get('/notifications', 'notification');
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/notifications', 'notification');
+            Route::post('/contact', 'contact');
+        });
     });
 
     // -------------------------------
@@ -164,4 +165,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
     });
 
-});
+//});
