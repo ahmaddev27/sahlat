@@ -52,7 +52,7 @@
                                 <tr>
 
                                     <td>
-                                        <img src="{{$banner->getAvatar()}}" class="mr-75" height="120" width="200" alt="{{$banner->title}} ">
+                                        <img src="{{$banner->getAvatar()}}" class="mr-75"    height="175" alt="{{$banner->title}} ">
 
                                     </td>
 

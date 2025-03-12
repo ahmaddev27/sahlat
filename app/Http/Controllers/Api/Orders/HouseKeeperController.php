@@ -29,7 +29,8 @@ class HouseKeeperController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->apiRespose($validator->errors()->toArray(), 'Validation failed.', false, 400);
+
+            return $this->apiRespose($validator->errors()->toArray(),  trans('messages.order failed'), false, 400);
         }
 
         // Retrieve housekeeper
@@ -47,7 +48,7 @@ class HouseKeeperController extends Controller
       $housekeeper = HouseKeeper::where('id', $request->housekeeper_id)->where('status', 0)->first();
 
         if (!$housekeeper) {
-            return $this->apiRespose(['error'=>['housekeeper doesnt exists']], 'housekeeper doesnt exists.', false, 400);
+            return $this->apiRespose(['error'=> [trans('messages.housekeeper not found')]], trans('messages.housekeeper not found'), false, 400);
         }
         // Ensure the user doesn't already have an active order for this housekeeper
         $existingOrder = HouseKeeperOrder::where('user_id', Auth::id())
@@ -56,7 +57,7 @@ class HouseKeeperController extends Controller
             ->first();
 
         if ($existingOrder) {
-            return $this->apiRespose(['error'=>['You already have an active order for this housekeeper']], 'You already have an active order for this housekeeper.', false, 400);
+            return $this->apiRespose(['error'=>[ trans('messages.pending-order')]],  trans('messages.pending-order'), false, 400);
         }
 
         $salary = $housekeeper->salary;
@@ -86,7 +87,8 @@ class HouseKeeperController extends Controller
                 [
                     'order_id' => $houseOrder->id,
                     'type' => 'housekeeper',
-                    'message' => 'housekeeper order created successfully. Proceed to payment.',
+                    trans('messages.success'),
+
                 ],
                 trans('messages.success'),
                 true,
@@ -98,7 +100,7 @@ class HouseKeeperController extends Controller
             DB::rollBack();
             return $this->apiRespose(
                 ['error' => [$e->getMessage()]],
-                'An error occurred while processing the order.',
+                'messages.error_occurred',
                 false,
                 500
             );

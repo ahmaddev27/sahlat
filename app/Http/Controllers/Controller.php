@@ -7,7 +7,6 @@ use App\Models\Notification;
 use App\Models\OrderAttachment;
 use App\Models\Payment;
 use App\Notifications\OrderNotification;
-use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
@@ -34,23 +33,23 @@ class Controller extends BaseController
         // Define status messages and icons
         $statusMessages = [
             1 => [
-                'title' => 'Payment Processed',
-                'message' => 'Your payment for the order has been processed successfully',
+                'title' => trans('notifications.payment_processed_title'),
+                'message' => trans('notifications.payment_processed_message'),
                 'icon' => asset('icons/payment.png'),
             ],
             2 => [
-                'title' => 'Payment Processed',
-                'message' => 'Your payment for the order has been processed successfully',
+                'title' => trans('notifications.payment_processed_title'),
+                'message' => trans('notifications.payment_processed_message'),
                 'icon' => asset('icons/payment.png'),
             ],
             3 => [
-                'title' => 'Order Completed',
-                'message' => 'Your order has been completed successfully',
+                'title' => trans('notifications.order_completed_title'),
+                'message' => trans('notifications.order_completed_message'),
                 'icon' => asset('icons/complete.png'),
             ],
             4 => [
-                'title' => 'Order Closed',
-                'message' => 'Your order has been closed',
+                'title' => trans('notifications.order_closed_title'),
+                'message' => trans('notifications.order_closed_message'),
                 'icon' => asset('icons/cancel.png'),
             ],
         ];
@@ -143,9 +142,10 @@ class Controller extends BaseController
                 ]);
 
 
-                $message = 'Your payment for order has been processed successfully';
+                $title= trans('notifications.payment_processed_title');
+                $message=trans('notifications.payment_processed_message');
                 $image = asset('icons/payment-required.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'assurance', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'assurance', $image);
                 break;
 
             case 2:
@@ -166,9 +166,10 @@ class Controller extends BaseController
                 }
 
 
-                $message = 'Your payment for order has been processed successfully';
+                $title = trans('notifications.payment_processed_title');
+                $message =trans('notifications.payment_processed_message');
                 $image = asset('icons/payment.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'assurance', $image);
+                $this->createNotification($user,$title, $message, $link, $order->id, 'assurance', $image);
                 break;
 
 
@@ -181,18 +182,19 @@ class Controller extends BaseController
                 ]);
 
 
+                $title = trans('notifications.order_completed_title');
                 $message = 'Your Order has been Completed successfully';
                 $image = asset('icons/complete.png');
-                $this->createNotification($user, 'Order Completed', $message, $link, $order->id, 'assurance', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'assurance', $image);
                 break;
 
 
             case 4:
                 $order->note = $request->note;
                 $image = asset('icons/cancel.png');
-                $message = 'Your Order has been Closed';
-
-                $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'assurance', $image);
+                $title = trans('notifications.order_closed_title');
+                $message = trans('notifications.order_closed_message');
+                $this->createNotification($user, $title, $message, $link, $order->id, 'assurance', $image);
                 break;
         }
 
@@ -250,7 +252,9 @@ class Controller extends BaseController
                         'amount' => $request->payment_value,
                     ]);
 
-                    $this->createNotification($user, 'Payment Processed', 'Your payment has been processed successfully', $link, $order->id, 'violation', asset('icons/payment-required.png'));
+                    $title= trans('notifications.payment_processed_title');
+                    $message=trans('notifications.payment_processed_message');
+                    $this->createNotification($user, $title, $message, $link, $order->id, 'violation', asset('icons/payment-required.png'));
                     break;
 
 
@@ -269,9 +273,9 @@ class Controller extends BaseController
                             'payment_value' => $order->value,
                         ]);
 
-
-
-                        $this->createNotification($user, 'Payment Processed', 'Your  payment has been processed successfully', $link, $order->id, 'violation', asset('icons/payment.png'));
+                        $title = trans('notifications.payment_processed_title');
+                        $message =trans('notifications.payment_processed_message');
+                        $this->createNotification($user, $title, $message, $link, $order->id, 'violation', asset('icons/payment.png'));
                     } else {
                         throw new \Exception("No payment record found for order ID: {$order->id}");
                     }
@@ -286,10 +290,12 @@ class Controller extends BaseController
                         ]);
 
 
+                        $title = trans('notifications.order_completed_title');
+                        $message =trans('notifications.payment_processed_message');
                         $this->createNotification(
                             $user,
-                            'Order Complete',
-                            'Your Order has been Completed successfully',
+                            $title,
+                            $message,
                             $link,
                             $order->id,
                             'violation',
@@ -302,7 +308,9 @@ class Controller extends BaseController
 
                 case 4: // Close the order with a note
                     $order->update(['note' => $request->note]);
-                    $this->createNotification($user, 'Order Closed', 'Your Order has been Closed', $link, $order->id, 'violation', asset('icons/cancel.png'));
+                    $title = trans('notifications.order_closed_title');
+                    $message = trans('notifications.order_closed_message');
+                    $this->createNotification($user, $title, $message, $link, $order->id, 'violation', asset('icons/cancel.png'));
                     break;
 
                 default:
@@ -365,9 +373,10 @@ class Controller extends BaseController
                     'amount' => $payment->remaining_amount,
                 ]);
 
-                $message = 'Your payment for order has been processed successfully';
+                $title= trans('notifications.payment_processed_title');
+                $message=trans('notifications.payment_processed_message');
                 $image = asset('icons/payment-required.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper', $image);
                 break;
 
 
@@ -388,10 +397,10 @@ class Controller extends BaseController
                 ]);
 
 
-
-                $message = 'Your payment for order has been processed successfully';
+                $title = trans('notifications.payment_processed_title');
+                $message =trans('notifications.payment_processed_message');
                 $image = asset('icons/payment.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper', $image);
                 break;
 
 
@@ -407,16 +416,18 @@ class Controller extends BaseController
 
                 $order->housekeeper->update(['status' => 1,]);
 
-                $message = 'Your Order has been Completed successfully';
+                $title = trans('notifications.order_completed_title');
+                $message =trans('notifications.payment_processed_message');
                 $image = asset('icons/complete.png');
-                $this->createNotification($user, 'Order Completed', $message, $link, $order->id, 'housekeeper', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper', $image);
                 break;
 
 
             case 4:
-                $message = 'Your order has been closed';
+                $title = trans('notifications.order_closed_title');
+                $message = trans('notifications.order_closed_message');
                 $image = asset('icons/cancel.png');
-                $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'housekeeper', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper', $image);
                 break;
         }
 
@@ -468,9 +479,10 @@ class Controller extends BaseController
                     'amount' => $payment->remaining_amount,
                 ]);
 
-                $message = 'Your payment for order has been processed successfully';
+                $title= trans('notifications.payment_processed_title');
+                $message=trans('notifications.payment_processed_message');
                 $image = asset('icons/payment-required.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper_hourly_order', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper_hourly_order', $image);
                 break;
 
             case 2:
@@ -490,9 +502,10 @@ class Controller extends BaseController
                 ]);
 
 
-                $message = 'Your payment for order has been processed successfully';
+                $title = trans('notifications.payment_processed_title');
+                $message =trans('notifications.payment_processed_message');
                 $image = asset('icons/payment-required.png');
-                $this->createNotification($user, 'Payment Processed', $message, $link, $order->id, 'housekeeper_hourly_order', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper_hourly_order', $image);
 
                 break;
 
@@ -507,17 +520,19 @@ class Controller extends BaseController
                 ]);
 
 
-                $message = 'Your Order has been Completed successfully';
+                $title = trans('notifications.order_completed_title');
+                $message =trans('notifications.payment_processed_message');
                 $image = asset('icons/complete.png');
-                $this->createNotification($user, 'Order Completed', $message, $link, $order->id, 'housekeeper_hourly_order', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper_hourly_order', $image);
 
                 break;
 
 
             case 4:
-                $message = 'Your order has been closed';
+                $title = trans('notifications.order_closed_title');
+                $message = trans('notifications.order_closed_message');
                 $image = asset('icons/cancel.png');
-                $this->createNotification($user, 'Order Closed', $message, $link, $order->id, 'housekeeper_hourly_order', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper_hourly_order', $image);
                 break;
 
             default:

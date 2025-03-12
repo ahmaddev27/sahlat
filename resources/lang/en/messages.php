@@ -6,12 +6,12 @@ return [
     'email-email' => 'Invalid email format',
     'about' => 'About Us is required',
     'error' => 'An error occurred',
-    'success' => 'Successful',
+    'success' => 'Successfully',
     'updated' => 'Updated',
     'success-update' => 'Updated successfully',
     'success-created' => 'Added successfully',
     'sure?' => 'Are you sure?',
-    'change_status_confirm'=>'Are you sure you want to change the status?',
+    'change_status_confirm' => 'Are you sure you want to change the status?',
     'yes_change_it' => 'Yes, change it!',
     'wont' => 'You wont be able to restore this',
     'delete' => 'Delete',
@@ -70,13 +70,24 @@ return [
     'ok' => 'ok',
 
 
+    'sms-sent-success' => 'SMS Sent Successfully',
+    'fail-sms' => 'Failed to send SMS',
+    'invalid-url' => 'invalid url',
+    'enter-payment' => 'Enter Payment Value',
+    'Payment value cannot exceed the order value' => 'Payment value cannot exceed the order value',
+    'invalid-payment' => 'Invalid payment Value',
+    'order failed' => 'Order Failed',
+    'invalid type' => 'Invalid order type',
+    'Order not found' => 'Order not found',
+    'payed' => 'This order has already been paid and cannot be paid again',
+    'pay>value' => 'Payment value cannot exceed the order value',
+    'pay-success' => 'Payment Successfully',
+    'error_occurred' => 'Error',
+    'mismatch' => 'Mismatch between metadata and request data',
+    'Assurance not found' => 'Assurance not found',
+    'pending-order' => 'You already have an active or pending order for this type.',
+    'housekeeper not found' => 'Housekeeper not found',
 
-    'sms-sent-success'=>'SMS Sent Successfully',
-    'fail-sms'=>'Failed to send SMS',
-    'invalid-url'=>'invalid url',
-    'enter-payment'=>'Enter Payment Value',
-    'Payment value cannot exceed the order value'=>'Payment value cannot exceed the order value',
-    'invalid-payment'=>'Invalid payment Value'
 
 ];
 

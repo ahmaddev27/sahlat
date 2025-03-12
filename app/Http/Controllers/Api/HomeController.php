@@ -77,7 +77,7 @@ class HomeController extends Controller
     public function housekeepersCompany(Request $request, $id)
     {
 
-        $query = HouseKeeper::where('company_id', $id);
+        $query = HouseKeeper::where('company_id', $id)->where('status', 0);
         $perPage = $request->input('per_page', 5);
         $housekeepers = $query->paginate($perPage);
 
@@ -247,7 +247,7 @@ class HomeController extends Controller
                         Assurance::where('title', 'LIKE', "%$query%")->get()
                     ),
                     'HouseKeeper' => HouseKeeperResources::collection(
-                        HouseKeeper::where('name', 'LIKE', "%$query%")->get()
+                        HouseKeeper::where('name', 'LIKE', "%$query%")->where('status', 0)->get()
                     ),
                     'Company' => CompanyResources::collection(
                         Company::where('name', 'LIKE', "%$query%")->get()

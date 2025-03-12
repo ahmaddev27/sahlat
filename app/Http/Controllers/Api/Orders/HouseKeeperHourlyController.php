@@ -33,12 +33,8 @@ class HouseKeeperHourlyController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->apiRespose(
-                $validator->errors(),
-                implode(" ", $validator->errors()->all()),
-                false,
-                400
-            );
+            $errors = $validator->errors()->toArray();
+            return $this->apiRespose($errors, trans('messages.order failed'), false, 400);
         }
 
         // Check if user already has an active order for this company
@@ -91,7 +87,7 @@ class HouseKeeperHourlyController extends Controller
                     'order_id' => $houseOrder->id,
                     'type' => 'housekeeper_hourly_order',
                     'totalPrice' => $totalPrice,
-                    'message' => 'Housekeeper order created successfully. Proceed to payment.',
+                    'message' =>trans('messages.success'),
                 ],
                 trans('messages.success'),
                 true,
@@ -101,7 +97,7 @@ class HouseKeeperHourlyController extends Controller
             DB::rollBack();
             return $this->apiRespose(
                 ['error' => [$e->getMessage()]],
-                'An error occurred while processing the order.',
+                'messages.error_occurred',
                 false,
                 500
             );

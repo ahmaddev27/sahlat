@@ -47,7 +47,7 @@ class OrderController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->apiRespose($validator->errors(), 'Validation failed', false, 400);
+            return $this->apiRespose($validator->errors(), trans('messages.order failed'), false, 400);
         }
 
         // Define the mapping of order types to their corresponding models and resources
@@ -62,7 +62,7 @@ class OrderController extends Controller
         $orderMapping = $orderMappings[$request->type] ?? null;
 
         if (!$orderMapping) {
-            return $this->apiRespose(['Invalid order type'], 'Invalid order type', false, 400);
+            return $this->apiRespose(['error'=>[trans('messages.invalid type')]], trans('messages.invalid type'), false, 400);
         }
 
         $orderModel = $orderMapping['model'];
@@ -72,19 +72,19 @@ class OrderController extends Controller
         $order = $orderModel::find($request->order_id);
 
         if (!$order) {
-            return $this->apiRespose(['error' => ['Order not found']], 'Order not found', false, 404);
+            return $this->apiRespose(['error' => [trans('messages.Order not found')]], trans('messages.Order not found'), false, 404);
         }
 
         // Check if a payment already exists for this order
         $latestPayment = Payment::where('order_id', $order->id)->where('type', $request->type)->first();
 
         if ($latestPayment) {
-            return $this->apiRespose(['error' => ['This order has already been paid and cannot be paid again']], 'This order has already been paid and cannot be paid again.', false, 400);
+            return $this->apiRespose(['error' => [trans('messages.payed')]], trans('messages.payed'), false, 400);
         }
 
         // Ensure the payment value does not exceed the order value
         if ($request->payment_value > $order->value) {
-            return $this->apiRespose(['error' => ['Payment value cannot exceed the order value']], 'Payment value cannot exceed the order value.', false, 400);
+            return $this->apiRespose(['error' => [trans('messages.pay>value')]], trans('messages.pay>value'), false, 400);
         }
 
         DB::beginTransaction();
@@ -123,11 +123,11 @@ class OrderController extends Controller
             DB::commit();
 
             // Return the appropriate resource
-            return $this->apiRespose(new $orderResource($order), 'Payment successful', true, 200);
+            return $this->apiRespose(new $orderResource($order), trans('messages.pay-success'), true, 200);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error occurred while processing payment: ' . $e->getMessage());
-            return $this->apiRespose([], trans('messages.error_occurred'), false, 500);
+            return $this->apiRespose(['error'=>[ trans('messages.error_occurred')]], trans('messages.error_occurred'), false, 500);
         }
     }
 
@@ -169,7 +169,7 @@ class OrderController extends Controller
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->apiRespose($validator->errors(), 'Validation failed', false, 400);
+            return $this->apiRespose($validator->errors(), trans('messages.order failed'), false, 400);
         }
 
         $paymentIntentId = $request->input('payment_intent_id');
@@ -191,12 +191,12 @@ class OrderController extends Controller
 
             if (!$stripeOrderNumber || $stripeOrderNumber !== $orderNumber) {
                 Log::error("Order number mismatch: Request ($orderNumber) vs Metadata ($stripeOrderNumber)");
-                return $this->apiRespose(['error' => ['Mismatch between metadata and request']], 'Mismatch between metadata and request', false, 400);
+                return $this->apiRespose(['error' => [trans('messages.mismatch')]], trans('messages.mismatch'), false, 400);
             }
 
             if ($stripeType !== $requestType) {
                 Log::error("Type mismatch: Request ($requestType) vs Metadata ($stripeType)");
-                return $this->apiRespose(['error' => ['Mismatch between metadata and request']], 'Mismatch between metadata and request', false, 400);
+                return $this->apiRespose(['error' => [trans('messages.mismatch')]], trans('messages.mismatch'), false, 400);
             }
 
             $orderMappings = [
@@ -208,7 +208,7 @@ class OrderController extends Controller
 
             if (!array_key_exists($requestType, $orderMappings)) {
                 Log::error("Invalid type provided: $requestType");
-                return $this->apiRespose(['error' => ['Invalid type provided']], 'Invalid type provided', false, 400);
+                return $this->apiRespose(['error' => [trans('messages.invalid type')]], trans('messages.invalid type'), false, 400);
             }
 
             $modelClass = $orderMappings[$requestType]['model'];
@@ -217,7 +217,7 @@ class OrderController extends Controller
             $order = $modelClass::find($orderNumber);
             if (!$order) {
                 Log::error("Order not found: Order Number ($orderNumber) in Model ($modelClass)");
-                return $this->apiRespose(['error' => ['Order not found']], 'Order not found', false, 404);
+                return $this->apiRespose(['error' => [trans('messages.Order not found')]], trans('messages.Order not found'), false, 404);
             }
 
             $payment = DB::transaction(function () use ($order, $paymentIntent, $orderNumber, $requestType, $paymentIntentId) {
@@ -262,7 +262,11 @@ class OrderController extends Controller
                 return $payment;
             });
 
-            return $this->apiRespose(new $resourceClass($order), 'Payment status verified and recorded successfully', true, 200);
+            $order->update(['status' => 2]);
+            $this->handleStatus($order, $requestType);
+
+
+            return $this->apiRespose(new $resourceClass($order), trans('messages.pay-success'), true, 200);
 
         } catch (\Exception $e) {
             Log::error("Exception occurred: " . $e->getMessage(), [

@@ -97,7 +97,7 @@
                                                     <img
                                                         src="{{ setting('icon') !='' ? url('storage').'/'.setting('icon') :  url('blank.png') }}"
                                                         alt="icon avatar"
-                                                        class="img-fluid user-avatar icon users-avatar-shadow rounded mr-2 my-25 cursor-pointer mt-2"
+                                                        class="img-fluid user-avatar icon users-avatar-shadow rounded mr-2 mt-2 cursor-pointer"
                                                         style="max-width: 90%; height: 120px"/>
                                                 </div>
 
@@ -134,7 +134,7 @@
 
                                             <!-- users edit account form start -->
                                             <div class="row">
-                                                <div class="col-md-3">
+                                                <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label for="name">{{trans('settings.name')}}</label>
                                                         <input type="text" class="form-control"
@@ -146,7 +146,7 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                <div class="col-md-3">
+                                                <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label for="email">{{trans('settings.email')}}</label>
                                                         <input type="text" class="form-control"
@@ -158,7 +158,7 @@
                                                         @enderror
                                                     </div>
                                                 </div>
-                                                <div class="col-md-3">
+                                                <div class="col-md-4">
                                                     <div class="form-group">
                                                         <label for="whatsapp">{{trans('settings.whatsapp')}}</label>
                                                         <input type="number" class="form-control"
@@ -171,18 +171,18 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="col-md-3">
-                                                    <div class="form-group">
-                                                        <label for="whatsapp">{{trans('settings.commission')}}</label>
-                                                        <input type="number" class="form-control"
-                                                               placeholder="{{trans('settings.commission')}}"
-                                                               value="{{ old('commission', setting('commission')) }}"
-                                                               name="commission" id="commission"/>
-                                                        @error('commission')
-                                                        <div class="text-danger">{{ $message }}</div>
-                                                        @enderror
-                                                    </div>
-                                                </div>
+{{--                                                <div class="col-md-3">--}}
+{{--                                                    <div class="form-group">--}}
+{{--                                                        <label for="whatsapp">{{trans('settings.commission')}}</label>--}}
+{{--                                                        <input type="number" class="form-control"--}}
+{{--                                                               placeholder="{{trans('settings.commission')}}"--}}
+{{--                                                               value="{{ old('commission', setting('commission')) }}"--}}
+{{--                                                               name="commission" id="commission"/>--}}
+{{--                                                        @error('commission')--}}
+{{--                                                        <div class="text-danger">{{ $message }}</div>--}}
+{{--                                                        @enderror--}}
+{{--                                                    </div>--}}
+{{--                                                </div>--}}
 
 
                                                 <div class="col-12 mt-3">
@@ -638,10 +638,10 @@
                                 required: true,
                                 email: true
                             },
-
-                            commission: {
-                                required: true
-                            },
+                            //
+                            // commission: {
+                            //     required: true
+                            // },
 
                         },
 

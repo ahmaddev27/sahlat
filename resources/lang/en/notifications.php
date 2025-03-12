@@ -40,6 +40,12 @@ return [
 
     'please pay for your order' => 'Please pay for your order',
 
+    'payment_processed_title' => 'Payment Processed',
+    'payment_processed_message' => 'Your payment for the order has been processed successfully',
+    'order_completed_title' => 'Order Completed',
+    'order_completed_message' => 'Your order has been completed successfully',
+    'order_closed_title' => 'Order Closed',
+    'order_closed_message' => 'Your order has been closed',
 
 ];
 

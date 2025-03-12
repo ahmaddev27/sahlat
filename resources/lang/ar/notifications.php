@@ -41,4 +41,12 @@ return [
 
 
 
+    'payment_processed_title' => 'تمت معالجة الدفع',
+    'payment_processed_message' => 'تمت معالجة دفعتك للطلب بنجاح',
+    'order_completed_title' => 'تم إكمال الطلب',
+    'order_completed_message' => 'تم إكمال طلبك بنجاح',
+    'order_closed_title' => 'تم إغلاق الطلب',
+    'order_closed_message' => 'تم إغلاق طلبك',
+
+
 ];

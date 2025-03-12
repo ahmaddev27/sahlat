@@ -35,14 +35,14 @@ class AssuranceController extends Controller
 
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
-            return $this->apiRespose($errors, 'Validation failed.', false, 400);
+            return $this->apiRespose($errors, trans('messages.order failed'), false, 400);
         }
 
         // Find the assurance
         $assurance = Assurance::find($request->assurance_id);
 
         if (!$assurance) {
-            return $this->apiRespose(['error' => ['Invalid Assurance ID']], 'Assurance not found.', false, 404);
+            return $this->apiRespose(['error' => [trans('messages.Assurance not found')]], trans('messages.Assurance not found'), false, 404);
         }
 
         // Ensure user doesn't already have an assurance order
@@ -52,7 +52,7 @@ class AssuranceController extends Controller
             ->first();
 
         if ($existingOrder) {
-            return $this->apiRespose(['error'=>['You already have an active or pending assurance order for this type.']], 'You already have an active or pending assurance order for this type.', false, 400);
+            return $this->apiRespose(['error'=>[trans('messages.pending-order')]], trans('messages.pending-order'), false, 400);
         }
 
 
@@ -81,7 +81,7 @@ class AssuranceController extends Controller
                 [
                     'order_id' => $order->id,
                     'type' => 'assurance',
-                    'message' => 'assurance created successfully. Proceed to payment.',
+                    'message' => trans('messages.success'),
                 ],
                 trans('messages.success'),
                 true,
@@ -94,7 +94,7 @@ class AssuranceController extends Controller
             DB::rollBack();
             return $this->apiRespose(
                 ['error' => [$e->getMessage()]],
-                'An error occurred while processing the order.',
+                'messages.error_occurred',
                 false,
                 500
             );

@@ -38,9 +38,9 @@ class ViolationController extends Controller
 
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
-            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-            return $this->apiRespose($errors, $errorMessage, false, 400);
+            return $this->apiRespose($errors, trans('messages.order failed'), false, 400);
         }
+
 
 //        $existingOrder = Violation::where('user_id', Auth::id())
 //            ->whereNotIn('status', [3, 4]) // Status either pending or closed
@@ -86,7 +86,7 @@ class ViolationController extends Controller
                 [
                     'order_id' => $violation->id,
                     'type' => 'violation',
-                    'message' => 'Violation created successfully. Proceed to payment.',
+                    'message' => trans('messages.success'),
                 ],
                 trans('messages.success'),
                 true,

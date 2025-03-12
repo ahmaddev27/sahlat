@@ -20,16 +20,16 @@
                     </div>
 
 
-                    <div class="mb-2 col-12 justify-content-center">
+                    <div class="mb-2 col-12 justify-content-center text-center">
                         <img
                             id="avatarPreview-edit-banner"
                             src="{{ url('blank.png') }}"
                             alt="icon avatar"
                             class="user-avatar icon users-avatar-shadow rounded mr-2 my-25 cursor-pointer"
-                            height="120" width="200"
+                            height="175"
                         />
                         <div class="media-body mt-50">
-                            <div class="col-12 d-flex mt-1 px-0">
+                            <div class="col-12 d-flex mt-1 px-0 justify-content-center ">
                                 <!-- File input (this will be triggered by the label) -->
                                 <input
                                     type="file"
