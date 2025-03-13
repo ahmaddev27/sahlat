@@ -24,52 +24,40 @@ class Controller extends BaseController
         $user = $order->user;
         $link = route("api.{$type}Records", $order->id);
 
-        // Store the current locale
-        $currentLocale = app()->getLocale();
-
-        // Set the locale to the user's language
-        app()->setLocale($user->lang);
 
         // Define status messages and icons
         $statusMessages = [
             1 => [
-                'title' => trans('notifications.payment_processed_title'),
-                'message' => trans('notifications.payment_processed_message'),
+                'key_title' => 'payment_processed_title',
+                'key_message' => 'payment_processed_message',
                 'icon' => asset('icons/payment.png'),
             ],
             2 => [
-                'title' => trans('notifications.payment_processed_title'),
-                'message' => trans('notifications.payment_processed_message'),
+                'key_title' => 'payment_processed_title',
+                'key_message' => 'payment_processed_message',
                 'icon' => asset('icons/payment.png'),
             ],
             3 => [
-                'title' => trans('notifications.order_completed_title'),
-                'message' => trans('notifications.order_completed_message'),
+                'key_title' => 'order_completed_title',
+                'key_message' => 'order_completed_message',
                 'icon' => asset('icons/complete.png'),
             ],
             4 => [
-                'title' => trans('notifications.order_closed_title'),
-                'message' => trans('notifications.order_closed_message'),
+                'key_title' => 'order_closed_title',
+                'key_message' => 'order_closed_message',
                 'icon' => asset('icons/cancel.png'),
             ],
         ];
 
+
         if (isset($statusMessages[$order->status])) {
             // Update payment details for statuses that require full payment
-            if (in_array($order->status, [2, 3])) {
-                $remaining_amount = 0;
-                $order->payment->update([
-                    'remaining_amount' => $remaining_amount,
-                    'status' => 2, // Marked as completely paid
-                    'payment_value' => $order->value,
-                ]);
-            }
 
             // Send notification
             $this->createNotification(
                 $user,
-                $statusMessages[$order->status]['title'],
-                $statusMessages[$order->status]['message'],
+                $statusMessages[$order->status]['key_title'],
+                $statusMessages[$order->status]['key_message'],
                 $link,
                 $order->id,
                 $type,
@@ -77,17 +65,21 @@ class Controller extends BaseController
             );
         }
 
-        // Revert the locale back to the original
-        app()->setLocale($currentLocale);
     }
 
 
     protected function createNotification($user, $title, $body, $link, $orderId, $type, $image)
     {
+        // Store the current locale
+        $currentLocale = app()->getLocale();
+
+        // Set the locale to the user's language
+        app()->setLocale($user->lang);
+
         // Send real-time notification via the notify method
         $user->notify(new OrderNotification(
-            trans('notifications.' . $title),
-            trans('notifications.' . $body),
+            trans('notifications.'.$title),
+            trans('notifications.'.  $body),
             $link,
             $orderId,
             $type,
@@ -105,6 +97,9 @@ class Controller extends BaseController
             'image' => $image,
             'status' => 0, // Pending status for notification
         ]);
+
+        app()->setLocale($currentLocale);
+
     }
 
 
@@ -114,17 +109,12 @@ class Controller extends BaseController
         $link = route('api.assuranceRecords', $order->id); // Modify based on your actual route
         $payment = $order->payment ?? null;
 
-        // Store the current locale
-        $currentLocale = app()->getLocale();
-
-        // Set the locale to the user's language
-        app()->setLocale($user->lang);
 
         switch ($order->status) {
 
             case 1:
 
-                $payment=Payment::create([
+                $payment = Payment::create([
                     'user_id' => $order->user_id,
                     'payment_value' => $request->payment_value,
                     'order_value' => $order->value,
@@ -142,8 +132,8 @@ class Controller extends BaseController
                 ]);
 
 
-                $title= trans('notifications.payment_processed_title');
-                $message=trans('notifications.payment_processed_message');
+                $title = 'payment_processed_title';
+                $message ='payment_processed_message';
                 $image = asset('icons/payment-required.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'assurance', $image);
                 break;
@@ -166,10 +156,10 @@ class Controller extends BaseController
                 }
 
 
-                $title = trans('notifications.payment_processed_title');
-                $message =trans('notifications.payment_processed_message');
+                $title = 'payment_processed_title';
+                $message = 'payment_processed_message';
                 $image = asset('icons/payment.png');
-                $this->createNotification($user,$title, $message, $link, $order->id, 'assurance', $image);
+                $this->createNotification($user, $title, $message, $link, $order->id, 'assurance', $image);
                 break;
 
 
@@ -182,8 +172,8 @@ class Controller extends BaseController
                 ]);
 
 
-                $title = trans('notifications.order_completed_title');
-                $message = 'Your Order has been Completed successfully';
+                $title = 'order_completed_title';
+                $message ='payment_processed_message';
                 $image = asset('icons/complete.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'assurance', $image);
                 break;
@@ -192,14 +182,12 @@ class Controller extends BaseController
             case 4:
                 $order->note = $request->note;
                 $image = asset('icons/cancel.png');
-                $title = trans('notifications.order_closed_title');
-                $message = trans('notifications.order_closed_message');
+                $title = 'order_closed_title';
+                $message ='order_closed_message';
                 $this->createNotification($user, $title, $message, $link, $order->id, 'assurance', $image);
                 break;
         }
 
-        // Revert the locale back to the original
-        app()->setLocale($currentLocale);
     }
 
 
@@ -227,10 +215,6 @@ class Controller extends BaseController
             $user = $order->user;
             $link = route('api.violationRecords', $order->id);
 
-            // Store current locale and switch to user's preferred language
-            $currentLocale = app()->getLocale();
-            app()->setLocale($user->lang ?? $currentLocale);
-
             // Ensure payment record exists if needed
             $payment = $order->payment ?? null;
 
@@ -252,8 +236,8 @@ class Controller extends BaseController
                         'amount' => $request->payment_value,
                     ]);
 
-                    $title= trans('notifications.payment_processed_title');
-                    $message=trans('notifications.payment_processed_message');
+                    $title = 'payment_processed_title';
+                    $message = 'payment_processed_message';
                     $this->createNotification($user, $title, $message, $link, $order->id, 'violation', asset('icons/payment-required.png'));
                     break;
 
@@ -273,8 +257,8 @@ class Controller extends BaseController
                             'payment_value' => $order->value,
                         ]);
 
-                        $title = trans('notifications.payment_processed_title');
-                        $message =trans('notifications.payment_processed_message');
+                        $title ='payment_processed_title';
+                        $message = 'payment_processed_message';
                         $this->createNotification($user, $title, $message, $link, $order->id, 'violation', asset('icons/payment.png'));
                     } else {
                         throw new \Exception("No payment record found for order ID: {$order->id}");
@@ -290,8 +274,8 @@ class Controller extends BaseController
                         ]);
 
 
-                        $title = trans('notifications.order_completed_title');
-                        $message =trans('notifications.payment_processed_message');
+                        $title = 'order_completed_title';
+                        $message = 'payment_processed_message';
                         $this->createNotification(
                             $user,
                             $title,
@@ -308,8 +292,8 @@ class Controller extends BaseController
 
                 case 4: // Close the order with a note
                     $order->update(['note' => $request->note]);
-                    $title = trans('notifications.order_closed_title');
-                    $message = trans('notifications.order_closed_message');
+                    $title = 'order_closed_title';
+                    $message = 'order_closed_message';
                     $this->createNotification($user, $title, $message, $link, $order->id, 'violation', asset('icons/cancel.png'));
                     break;
 
@@ -318,12 +302,10 @@ class Controller extends BaseController
             }
 
             DB::commit();
-            app()->setLocale($currentLocale); // Restore locale
 
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Error updating violation status for order ID {$order->id}: " . $e->getMessage());
-            app()->setLocale($currentLocale); // Ensure locale is always restored
 
             return response()->json(['error' => 'An error occurred while updating order status.'], 500);
         }
@@ -348,16 +330,11 @@ class Controller extends BaseController
         $user = $order->user;
         $link = route('api.housekeeperRecords', $order->id);
 
-        // Store the current locale
-        $currentLocale = app()->getLocale();
-
-        // Set the locale to the user's language
-        app()->setLocale($user->lang);
 
         switch ($order->status) {
             case 1:
                 // Create payment record
-                $payment= Payment::create([
+                $payment = Payment::create([
                     'user_id' => $order->user_id,
                     'payment_value' => $request->payment_value,
                     'order_value' => $order->value,
@@ -373,15 +350,15 @@ class Controller extends BaseController
                     'amount' => $payment->remaining_amount,
                 ]);
 
-                $title= trans('notifications.payment_processed_title');
-                $message=trans('notifications.payment_processed_message');
+                $title = 'payment_processed_title';
+                $message = 'payment_processed_message';
                 $image = asset('icons/payment-required.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper', $image);
                 break;
 
 
             case 2:
-                $payment= $order->payment;
+                $payment = $order->payment;
                 $remaining_amount = 0;
 
                 DashboardPayment::create([
@@ -397,8 +374,8 @@ class Controller extends BaseController
                 ]);
 
 
-                $title = trans('notifications.payment_processed_title');
-                $message =trans('notifications.payment_processed_message');
+                $title = 'payment_processed_title';
+                $message = 'payment_processed_message';
                 $image = asset('icons/payment.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper', $image);
                 break;
@@ -416,23 +393,22 @@ class Controller extends BaseController
 
                 $order->housekeeper->update(['status' => 1,]);
 
-                $title = trans('notifications.order_completed_title');
-                $message =trans('notifications.payment_processed_message');
+                $title = 'order_completed_title';
+                $message = 'payment_processed_message';
                 $image = asset('icons/complete.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper', $image);
                 break;
 
 
             case 4:
-                $title = trans('notifications.order_closed_title');
-                $message = trans('notifications.order_closed_message');
+                $title = 'order_closed_title';
+                $message = 'order_closed_message';
                 $image = asset('icons/cancel.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper', $image);
                 break;
         }
 
-        // Revert the locale back to the original
-        app()->setLocale($currentLocale);
+
     }
 
 
@@ -463,7 +439,7 @@ class Controller extends BaseController
 
             case 1:
 
-              $payment= Payment::create([
+                $payment = Payment::create([
                     'user_id' => $order->user_id,
                     'payment_value' => $request->payment_value,
                     'order_value' => $order->value,
@@ -479,15 +455,15 @@ class Controller extends BaseController
                     'amount' => $payment->remaining_amount,
                 ]);
 
-                $title= trans('notifications.payment_processed_title');
-                $message=trans('notifications.payment_processed_message');
+                $title = 'payment_processed_title';
+                $message = 'payment_processed_message';
                 $image = asset('icons/payment-required.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper_hourly_order', $image);
                 break;
 
             case 2:
 
-                $payment= $order->payment;
+                $payment = $order->payment;
                 DashboardPayment::create([
                     'payment_id' => $payment->id,
                     'amount' => $payment->remaining_amount,
@@ -502,8 +478,8 @@ class Controller extends BaseController
                 ]);
 
 
-                $title = trans('notifications.payment_processed_title');
-                $message =trans('notifications.payment_processed_message');
+                $title = 'payment_processed_title';
+                $message = 'payment_processed_message';
                 $image = asset('icons/payment-required.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper_hourly_order', $image);
 
@@ -520,8 +496,8 @@ class Controller extends BaseController
                 ]);
 
 
-                $title = trans('notifications.order_completed_title');
-                $message =trans('notifications.payment_processed_message');
+                $title = 'order_completed_title';
+                $message = 'payment_processed_message';
                 $image = asset('icons/complete.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper_hourly_order', $image);
 
@@ -529,8 +505,8 @@ class Controller extends BaseController
 
 
             case 4:
-                $title = trans('notifications.order_closed_title');
-                $message = trans('notifications.order_closed_message');
+                $title = 'order_closed_title';
+                $message ='order_closed_message';
                 $image = asset('icons/cancel.png');
                 $this->createNotification($user, $title, $message, $link, $order->id, 'housekeeper_hourly_order', $image);
                 break;

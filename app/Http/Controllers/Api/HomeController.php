@@ -152,9 +152,29 @@ class HomeController extends Controller
             $settingsArray['logo'] = URL::to('/') . '/storage/' . $settingsArray['logo'];
         }
 
+
         if (isset($settingsArray['icon'])) {
             $settingsArray['icon'] = URL::to('/') . '/storage/' . $settingsArray['icon'];
         }
+
+
+        if (isset($settingsArray['icon'])) {
+            $settingsArray['icon'] = URL::to('/') . '/storage/' . $settingsArray['icon'];
+        }
+
+        if (isset($settingsArray['update_body_en']) && app()->getLocale() == 'en') {
+            $settingsArray['update_body'] = $settingsArray['update_body_en'];
+        }else{
+            $settingsArray['update_body'] = $settingsArray['update_body_ar'];
+
+        }
+
+        if (isset($settingsArray['update_title_en']) && app()->getLocale() == 'en') {
+            $settingsArray['update_title'] = $settingsArray['update_title_en'];
+        }else{
+            $settingsArray['update_title'] = $settingsArray['update_title_ar'];
+        }
+
         return $this->apiRespose(
             $settingsArray
             , trans('messages.success'), true, 200);
