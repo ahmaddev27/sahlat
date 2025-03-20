@@ -80,6 +80,6 @@ return [
     'Assurance not found'=>'الضمان غير موجود',
     'pending-order'=>'لديك طلب  نشط او معلق لهذا النوع بالفعل',
     'housekeeper not found'=>'الشغالة غير موجودة',
-
+    'pay_success'=>'تم الدفع بنجاح',
 
 ];

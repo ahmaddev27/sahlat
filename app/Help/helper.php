@@ -19,7 +19,6 @@ function HouseKeepersStatus($status)
         return trans('main.employed');
 
     }
-
 }
 
 

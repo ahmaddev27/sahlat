@@ -67,10 +67,10 @@ class UserController extends Controller
         <a href="' . route('users.view', $item->id) . '" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light" title="View">
             <i class="fa fa-eye text-body"></i>
         </a>
-
-        <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light" id="edit" data-model-id="' . $item->id . '" data-toggle="modal" title="Edit">
-            <i class="fa fa-edit text-body"></i>
-        </button>
+<button type="button" class="edit-user btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
+    data-model-id="' . $item->id . '" data-toggle="modal" title="Edit">
+    <i class="fa fa-edit text-body"></i>
+</button>
 
 
 
@@ -82,7 +82,6 @@ class UserController extends Controller
 
     ';
             })
-
             ->editColumn('gender', function ($item) {
                 return gender($item->gender);
             })
@@ -90,12 +89,11 @@ class UserController extends Controller
                 $badgeClass = $item->is_active == 1 ? 'info' : 'warning';
                 return '<div class="badge badge-pill badge-light-' . $badgeClass . '">' . user_statuts($item->is_active) . '</div>';
             })
-
             ->editColumn('location', function ($item) {
                 return $item->location ? cities($item->location) : '-';
             })
             ->addIndexColumn()
-            ->rawColumns(['action', 'name', 'gender', 'phone', 'location', 'checkbox', 'number_id','status'])
+            ->rawColumns(['action', 'name', 'gender', 'phone', 'location', 'checkbox', 'number_id', 'status'])
             ->make(true);
 
     }
@@ -228,26 +226,25 @@ class UserController extends Controller
     }
 
 
+    public function changeStatus(Request $request)
+    {
+        try {
+            $user = AppUser::findOrFail($request->id);
+            $user->is_active = $request->status;
+            $user->save();
 
-   public function changeStatus(Request $request)
-{
-    try {
-        $user = AppUser::findOrFail($request->id);
-        $user->is_active = $request->status;
-        $user->save();
+            return response()->json(['message' => trans('messages.status-change-success'), 'status' => true], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
+        } catch (\Exception $e) {
+            \Log::error('Error in changeStatus method: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request' => $request->all(),
+            ]);
 
-        return response()->json(['message' => trans('messages.status-change-success'), 'status' => true], 200);
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        return response()->json(['message' => trans('messages.not-found'), 'status' => false], 404);
-    } catch (\Exception $e) {
-        \Log::error('Error in changeStatus method: ' . $e->getMessage(), [
-            'exception' => $e,
-            'request' => $request->all(),
-        ]);
-
-        return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
+            return response()->json(['message' => 'Something went wrong', 'status' => false], 500);
+        }
     }
-}
 
     public function notify(Request $request)
     {

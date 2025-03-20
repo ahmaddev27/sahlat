@@ -81,9 +81,12 @@ Route::controller(AuthController::class)->group(function () {
 // ==================================================================
 
 //Route::middleware('auth:sanctum')->group(function () {
-    // -------------------------------
-    // AuthController Routes
-    // -------------------------------
+// -------------------------------
+// AuthController Routes
+// -------------------------------
+
+Route::middleware('auth:sanctum')->group(function () {
+
     Route::controller(AuthController::class)->group(function () {
 
         Route::post('/change-lang', 'changLang');
@@ -96,73 +99,74 @@ Route::controller(AuthController::class)->group(function () {
         Route::post('/sendOtpNewPhoneRequest', 'sendOtpToNewPhone');
         Route::post('/verifyNewPhoneOtp', 'verifyNewPhoneOtp');
     });
+});
 
-    // -------------------------------
-    // HomeController Routes
-    // -------------------------------
-    Route::controller(HomeController::class)->group(function () {
-        Route::get('/banners', 'banners');
-        Route::get('/assurances', 'assurances');
-        Route::get('/companies', 'companies');
-        Route::get('/company/{id}', 'company');
-        Route::get('/company/housekeepers/{id}', 'housekeepersCompany');
-        Route::get('/housekeepers', 'housekeepers');
-        Route::get('/housekeeper/{id}', 'housekeeper');
-        Route::get('/settings', 'settings');
-        Route::post('/search', 'search');
-        Route::get('/topRatedHousekeeper', 'topRatedHousekeeper');
-        Route::get('/mostOrderedAssurances', 'mostOrderedAssurances');
-        Route::middleware('auth:sanctum')->group(function () {
-            Route::get('/notifications', 'notification');
-            Route::post('/contact', 'contact');
-        });
+// -------------------------------
+// HomeController Routes
+// -------------------------------
+Route::controller(HomeController::class)->group(function () {
+    Route::get('/banners', 'banners');
+    Route::get('/assurances', 'assurances');
+    Route::get('/companies', 'companies');
+    Route::get('/company/{id}', 'company');
+    Route::get('/company/housekeepers/{id}', 'housekeepersCompany');
+    Route::get('/housekeepers', 'housekeepers');
+    Route::get('/housekeeper/{id}', 'housekeeper');
+    Route::get('/settings', 'settings');
+    Route::post('/search', 'search');
+    Route::get('/topRatedHousekeeper', 'topRatedHousekeeper');
+    Route::get('/mostOrderedAssurances', 'mostOrderedAssurances');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/notifications', 'notification');
+        Route::post('/contact', 'contact');
+    });
+});
+
+// -------------------------------
+// Order-Related Routes (requires active status)
+// -------------------------------
+
+Route::middleware(['auth:sanctum', 'is_active'])->group(function () {
+
+    // Violation Orders
+    Route::controller(ViolationController::class)->group(function () {
+        Route::post('/OrderViolation', 'OrderViolation');
+        Route::get('/getViolationOrder/{id}', 'getViolationOrder')->name('api.violationRecords');
+        Route::get('/records/violations', 'violationsRecords');
     });
 
-    // -------------------------------
-    // Order-Related Routes (requires active status)
-    // -------------------------------
-    Route::middleware('is_active')->group(function () {
-
-        // Violation Orders
-        Route::controller(ViolationController::class)->group(function () {
-            Route::post('/OrderViolation', 'OrderViolation');
-            Route::get('/getViolationOrder/{id}', 'getViolationOrder')->name('api.violationRecords');
-            Route::get('/records/violations', 'violationsRecords');
-        });
-
-        // Assurance Orders
-        Route::controller(AssuranceController::class)->group(function () {
-            Route::post('/OrderAssurance', 'OrderAssurance');
-            Route::get('/records/assurances', 'assurancesRecords');
-            Route::get('/getAssuranceOrder/{id}', 'getAssuranceOrder')->name('api.assuranceRecords');
-        });
-
-        // HouseKeeper Orders
-        Route::controller(HouseKeeperController::class)->group(function () {
-            Route::post('/housekeeperOrder', 'housekeeperOrder');
-            Route::get('/getHouseKeeperOrder/{id}', 'getHouseKeeperOrder')->name('api.housekeeperRecords');
-            Route::get('/records/housekeepers', 'housekeepersRecords');
-        });
-
-        // HouseKeeper Hourly Orders
-        Route::controller(HouseKeeperHourlyController::class)->group(function () {
-            Route::post('/housekeeperHourlyOrder', 'housekeeperHourlyOrder');
-            Route::get('/records/housekeepersHourly', 'housekeepersHourlyRecords');
-            Route::get('/getHourlyHouseKeeperOrder/{id}', 'getHourlyHouseKeeperOrder')->name('api.housekeeper_hourly_orderRecords');
-        });
-
-        // Review Routes
-        Route::controller(ReviewController::class)->group(function () {
-            Route::post('/housekeeperReview', 'housekeeperReview');
-        });
-
-        Route::controller(OrderController::class)->group(function () {
-            Route::post('/payTabby', 'payTabby');
-            Route::get('/balance', 'balance');
-            Route::post('/stripe-check', 'checkOrderStatusStripe');
-            Route::post('/deleteFailedOrder', 'deleteFailedOrder');
-        });
-
+    // Assurance Orders
+    Route::controller(AssuranceController::class)->group(function () {
+        Route::post('/OrderAssurance', 'OrderAssurance');
+        Route::get('/records/assurances', 'assurancesRecords');
+        Route::get('/getAssuranceOrder/{id}', 'getAssuranceOrder')->name('api.assuranceRecords');
     });
 
-//});
+    // HouseKeeper Orders
+    Route::controller(HouseKeeperController::class)->group(function () {
+        Route::post('/housekeeperOrder', 'housekeeperOrder');
+        Route::get('/getHouseKeeperOrder/{id}', 'getHouseKeeperOrder')->name('api.housekeeperRecords');
+        Route::get('/records/housekeepers', 'housekeepersRecords');
+    });
+
+    // HouseKeeper Hourly Orders
+    Route::controller(HouseKeeperHourlyController::class)->group(function () {
+        Route::post('/housekeeperHourlyOrder', 'housekeeperHourlyOrder');
+        Route::get('/records/housekeepersHourly', 'housekeepersHourlyRecords');
+        Route::get('/getHourlyHouseKeeperOrder/{id}', 'getHourlyHouseKeeperOrder')->name('api.housekeeper_hourly_orderRecords');
+    });
+
+    // Review Routes
+    Route::controller(ReviewController::class)->group(function () {
+        Route::post('/housekeeperReview', 'housekeeperReview');
+    });
+
+    Route::controller(OrderController::class)->group(function () {
+        Route::post('/payTabby', 'payTabby');
+        Route::get('/balance', 'balance');
+        Route::post('/stripe-check', 'checkOrderStatusStripe');
+        Route::post('/deleteFailedOrder', 'deleteFailedOrder');
+    });
+
+
+});

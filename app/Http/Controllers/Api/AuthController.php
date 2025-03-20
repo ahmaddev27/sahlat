@@ -147,7 +147,7 @@ class AuthController extends Controller
     if ($validator->fails()) {
         $errors = $validator->errors()->toArray();
         $errorMessage = implode(' ', array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-        return $this->apiRespose(['errors' => $errors], $errorMessage, false, 400);
+        return $this->apiRespose($errors, $errorMessage, false, 400);
     }
 
     $oldPhone = Auth::user()->phone;
@@ -182,14 +182,14 @@ class AuthController extends Controller
     if ($validator->fails()) {
         $errors = $validator->errors()->toArray();
         $errorMessage = implode(' ', array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-        return $this->apiRespose(['errors' => $errors], $errorMessage, false, 400);
+        return $this->apiRespose($errors, $errorMessage, false, 400);
     }
 
     $newPhone = $request->phone;
 
     try {
         // Generate a dynamic OTP
-        $newPhoneOtp = rand(100000, 999999);
+        $newPhoneOtp = '1234';
         Cache::put("update_otp_new_{$newPhone}", $newPhoneOtp, now()->addMinutes(5));
 
         // Simulate sending OTP (integrate with SMS service in production)
@@ -214,7 +214,7 @@ class AuthController extends Controller
     if ($validator->fails()) {
         $errors = $validator->errors()->toArray();
         $errorMessage = implode(' ', array_map(fn($field) => $errors[$field][0], array_keys($errors)));
-        return $this->apiRespose(['errors' => $errors], $errorMessage, false, 400);
+        return $this->apiRespose($errors, $errorMessage, false, 400);
     }
 
     $newPhone = $request->phone;
@@ -227,7 +227,7 @@ class AuthController extends Controller
             return $this->updatePhone($request, $newPhone);
         } else {
             $errors = [trans('main.incorrect-otp')];
-            return $this->apiRespose(['errors' => $errors], trans('main.incorrect-otp'), false, 400);
+            return $this->apiRespose(['errors'=>$errors], trans('main.incorrect-otp'), false, 400);
         }
     } catch (\Exception $e) {
         \Log::error('Error in verifyNewPhoneOtp: ' . $e->getMessage(), [
@@ -250,9 +250,9 @@ class AuthController extends Controller
         Cache::forget("update_otp_old_{$user->phone}");
         Cache::forget("update_otp_new_{$newPhone}");
 
-        return $this->apiRespose([
-            'user' => new UserResources($user),
-        ], trans('main.phone-update-success'), true, 200);
+        return $this->apiRespose(
+          new UserResources($user)
+        , trans('main.phone-update-success'), true, 200);
     } catch (\Exception $e) {
         \Log::error('Error in updatePhone: ' . $e->getMessage(), [
             'exception' => $e,

@@ -150,7 +150,7 @@ class Controller extends BaseController
                     $payment->update([
                         'remaining_amount' => 0,
                         'status' => 2, // fully paid
-                        'payment_value' => $order->price,
+                        'payment_value' => $order->value,
                     ]);
 
                 }

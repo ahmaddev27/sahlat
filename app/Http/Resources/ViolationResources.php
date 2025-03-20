@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Payment;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ViolationResources extends JsonResource
@@ -15,6 +16,16 @@ class ViolationResources extends JsonResource
 
     public function toArray($request)
     {
+        $Payment=Payment::where('order_id',$this->id)->where('type','violation')->first();
+
+        if($Payment){
+            $payment_value=$Payment->payment_value;
+            $remaining=$Payment->remaining_amount;
+        }else{
+            $payment_value='0';
+            $remaining='0';
+        }
+
         return [
             'id'=>$this->id,
             'order_number'=>$this->n_id,
@@ -24,9 +35,9 @@ class ViolationResources extends JsonResource
             'details'=>$this->details,
 //            'violation_number'=>$this->violation_number,
             'status'=>['status'=>StatusesViolations((int)$this->status),'id'=>(int)$this->status],
-            'order_value'=>$this->payment?->order_value,
-            'payment_value'=>$this->payment?->payment_value,
-            'remaining_amount'=>$this->payment?->remaining_amount,
+            'order_value'     => (string) $this->value,
+            'payment_value'    => (string) $payment_value,
+            'remaining_amount' => (string) $remaining,
 //            'payment_status'=>paymentStatus($this->payment?->status),
             'date'=>$this->created_at->format('Y-m-d'),
             'type'=>'violation',

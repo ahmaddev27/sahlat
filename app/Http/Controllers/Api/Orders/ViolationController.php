@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 
-
-
 class ViolationController extends Controller
 {
 
@@ -100,12 +98,11 @@ class ViolationController extends Controller
     }
 
 
-
     public function violationsRecords(Request $request)
     {
 
-        $query = Violation::where('user_id', Auth::id());
-        $perPage = $request->input('per_page', 10);
+        $query = Violation::where('user_id', Auth::id())->whereIn('status',[2,3])->orderBy('created_at', 'desc');
+        $perPage = $request->input('per_page', 5);
         $orders = $query->paginate($perPage);
 
 //        if ($orders->isEmpty()) {
@@ -117,20 +114,20 @@ class ViolationController extends Controller
             ViolationResources::collection($orders)
             , trans('messages.success'), true, 200);
     }
+
     public function getViolationOrder($id, Request $request)
     {
 
         $order = Violation::where('user_id', Auth::id())->whereId($id)->first();
 
-        if ($order->isEmpty()) {
-            return $this->apiRespose(['error'=>['messages.not_found']], trans('messages.not_found'), false, 404);
+        if (!$order) {
+            return $this->apiRespose(['error' => [trans('messages.messages')]], trans('messages.not_found'), false, 404);
         }
 
         return $this->apiRespose(
-            ViolationResources::collection($order)
+          new  ViolationResources ($order)
             , trans('messages.success'), true, 200);
     }
-
 
 
 }

@@ -106,8 +106,8 @@ class AssuranceController extends Controller
     public function assurancesRecords(Request $request)
     {
 
-        $query = AssuranceOrder::where('user_id', Auth::id());
-        $perPage = $request->input('per_page', 10);
+        $query = AssuranceOrder::where('user_id', Auth::id())->whereIn('status',[2,3])->orderBy('created_at', 'desc');
+        $perPage = $request->input('per_page', 5);
         $orders = $query->paginate($perPage);
 
 
@@ -126,12 +126,12 @@ class AssuranceController extends Controller
     {
 
         $order = AssuranceOrder::where('user_id', Auth::id())->whereId($id)->first();
-        if ($order->isEmpty()) {
-            return $this->apiRespose(['error'=>['messages.not_found']], trans('messages.not_found'), false, 404);
+        if (!$order) {
+            return $this->apiRespose(['error'=>[trans('messages.not_found')]], trans('messages.not_found'), false, 404);
         }
 
         return $this->apiRespose(
-            AssuranceOrderResources::collection($order)
+            new AssuranceOrderResources($order)
             , trans('messages.success'), true, 200);
     }
 }

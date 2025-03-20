@@ -6,6 +6,7 @@ use App\Http\Resources\AssuranceOrderResources;
 use App\Http\Resources\HouseKeeperHourlyOrderResources;
 use App\Http\Resources\HouseKeeperOrderResources;
 use App\Http\Resources\ViolationResources;
+use App\Models\StripePayment;
 use App\Models\TabbyPayment;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -162,14 +163,14 @@ class OrderController extends Controller
     {
         $rules = [
             'payment_intent_id' => 'required',
-            'order_number' => 'required|string',
-            'type' => 'required|string',
+            'order_number'      => 'required|string',
+            'type'              => 'required|string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            return $this->apiRespose($validator->errors(), trans('messages.order failed'), false, 400);
+            return $this->apiRespose($validator->errors(), trans('messages.order_failed'), false, 400);
         }
 
         $paymentIntentId = $request->input('payment_intent_id');
@@ -177,17 +178,18 @@ class OrderController extends Controller
         $requestType = strtolower($request->input('type'));
 
         try {
-
             $paymentIsLive = setting('payment_is_live');
-            $stripeSecretKey = $paymentIsLive ? setting('stripe_secret_key_live') : setting('stripe_secret_key_test');
+            $stripeSecretKey = $paymentIsLive
+                ? setting('stripe_secret_key_live')
+                : setting('stripe_secret_key_test');
 
             Stripe::setApiKey($stripeSecretKey);
-
             $paymentIntent = PaymentIntent::retrieve($paymentIntentId);
 
+            // Access metadata as an associative array
             $metadata = $paymentIntent->metadata;
-            $stripeOrderNumber = isset($metadata->order_number) ? $metadata->order_number : null;
-            $stripeType = isset($metadata->type) ? strtolower($metadata->type) : null;
+            $stripeOrderNumber = isset($metadata['order_number']) ? $metadata['order_number'] : null;
+            $stripeType = isset($metadata['type']) ? strtolower($metadata['type']) : null;
 
             if (!$stripeOrderNumber || $stripeOrderNumber !== $orderNumber) {
                 Log::error("Order number mismatch: Request ($orderNumber) vs Metadata ($stripeOrderNumber)");
@@ -200,15 +202,15 @@ class OrderController extends Controller
             }
 
             $orderMappings = [
-                'violation' => ['model' => Violation::class, 'resource' => ViolationResources::class],
-                'assurance' => ['model' => AssuranceOrder::class, 'resource' => AssuranceOrderResources::class],
-                'housekeeper' => ['model' => HouseKeeperOrder::class, 'resource' => HouseKeeperOrderResources::class],
+                'violation'                => ['model' => Violation::class, 'resource' => ViolationResources::class],
+                'assurance'                => ['model' => AssuranceOrder::class, 'resource' => AssuranceOrderResources::class],
+                'housekeeper'              => ['model' => HouseKeeperOrder::class, 'resource' => HouseKeeperOrderResources::class],
                 'housekeeper_hourly_order' => ['model' => HouseKeeperHourlyOrder::class, 'resource' => HouseKeeperHourlyOrderResources::class],
             ];
 
             if (!array_key_exists($requestType, $orderMappings)) {
                 Log::error("Invalid type provided: $requestType");
-                return $this->apiRespose(['error' => [trans('messages.invalid type')]], trans('messages.invalid type'), false, 400);
+                return $this->apiRespose(['error' => [trans('messages.invalid_type')]], trans('messages.invalid_type'), false, 400);
             }
 
             $modelClass = $orderMappings[$requestType]['model'];
@@ -217,10 +219,14 @@ class OrderController extends Controller
             $order = $modelClass::find($orderNumber);
             if (!$order) {
                 Log::error("Order not found: Order Number ($orderNumber) in Model ($modelClass)");
-                return $this->apiRespose(['error' => [trans('messages.Order not found')]], trans('messages.Order not found'), false, 404);
+                return $this->apiRespose(['error' => [trans('messages.order_not_found')]], trans('messages.order_not_found'), false, 404);
             }
 
-            $payment = DB::transaction(function () use ($order, $paymentIntent, $orderNumber, $requestType, $paymentIntentId) {
+            // Begin the database transaction
+            DB::beginTransaction();
+
+            try {
+                // Update order status if payment succeeded
                 if ($paymentIntent->status === 'succeeded') {
                     $order->update(['status' => 2]);
                     Log::info("Order status updated to 2 for Order Number ($orderNumber)");
@@ -231,49 +237,66 @@ class OrderController extends Controller
                 if ($order->payment) {
                     $order->payment->update([
                         'remaining_amount' => 0,
-                        'payment_value' => $order->value,
-                        'is_stripe' => 1,
-                        'status' => 2,
+                        'payment_value'    => $order->value,
+                        'is_stripe'        => 1,
+                        'status'           => 2,
                     ]);
                     $payment = $order->payment;
                 } else {
                     $payment = Payment::create([
-                        'type' => $requestType,
-                        'status' => 2,
-                        'order_id' => $orderNumber,
-                        'order_value' => $order->value,
-                        'payment_value' => $paymentIntent->amount / 100,
+                        'type'             => $requestType,
+                        'status'           => 2,
+                        'order_id'         => $orderNumber,
+                        'order_value'      => $order->value,
+                        'payment_value'    => $paymentIntent->amount / 100,
                         'remaining_amount' => 0,
-                        'user_id' => Auth::id(),
-                        'is_stripe' => 1,
+                        'user_id'          => Auth::id(),
+                        'is_stripe'        => 1,
                     ]);
                 }
 
-                DB::table('stripe_payments')->insert([
-                    'order_id' => $orderNumber,
-                    'type' => $requestType,
-                    'payment_id' => $payment->id,
-                    'paymentID' => $paymentIntentId,
-                    'amount' => $paymentIntent->amount / 100,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                // Check for an existing Stripe payment record without returning early
+                $existingStripePayment = StripePayment::where('type', $requestType)
+                    ->where('order_id', $orderNumber)
+                    ->where('paymentID', $paymentIntentId)
+                    ->first();
+
+                if (!$existingStripePayment) {
+                    DB::table('stripe_payments')->insert([
+                        'order_id'   => $orderNumber,
+                        'type'       => $requestType,
+                        'payment_id' => $payment->id,
+                        'paymentID'  => $paymentIntentId,
+                        'amount'     => $paymentIntent->amount / 100,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+                // Commit the transaction after all operations succeed
+                DB::commit();
+            } catch (\Exception $e) {
+                // Rollback the transaction if any operation fails
+                DB::rollback();
+                Log::error("Transaction failed: " . $e->getMessage(), [
+                    'payment_intent_id' => $paymentIntentId,
+                    'order_number'      => $orderNumber,
+                    'type'              => $requestType,
+                    'trace'             => $e->getTraceAsString()
                 ]);
+                return $this->apiRespose(['error' => ['Transaction failed']], $e->getMessage(), false, 500);
+            }
 
-                return $payment;
-            });
-
-            $order->update(['status' => 2]);
+            // Post-transaction handling if needed
             $this->handleStatus($order, $requestType);
 
-
-            return $this->apiRespose(new $resourceClass($order), trans('messages.pay-success'), true, 200);
+            return $this->apiRespose(new $resourceClass($order), trans('messages.pay_success'), true, 200);
 
         } catch (\Exception $e) {
             Log::error("Exception occurred: " . $e->getMessage(), [
                 'payment_intent_id' => $paymentIntentId,
-                'order_number' => $orderNumber,
-                'type' => $requestType,
-                'trace' => $e->getTraceAsString()
+                'order_number'      => $orderNumber,
+                'type'              => $requestType,
+                'trace'             => $e->getTraceAsString()
             ]);
 
             return $this->apiRespose(['error' => ['Something went wrong']], $e->getMessage(), false, 500);

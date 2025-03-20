@@ -111,8 +111,8 @@ class HouseKeeperController extends Controller
     public function housekeepersRecords(Request $request)
     {
 
-        $query = HouseKeeperOrder::where('user_id', Auth::id());
-        $perPage = $request->input('per_page', 10);
+        $query = HouseKeeperOrder::where('user_id', Auth::id())->whereIn('status',[2,3])->orderBy('created_at', 'desc');
+        $perPage = $request->input('per_page', 5);
         $orders = $query->paginate($perPage);
 
 //        if ($orders->isEmpty()) {
@@ -129,12 +129,12 @@ class HouseKeeperController extends Controller
 
         $order = HouseKeeperOrder::where('user_id', Auth::id())->whereId($id)->first();
 
-        if ($order->isEmpty()) {
-            return $this->apiRespose(['error'=>['messages.not_found']], trans('messages.not_found'), false, 404);
+        if (!$order) {
+            return $this->apiRespose(['error'=>[trans('messages.not_found')]], trans('messages.not_found'), false, 404);
         }
 
         return $this->apiRespose(
-            HouseKeeperOrderResources::collection($order)
+          new  HouseKeeperOrderResources($order)
             , trans('messages.success'), true, 200);
     }
 

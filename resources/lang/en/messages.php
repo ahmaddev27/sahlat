@@ -87,6 +87,7 @@ return [
     'Assurance not found' => 'Assurance not found',
     'pending-order' => 'You already have an active or pending order for this type.',
     'housekeeper not found' => 'Housekeeper not found',
+    'pay_success'=>'Payment successfully',
 
 
 ];

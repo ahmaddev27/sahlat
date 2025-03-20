@@ -132,6 +132,43 @@
 @push('js')
 
     <script>
+
+        // Existing click event for the edit button
+        $(document).on('click', '.edit-user', function() {
+            var modelId = $(this).data('model-id'); // Correct way to get the data attribute
+            $.ajax({
+                url: '/admin/users/fetch/' + modelId, // Adjust this to match your route
+                method: 'GET',
+                success: function(data) {
+                    console.log(data)
+                    // Populate form fields
+                    $('#edit-id').val(data.id);
+                    $('#id').val(data.id);
+                    $('#edit-name').val(data.name);
+                    $('#edit-number_id').val(data.number_id);
+                    $('#edit-email').val(data.email);
+                    $('#edit-phone').val(data.phone);
+                    $('#edit-city').val(data.location);
+
+                    if (data.gender == 1) {
+                        $('#edit-male').prop('checked', true); // Male radio button
+                    } else if (data.gender == 0) {
+                        $('#edit-female').prop('checked', true); // Female radio button
+                    }
+
+
+                    $('#edit-avatar-preview').attr('src', data.avatar ? '/storage/' + data.avatar : '/blank.png');
+                    $('#edit-city').select2();
+                    // Open the modal
+                    $('#editModal').modal('show');
+
+
+                }
+            });
+        });
+
+
+
         document.getElementById('edit-number_id').addEventListener('input', function (e) {
             let value = e.target.value.replace(/[^0-9]/g, ''); // إزالة الحروف غير الرقمية
 
@@ -240,40 +277,6 @@
             $('#edit-submit').click(function (e) {
                 e.preventDefault();
                 editForm.submit(); // Trigger validation and submission
-            });
-        });
-
-        // Existing click event for the edit button
-        $(document).on('click', '#edit', function() {
-            var modelId = $(this).attr('model_id');
-            $.ajax({
-                url: '/admin/users/fetch/' + modelId, // Adjust this to match your route
-                method: 'GET',
-                success: function(data) {
-                    console.log(data)
-                    // Populate form fields
-                    $('#edit-id').val(data.id);
-                    $('#id').val(data.id);
-                    $('#edit-name').val(data.name);
-                    $('#edit-number_id').val(data.number_id);
-                    $('#edit-email').val(data.email);
-                    $('#edit-phone').val(data.phone);
-                    $('#edit-city').val(data.location);
-
-                    if (data.gender == 1) {
-                        $('#edit-male').prop('checked', true); // Male radio button
-                    } else if (data.gender == 0) {
-                        $('#edit-female').prop('checked', true); // Female radio button
-                    }
-
-
-                    $('#edit-avatar-preview').attr('src', data.avatar ? '/storage/' + data.avatar : '/blank.png');
-                    $('#edit-city').select2();
-                    // Open the modal
-                    $('#editModal').modal('show');
-
-
-                }
             });
         });
 

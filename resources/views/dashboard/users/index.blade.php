@@ -25,7 +25,7 @@
                 <div class="row g-3 align-items-center text">
                     <!-- Notification Button -->
                     <div class="col-12 col-md-3 text-center text-md-start mb-1">
-                        <div class="d-flex align-items-center justify-content-between p-1 bg-dark rounded shadow-sm">
+                        <div class="d-flex align-items-center justify-content-between p-1 bg-transparent rounded shadow-sm">
             <span class="text-body" style="font-family: 'Tajawal'; font-weight: bold;">
                 {{ trans('main.send-notifications') }}
             </span>
@@ -145,10 +145,10 @@
                     columns: [
                         {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false},
                         {data: 'name', name: 'name'},
-                        // {data: 'phone', name: 'phone'},
+                        {data: 'phone', name: 'phone'},
                         // {data: 'email', name: 'email'},
                         {data: 'location', name: 'location'},
-                        {data: 'gender', name: 'gender'},
+                        // {data: 'gender', name: 'gender'},
                         {data: 'status', name: 'status'},
                         {data: 'created_at', name: 'created_at', visible: false}, // Hidden column for ordering
                         {
