@@ -74,6 +74,7 @@ Route::get('/religions', function () {
 Route::controller(AuthController::class)->group(function () {
     Route::post('/send-otp', 'sendOtp');
     Route::post('/verify-otp', 'verifyOtp');
+    Route::post('/fcm', 'fcm');
 });
 
 // ==================================================================

@@ -30,6 +30,7 @@ class HouseKeeperOrderController extends Controller
     public function list(Request $request)
     {
         $companyId = $request->get('company_id');
+        $companyId = $request->get('company_id');
         $housekeeperId = $request->get('housekeeper_id');
         $dateFilter = $request->get('date');
 

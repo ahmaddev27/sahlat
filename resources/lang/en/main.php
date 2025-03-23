@@ -109,7 +109,9 @@ return [
     'pay'=>'Pay',
     'remaining'=>'Remaining',
     'type'=>'Type',
+
     ];
+
 
 
 

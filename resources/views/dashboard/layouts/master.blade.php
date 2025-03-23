@@ -53,15 +53,21 @@
 
                                         <li class="breadcrumb-item active"><a href="#">{{$title}} </a></li> @endif
 
+
                                 </ol>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
 
+
+
+
                 @yield('left')
 
-
+                   @yield('right')
             </div>
 
 
@@ -89,6 +95,10 @@
 
 @include('dashboard.layouts.js')
 
+
+@if(request()->routeIs('admin.home'))
+
+@endif
 
 
 </body>

@@ -341,7 +341,6 @@
 
 
         {{--        change status--}}
-        {{--        change status--}}
         <script>
             $(document).on('click', '.change-status-btn', function (e) {
                 e.preventDefault();

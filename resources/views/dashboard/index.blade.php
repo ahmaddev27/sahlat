@@ -1,11 +1,29 @@
 @extends('dashboard.layouts.master',['title'=>trans('dashboard_aside.dashboard')])
 
+@section('right')
+    <div class="content-header-right text-md-right col-md-3 col-12 d-md-block d-none">
+        <div class="form-group breadcrumb-right">
+            <button type="button"
+                    title="{{ trans('notifications.new_notification') }}"
+                    id="notify-users-btn"
+                    class="btn btn-warning btn-icon rounded-circle waves-effect"
+                    data-toggle="modal"
+                    data-target="#notificationModal">
+                <i class="font-medium-3" data-feather="bell"></i>
+            </button>
+
+
+        </div>
+    </div>
+
+    @stop
 @section('content')
 
     @push('css')
 
 
     @endpush
+
 
 
     <div class="row match-height">
@@ -439,7 +457,98 @@
     </div>
 
 
+    <!-- Notification Modal -->
+    <div class="modal fade text-left" id="notificationModal" tabindex="-1" role="dialog"
+         aria-labelledby="notificationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"
+                        id="myModalLabel33">{{ trans('notifications.new_notification') }}</h4>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="{{ trans('buttons.close') }}">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">
+                        <label for="notification-title"
+                               class="form-label">{{ trans('notifications.title') }}</label>
+                        <input type="text" id="notification-title" class="form-control"
+                               placeholder="{{ trans('notifications.enter_title') }}">
+                        <div class="invalid-feedback">
+                            {{ trans('notifications.title_required') }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notification-text"
+                               class="form-label">{{ trans('notifications.message') }}</label>
+                        <textarea id="notification-text" class="form-control" rows="4"
+                                  placeholder="{{ trans('notifications.enter_message') }}"></textarea>
+                        <div class="invalid-feedback">
+                            {{ trans('notifications.message_required') }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary mb-1 mb-sm-0 mr-0 mr-sm-1"
+                            id="send-notification-btn">
+                        <div id="spinner_notification" class="spinner-border spinner-border-sm text-light"
+                             role="status" style="display: none;">
+                            <span class="sr-only"></span>
+                        </div>
+                        {{ trans('main.save') }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     @push('js')
+
+
+
+
+            {{--        notify--}}
+            <script>
+                $('#send-notification-btn').on('click', function () {
+                    const title = $('#notification-title').val().trim();
+                    const message = $('#notification-text').val().trim();
+                    const type = 'general'; // You can change this based on the type of notification
+
+                    if (!title || !message) {
+                        toastr.error('Title and Message are required!');
+                        return;
+                    }
+
+                    $('#spinner_notification').show();
+                    $('#send-notification-btn').prop('disabled', true);
+
+                    $.ajax({
+                        url: '{{route('users.sendNotificationToUsers')}}',
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                        },
+                        data: { title, message, type },
+                        success: function (response) {
+                            toastr.success(response.message);
+                            $('#notificationModal').modal('hide');
+                            $('#notification-title').val('');
+                            $('#notification-text').val('');
+                        },
+                        error: function (xhr) {
+                            toastr.error('Error sending notification!');
+                        },
+                        complete: function () {
+                            $('#spinner_notification').hide();
+                            $('#send-notification-btn').prop('disabled', false);
+                        },
+                    });
+                });
+
+            </script>
+
+
 
         <script src="{{url('app-assets/vendors/js/charts/apexcharts.min.js')}}"></script>
         {{--        chatrs--}}

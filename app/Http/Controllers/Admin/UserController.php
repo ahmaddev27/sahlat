@@ -4,14 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
-use App\Models\Notification;
+use App\Models\FcmToken;
+use Kreait\Firebase\Messaging\Notification;
+use App\Notifications\GerenalNotification;
+use Kreait\Firebase\Factory;
 use App\Notifications\NewsNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Kreait\Firebase\Messaging\CloudMessage;
 use Yajra\DataTables\DataTables;
+
+
 
 class UserController extends Controller
 {
@@ -73,10 +79,12 @@ class UserController extends Controller
 </button>
 
 
-
-        <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light" id="delete" data-route="' . route('users.delete') . '" data-model-id="' . $item->id . '" data-toggle="modal" title="Delete">
+    <button type="button" class="btn btn-icon btn-outline-secondary rounded-circle waves-effect waves-float waves-light"
+                id="delete" route="' . route('users.delete') . '" model_id="' . $item->id . '" data-toggle="modal" title="delete">
             <i class="fa fa-trash text-body"></i>
         </button>
+
+
 
 
 
@@ -288,4 +296,66 @@ class UserController extends Controller
     }
 
 
+
+    public function sendNotificationToUsers(Request $request)
+    {
+        // Validate request inputs
+        $request->validate([
+            'title' => 'required|string',
+            'message' => 'required|string',
+        ]);
+
+        // Get all device tokens from the database
+        $tokens = FcmToken::all()->pluck('token')->toArray();
+
+        // Initialize Firebase Messaging
+        $firebase = (new Factory)
+            ->withServiceAccount(storage_path('app/sahalat.json'))
+            ->createMessaging();
+
+        // Prepare the notification
+        $notification = Notification::create($request->title, $request->message);
+
+        $response = [];
+
+        // Loop through all tokens and send notifications
+        foreach ($tokens as $token) {
+            try {
+                // Create CloudMessage for a specific token
+                $message = CloudMessage::new()
+                    ->withNotification($notification)
+                    ->withData(['type' => 'general'])
+                    ->toToken($token); // <-- Use the dedicated method
+
+                // Send the notification
+                $firebase->send($message);
+
+                // Log success for each token
+                Log::info("Notification sent to token: $token");
+
+                // Add success response for this token
+                $response[] = [
+                    'token' => $token,
+                    'status' => 'Notification sent successfully'
+                ];
+
+            } catch (\Exception $e) {
+                // Log failure for each token
+                Log::error("Failed to send notification to token: $token, Error: " . $e->getMessage());
+
+                // Add failure response for this token
+                $response[] = [
+                    'token' => $token,
+                    'status' => 'Failed',
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        // Return response with all statuses
+        return response()->json([
+            'message' => 'Notification sent to all users!',
+            'status' => $response
+        ]);
+    }
 }

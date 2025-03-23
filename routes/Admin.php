@@ -75,6 +75,7 @@ Route::group([
                 Route::post('/delete', 'destroy')->name('delete');
                 Route::post('/update', 'update')->name('update');
                 Route::post('/notify', 'notify')->name('notify');
+                Route::post('/notify/all-devices', 'sendNotificationToUsers')->name('sendNotificationToUsers');
                 Route::POST('/change-status/{id}', 'changeStatus')->name('changeStatus');
 
             });

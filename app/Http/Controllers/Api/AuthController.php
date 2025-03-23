@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\AppUser;
+use App\Models\FcmToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -18,6 +19,33 @@ class AuthController extends Controller
 
     use ApiResponseTrait;
 
+    public function fcm(Request $request){
+        $rules = [
+            'fcm_token' => 'required', // Ensure fcm_token is part of the request
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            $errorMessage = implode(" ", array_map(fn($field) => $errors[$field][0], array_keys($errors)));
+            return $this->apiRespose($errors, $errorMessage, false, 400);
+        }
+
+        $existingToken = FcmToken::where('token', $request->fcm_token)->first();
+
+        if (!$existingToken) {
+            FcmToken::create([
+                'token' => $request->fcm_token,
+                ]);
+        }
+
+        return $this->apiRespose([
+            'token' => $request->fcm_token
+        ], trans('main.success'), true, 200);
+
+        
+    }
 
     public function sendOtp(Request $request)
     {
@@ -85,21 +113,46 @@ class AuthController extends Controller
             $user = AppUser::where('phone', $phone)->first();
 
             if ($user) {
-                // Check if the FCM token already exists in the user's fcm_tokens
-                if (!$user->fcm_tokens()->where('token', $fcmToken)->exists()) {
-                    // If the FCM token doesn't exist, create a new record
-                    $user->fcm_tokens()->create(['token' => $fcmToken]);
+                // Check if token exists without a user_id (orphaned token)
+                $existingOrphanToken = FcmToken::where('token', $fcmToken)
+                    ->whereNull('user_id')
+                    ->first();
+
+                if ($existingOrphanToken) {
+                    // Claim the orphaned token for this user
+                    $existingOrphanToken->update(['user_id' => $user->id]);
+                } else {
+                    // Check if token already exists for this user
+                    $user->fcm_tokens()->firstOrCreate(
+                        ['token' => $fcmToken],
+                        ['token' => $fcmToken]
+                    );
                 }
             } else {
-                // Create a new user and associate the FCM token
-                $user = AppUser::create([
-                    'name' => $phone,
-                    'phone' => $phone,
-                    'profile_status' => '0',
-                ]);
+                // Check if token exists without a user_id
+                $existingOrphanToken = FcmToken::where('token', $fcmToken)
+                    ->whereNull('user_id')
+                    ->first();
 
-                // Store the FCM token for the new user
-                $user->fcm_tokens()->create(['token' => $fcmToken]);
+                if ($existingOrphanToken) {
+                    // Create user and associate existing token
+                    $user = AppUser::create([
+                        'name' => $phone,
+                        'phone' => $phone,
+                        'profile_status' => '0',
+                    ]);
+
+                    $existingOrphanToken->update(['user_id' => $user->id]);
+                } else {
+                    // Create new user and new token
+                    $user = AppUser::create([
+                        'name' => $phone,
+                        'phone' => $phone,
+                        'profile_status' => '0',
+                    ]);
+
+                    $user->fcm_tokens()->create(['token' => $fcmToken]);
+                }
             }
 
             return $this->apiRespose([
